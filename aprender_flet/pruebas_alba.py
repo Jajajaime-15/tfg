@@ -3,7 +3,9 @@ import pyrebase
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+script_dir = os.path.dirname(os.path.abspath(__file__)) # ruta de la carpeta actual (ruta del script)
+dotenv_path = os.path.join(script_dir, '..', '.env') # Creamos la ruta subiendo un nivel para buscar el archivo .env en la carpeta raíz
+load_dotenv(dotenv_path) # cargamos el .env
 
 # datos de firebase
 config = {
@@ -31,7 +33,7 @@ def crear_usuario(email_text,psw_text,mensaje,page):
         email_text.value=""
         psw_text.value=""
     except Exception as e:
-        mensaje.value="Error: {e}"
+        mensaje.value=f"Error: {e}"
         mensaje.color="red" #color en el que aparece el mensaje de error
     page.update()
 
@@ -45,7 +47,7 @@ def iniciar_sesion(email_text,psw_text,mensaje,page):
         email_text.value=""
         psw_text.value=""
     except Exception as e:
-        mensaje.value="Error al iniciar sesión"
+        mensaje.value=f"Error al iniciar sesión: {e}"
         mensaje.color="red"
     page.update()
 
