@@ -1,1 +1,2 @@
 pip install 'flet[all]' 
+pip install python-dotenv
