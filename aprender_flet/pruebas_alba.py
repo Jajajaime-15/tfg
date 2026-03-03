@@ -3,7 +3,7 @@ import pyrebase
 
 # datos de firebase
 config = {
-  "apiKey": "AIzaSyD2Cd3VCN_DFFrOrO0i20o1u_0vYEhjusk",
+  "apiKey": "TU_API_KEY_AQUI",
   "authDomain": "tracking-familiar.firebaseapp.com",
   "projectId": "tracking-familiar",
   "storageBucket": "tracking-familiar.firebasestorage.app",
