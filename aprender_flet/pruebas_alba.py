@@ -1,9 +1,13 @@
 import flet as ft
 import pyrebase
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # datos de firebase
 config = {
-  "apiKey": "TU_API_KEY_AQUI",
+  "apiKey": os.getenv("FB_API_KEY"),
   "authDomain": "tracking-familiar.firebaseapp.com",
   "projectId": "tracking-familiar",
   "storageBucket": "tracking-familiar.firebasestorage.app",
