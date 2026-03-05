@@ -1,6 +1,7 @@
 import flet as ft
 import pyrebase
 import os
+import time
 from dotenv import load_dotenv
 
 script_dir = os.path.dirname(os.path.abspath(__file__)) # ruta de la carpeta actual (ruta del script)
@@ -22,19 +23,82 @@ config = {
 firebase = pyrebase.initialize_app(config)
 auth = firebase.auth()
 
+# funcion para el formulario de cuenta nueva que aparece tras hacer clic en el boton nueva cuenta
+def pantalla_registro(page):
+    # limpiamos la pantalla quitando el login
+    page.clean()
+    # titulo para la pantalla
+    page.title = "Registro"
+    # creamos contenido de la nueva pantalla
+    nombre = ft.TextField(label="Nombre", width=300)
+    email = ft.TextField(label="Email", width=300)
+    pasw = ft.TextField(label="Contraseña",password=True, can_reveal_password=True, width=300)
+    confirmacion = ft.Text()
+
+    btn_registro = ft.TextButton("Crear cuenta", width=300,
+                                 on_click=lambda _:crear_usuario(nombre,email,pasw,confirmacion,page)
+                                 )
+    btn_volver = ft.TextButton("Volver a login", on_click=lambda _:volver_login(page)
+                               )
+    # agregamos a la pantalla
+    page.add(ft.Column(
+        [ft.Text("Registro de usuario",size=25,weight="bold"),
+         nombre,
+         email,
+         pasw,
+         btn_registro,
+         btn_volver,
+         confirmacion],
+         horizontal_alignment="center",
+         alignment="center"
+        )
+    )
+    page.update()
+
+# funcion para la pantalla principal, pantalla que aparece tras iniciar sesion
+def pantalla_principal(page,email):
+    # limpiamos la pantalla quitando el login
+    page.clean() 
+    # titulo de pantalla
+    page.title = "Principal"
+    # creamos contenido de la nueva pantalla
+    bienvenida = ft.Text(f"Bienvenid@, {email}",size=30, weight="bold")
+    logo_sesion = ft.Icon(icon=ft.Icons.HOME,size=100,color="blue")
+    # creamos un boton para cerrar la sesion y vuelve a aparecer el login
+    btn_cerrar = ft.ElevatedButton(
+        "Cerrar sesión",
+        on_click=lambda _: volver_login(page)
+    )
+
+    # agregamos el contenido a la ventana
+    page.add(ft.Column(
+        [logo_sesion,
+         bienvenida,
+         ft.Text("Has iniciado correctamente sesión en la App de Tracking"),
+         ft.Divider(height=20),
+         btn_cerrar],
+         horizontal_alignment="center",
+         alignment="center"
+        )
+    )
+    page.update()
+
 # funciones de crear un usuario e iniciar sesion con un usuario
-def crear_usuario(email_text,psw_text,mensaje,page):
+def crear_usuario(nombre,email_text,psw_text,mensaje,page):
     try:
+        nombre=nombre.value
         email=email_text.value
         psw=psw_text.value
         auth.create_user_with_email_and_password(email,psw)
         mensaje.value="Se ha creado el usuario en Firebase"
         mensaje.color="green" #color en el que aparece el mensaje de creacion
-        email_text.value=""
-        psw_text.value=""
     except Exception as e:
-        mensaje.value=f"Error: {e}"
-        mensaje.color="red" #color en el que aparece el mensaje de error
+        error = str(e)
+        if "EMAIL_EXISTS" in error:
+            mensaje.value="Correo en uso"
+        else:
+            mensaje.value="Error a la hora de gistrar, revisa los datos introducidos"
+    mensaje.color="red"
     page.update()
 
 def iniciar_sesion(email_text,psw_text,mensaje,page):
@@ -42,16 +106,17 @@ def iniciar_sesion(email_text,psw_text,mensaje,page):
         email=email_text.value
         psw=psw_text.value
         auth.sign_in_with_email_and_password(email,psw)
-        mensaje.value="Sesión iniciada"
+        mensaje.value="Sesión iniciada..."
         mensaje.color="green"
-        email_text.value=""
-        psw_text.value=""
+        page.update()
+        time.sleep(1)
+        pantalla_principal(page,email)
     except Exception as e:
         mensaje.value=f"Error al iniciar sesión: {e}"
         mensaje.color="red"
-    page.update()
+        page.update()
 
-# parte de Flet (app)
+# funcion principal, ventana del login
 def main(page: ft.Page):
     #configurar la ventana
     page.title="Pruebas 10 de marzo Alba"
@@ -76,7 +141,7 @@ def main(page: ft.Page):
     )
     btn_crear = ft.FilledButton(
         "Nueva cuenta",
-        on_click=lambda _: crear_usuario(email_usu,psw_usu,resultado,page)
+        on_click=lambda _: pantalla_registro(page)
     )
 
     # creamos el container para personalizarlo
@@ -110,5 +175,9 @@ def main(page: ft.Page):
     #agregar el contenido a la ventana
     page.add(contenedor)
 
+# funcion para volver a la pagina principal(login) despues de cerrar sesión (pantalla principal)
+def volver_login(page):
+    page.clean()
+    main(page)
 # iniciar app
 ft.app(target=main, view=ft.AppView.WEB_BROWSER) #para evitar problemas a la hora de abrir se pone WB_BROWSER para que abra una pestaña en el navegador
