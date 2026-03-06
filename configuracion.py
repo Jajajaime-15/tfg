@@ -1,10 +1,14 @@
 import pyrebase
 import os
+from dotenv import load_dotenv
+
+# cargar las variables de .env
+load_dotenv()
 
 config = {
     "apiKey": os.getenv("FB_API_KEY"),
     "authDomain": "tracking-familiar.firebaseapp.com",
-    "databaseURL": "https://tracking-familiar-default-rtdb.europe-west1.firebasedatabase.app/", # <--- PEGAR AQUÍ
+    "databaseURL": "https://tracking-familiar-default-rtdb.europe-west1.firebasedatabase.app/",
     "projectId": "tracking-familiar",
     "storageBucket": "tracking-familiar.firebasestorage.app",
     "messagingSenderId": "425018208271",
