@@ -1,5 +1,5 @@
-pip install 'flet[all]' 
+pip install 'flet[all]' # esto instala tanto flet como flet desktop 
 pip install python-dotenv
 pip install pyrebase4
-pip install flet-geolocator
-pip install flet-map
+pip install flet-geolocator==0.82.0
+pip install flet-map==0.82.0
