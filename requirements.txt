@@ -1,3 +1,5 @@
 pip install 'flet[all]' 
 pip install python-dotenv
 pip install pyrebase4
+pip install flet-geolocator
+pip install flet-map
