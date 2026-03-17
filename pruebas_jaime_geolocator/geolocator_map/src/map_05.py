@@ -42,7 +42,8 @@ def main(page: ft.Page):
             on_event=print,
             layers=[
                 ftm.TileLayer(
-                    url_template="https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    url_template="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png", # https://tile.openstreetmap.org/{z}/{x}/{y}.png
+                    user_agent_package_name="com.tfg.tracking",
                     on_image_error=lambda e: print("TileLayer Error"),
                 ),
                 ftm.RichAttribution(

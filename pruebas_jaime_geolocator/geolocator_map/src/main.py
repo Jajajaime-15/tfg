@@ -68,7 +68,7 @@ async def main(page: ft.Page):
 
     geo = ftg.Geolocator(
         configuration=ftg.GeolocatorConfiguration(
-            accuracy=ftg.GeolocatorPositionAccuracy.LOW
+            accuracy=ftg.GeolocatorPositionAccuracy.BEST # hay distintos grados, lo mejor para lo que buscamos es BEST
         ),
         on_position_change=handle_position_change,
         on_error=lambda e: page.add(ft.Text(f"Error: {e.data}")),
