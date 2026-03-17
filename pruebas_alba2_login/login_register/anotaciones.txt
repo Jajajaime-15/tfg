@@ -1,0 +1,28 @@
+REGLAS EN FIREBASE
+{
+  "rules": {
+    "usuarios": {
+      "$uid": {
+        // Solo el usuario autenticado puede leer sus propios datos
+        ".read": "auth != null && auth.uid === $uid",
+        // Solo el usuario autenticado puede escribir en su propio nodo
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}
+
+--> IMPORTANTE: en la versión de flet que estamos utilizando (0.80.5) para el almacenamiento local (tokens) 
+se usa asycn y await.
+
+VERSIONES ANTERIORES 0.28           VERSIONES SUPERIORES 0.28
+ft.app(target=main)                 ft.run(main)
+def main(page)                      async def main(page)
+ft.ElevatedButton(...)              ft.Button(...)
+page.go("/ruta")                    await page.push_route("/ruta")
+page.client_storage.set(...)        await page.shared_preferences.set(...)
+ge.client_storage.get(...)          await page.shared_preferences.get(...)
+page.client_storage.remove(...)     await page.shared_preferences.remove(...)
+def metodo_que_usa_storage()        async def metodo_que_usa_storage()
+resultado = wrapper.metodo_async()  resultado = await wrapper.metodo_async()
+on_click=lambda _: metodo_async()   async def handler(e): await metodo_async()
