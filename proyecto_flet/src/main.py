@@ -5,11 +5,48 @@ from flet import Checkbox, FloatingActionButton, Icons, Page, TextField
 def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    page.bgcolor = ft.Colors.with_opacity(0.95, ft.Colors.BLUE_GREY_100)
     page.title = "Login"
-    cabecera = ft.Text("LOGIN", size=40, color=ft.Colors.WHITE)
-    nombre = TextField(hint_text="Nombre", width=250,color = ft.Colors.BLACK, bgcolor=ft.Colors.WHITE)
-    password = TextField(hint_text="Password", width=250, password=True,bgcolor=ft.Colors.WHITE)
-    boton_login = ft.ElevatedButton("LOGIN", width=150, bgcolor=ft.Colors.BLACK)
+    cabecera = ft.Text(
+    "¡Bienvenido!", 
+    size=40,
+    color=ft.Colors.WHITE,
+    weight=ft.FontWeight.BOLD,
+)
+    nombre = TextField(
+        hint_text="Nombre", 
+        width=250,
+        color = ft.Colors.BLACK, 
+        bgcolor=ft.Colors.WHITE,
+        prefix_icon=ft.CupertinoIcons.PROFILE_CIRCLED,
+        border_radius=20,
+        autofocus = True)
+    password = TextField(
+        hint_text="Password", 
+        width=250, 
+        password=True,
+        bgcolor=ft.Colors.WHITE,
+        prefix_icon = ft.CupertinoIcons.LOCK,
+        border_radius=20)
+    boton_login = ft.ElevatedButton(
+        "LOGIN", 
+        width=150,
+        style=ft.ButtonStyle(
+            text_style=ft.TextStyle(
+                weight=ft.FontWeight.BOLD,
+                size=16
+            ),
+            color={
+                    ft.ControlState.HOVERED: ft.Colors.BLACK,
+                    ft.ControlState.FOCUSED: ft.Colors.BLACK,
+                    ft.ControlState.DEFAULT: ft.Colors.BLACK,
+                },
+            bgcolor={
+                    ft.ControlState.HOVERED: ft.Colors.GREY_200,
+                    ft.ControlState.FOCUSED: ft.Colors.GREY_200,
+                    ft.ControlState.DEFAULT: ft.Colors.WHITE,
+                },    
+    ))
     page.add(
     ft.Container(
         width=400,
@@ -17,26 +54,31 @@ def main(page: ft.Page):
         bgcolor=ft.Colors.BLUE,
         border_radius=ft.BorderRadius.all(20),
         padding=20,
+        shadow=ft.BoxShadow(
+            blur_radius=15,
+            color=ft.Colors.with_opacity(0.3, ft.Colors.BLACK), 
+            offset=ft.Offset(3, 3)
+        ),
         content=ft.Column(
             controls=[
                 ft.Container(
-                    expand=1,  # Espaciador superior (2 partes)
+                    expand=1,  
                 ),
                 ft.Row(controls=[cabecera], alignment=ft.MainAxisAlignment.CENTER),
                 ft.Container(
-                    expand=2,  # Espaciador superior (2 partes)
+                    expand=2,  
                 ),
                 ft.Row(controls=[nombre], alignment=ft.MainAxisAlignment.CENTER),
                 ft.Row(controls=[password], alignment=ft.MainAxisAlignment.CENTER),
                 ft.Container(
-                    expand=1,  # Espaciador inferior (8 partes)
+                    expand=1,  
                 ),
                 ft.Row(
                             controls=[boton_login],
                             alignment=ft.MainAxisAlignment.CENTER
                         ),
                 ft.Container(
-                    expand=8,  # Espaciador inferior (8 partes)
+                    expand=8,  
                 ),
             ]
         ),
