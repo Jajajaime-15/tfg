@@ -18,7 +18,7 @@ class Wrapper:
             print("Error al conectarse a firebase")
 
     # función para registrar usuarios nuevos
-    def registrarse (self, nombre, telefono, email, psw):
+    async def registrarse (self, nombre, telefono, email, psw):
         try:
             usuario = self.auth.create_user_with_email_and_password(email,psw)
             self.id_usuario = usuario["localId"]
@@ -32,35 +32,37 @@ class Wrapper:
             }
             self.db.child("usuarios").child(self.id_usuario).set(info_usuario,self.token)
             print("Usuario registrado correctamente")
-            return True
+            return True,"Usuario registrado correctamente"
         except Exception as e:
             print(f"Error a la hora de registrar: {e}")
-            return False
+            return False, str(e)
 
     # función para iniciar sesión con un usuario ya registrado
     async def iniciar_sesion (self,email,psw):
         try:
-            usuario = self.auth.sign_in_with_email_and_password(email,psw)
+            usuario = self.auth.sign_in_with_email_and_password(email, psw)
             self.id_usuario = usuario["localId"]
             self.token = usuario["idToken"]
-            await self.page.shared_preferences.set("id_usuario", usuario["localId"]) # se guarda el id en el almacenamiento local(TOKEN)
+            await self.page.shared_preferences.set("id_usuario", usuario["localId"])
             print("Sesión iniciada")
-            return True
+            return True, "Sesión iniciada correctamente"
         except Exception as e:
             print(f"Error al iniciar sesión: {e}")
-            return False
+            return False, str(e)
     
     # funcion para no pedir iniciar sesion cada vez que se abra la aplicacion
     async def usuario_conectado(self):
         try:
             return await self.page.shared_preferences.get("id_usuario")
         except:
+            print(f"Error al recuperar usuario: {e}")
             return None
     
     # función para cerrar la sesión de un usuario
     async def cerrar_sesion(self):
         try:
-            await self.page.shared_preferences.remove("id_usuario") # eliminar el usuario del almacenamiento local
+            await self.page.shared_preferences.remove("id_usuario")
             await self.page.push_route("/") # .push_route("/") redirige al inicio (login) ((ANTES ERA .GO))
+            print("Sesión cerrada")
         except Exception as e:
             print(f"Error al cerrar sesión: {e}")
