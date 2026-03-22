@@ -1,5 +1,6 @@
 import flet as ft
 from flet import Checkbox, FloatingActionButton, Icons, Page, TextField
+from components.components import PrimaryButton, SecondaryButton, IconButton
 
 
 def main(page: ft.Page):
@@ -25,9 +26,12 @@ def main(page: ft.Page):
         hint_text="Password", 
         width=250, 
         password=True,
+        color=ft.Colors.BLACK,
         bgcolor=ft.Colors.WHITE,
         prefix_icon = ft.CupertinoIcons.LOCK,
-        border_radius=20)
+        can_reveal_password=True,
+        border_radius=20,
+        )
     boton_login = ft.ElevatedButton(
         "LOGIN", 
         width=150,
@@ -71,10 +75,14 @@ def main(page: ft.Page):
                 ft.Row(controls=[nombre], alignment=ft.MainAxisAlignment.CENTER),
                 ft.Row(controls=[password], alignment=ft.MainAxisAlignment.CENTER),
                 ft.Container(
-                    expand=1,  
+                    expand=8,  
                 ),
                 ft.Row(
-                            controls=[boton_login],
+                            controls=[PrimaryButton("LOGIN", width=200)],
+                            alignment=ft.MainAxisAlignment.CENTER
+                        ),
+                ft.Row(
+                            controls=[SecondaryButton("SIGN UP", width=200)],
                             alignment=ft.MainAxisAlignment.CENTER
                         ),
                 ft.Container(
