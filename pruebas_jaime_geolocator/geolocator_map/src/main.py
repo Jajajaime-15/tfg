@@ -27,7 +27,7 @@ async def main(page: ft.Page):
         page.show_dialog(ft.SnackBar(ft.Text(message)))
 
     async def handle_permission_request(e: ft.Event[ft.OutlinedButton]):
-        p = await geo.request_permission(timeout=60)
+        p = await geo.request_permission()
         page.add(ft.Text(f"request_permission: {p}"))
         show_snackbar(f"Permission request sent: {p}")
 
