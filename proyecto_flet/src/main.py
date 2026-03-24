@@ -1,9 +1,12 @@
 import flet as ft
 from flet import Checkbox, FloatingActionButton, Icons, Page, TextField
 from components.components import PrimaryButton, SecondaryButton, IconButton
+from database.wrapper import Wrapper
+from controllers.auth_controller import AuthController
+from router import Router
 
 
-def main(page: ft.Page):
+async def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.bgcolor = ft.Colors.with_opacity(0.95, ft.Colors.BLUE_GREY_100)
@@ -13,7 +16,7 @@ def main(page: ft.Page):
     size=40,
     color=ft.Colors.WHITE,
     weight=ft.FontWeight.BOLD,
-)
+    )
     nombre = TextField(
         hint_text="Nombre", 
         width=250,
@@ -50,7 +53,7 @@ def main(page: ft.Page):
                     ft.ControlState.FOCUSED: ft.Colors.GREY_200,
                     ft.ControlState.DEFAULT: ft.Colors.WHITE,
                 },    
-    ))
+        ))
     page.add(
     ft.Container(
         width=400,
@@ -93,7 +96,21 @@ def main(page: ft.Page):
         
         
     )
-)
+    )
+    # Inicializamos la base de datos y el controlador
+    wrapper = Wrapper(page)
+    controlador_auth = AuthController(page, wrapper)
+    
+    # Instanciamos el router pasándole el page y el controlador 
+    my_router = Router(page, controlador_auth)
+    
+    # Cuando la ruta cambie, se llamara a my_router.route_change
+    page.on_route_change = my_router.route_change
+    
+    # Arrancamos en la ruta actual
+    await my_router.route_change(None)
+
+ft.app(target=main)
 
 
 if __name__ == "__main__":
