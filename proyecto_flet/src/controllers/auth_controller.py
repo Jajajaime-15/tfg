@@ -20,7 +20,7 @@ class AuthController:
                 # uso de snack_bar para mostrar el aviso de registrado abajo en negro y desaparece solo
                 self.page.snack_bar = ft.SnackBar(ft.Text("Registro completado correctamente"))
                 self.page.snack_bar.open = True
-                await self.page.push_route("/") # parte de Julio para el cambio de pantalla a 'login'
+                await self.page.push_route("/")
             else:
                 mensaje.value = aviso
 
@@ -34,7 +34,7 @@ class AuthController:
             if conectado:
                 self.page.snack_bar = ft.SnackBar(ft.Text("Sesión iniciada"))
                 self.page.snack_bar.open = True
-                await self.page.push_route("/")# parte de Julio para el cambio de pantalla al perfil de usuaio/mapa
+                await self.page.push_route("/") # ruta a la pantalla principal
             else:
                 mensaje.value = aviso
 
