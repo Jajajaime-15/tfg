@@ -5,10 +5,18 @@ class VistaLogin:
         self.page = page
         self.controlador = controlador
 
+        self.logo = ft.Image(
+             src="logo2.png",
+             width=200,
+             height=120,
+             fit="contain"
+        )
+
         self.email_input = ft.TextField(
             label="Correo Electrónico",
             hint_text="Introduce tu email",
-            prefix_icon="mail",
+            prefix_icon=ft.CupertinoIcons.MAIL,
+            focused_border_color="#1A6AFE",
             width=300,
             border_radius=10
         )
@@ -18,7 +26,8 @@ class VistaLogin:
             hint_text="Introduce tu contraseña",
             password=True,
             can_reveal_password=True,
-            prefix_icon="lock",
+            prefix_icon=ft.CupertinoIcons.LOCK,
+            focused_border_color="#1A6AFE",
             width=300,
             border_radius=10
         )
@@ -27,13 +36,18 @@ class VistaLogin:
 
         self.btn_entrar = ft.Button(
             content=ft.Text("Iniciar Sesión"),
-            icon="login",
+            icon=ft.Icons.LOGIN_ROUNDED,
+            bgcolor="#1A6AFE",
+            color="white",
             width=200,
             on_click=self.entrar
         )
 
         self.btn_registro = ft.TextButton(
-            content=ft.Text("¿No tienes cuenta? Haz click aquí para registrarte"),
+            content=ft.Text("¿No tienes cuenta? Haz click aquí para registrarte",
+                color="black",
+                italic=True
+            ),
             on_click=self.registrarse
         )
 
@@ -62,7 +76,8 @@ class VistaLogin:
         return ft.Container(
             content=ft.Column(
                 [
-                    ft.Text("LOGIN", size=30, weight="bold"),
+                    self.logo,
+                    ft.Text("Bienvenido", size=20, weight="bold"),
                     self.email_input,
                     self.psw_input,
                     self.btn_entrar,
