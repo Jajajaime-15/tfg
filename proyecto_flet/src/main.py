@@ -14,7 +14,9 @@ async def main(page: ft.Page):
     auth_controller = AuthController(page,wrapper)
 
     # Cerramos la sesión al arrancar para que siempre aparezca el login SOLO PARA PRUEBAS
-    await wrapper.cerrar_sesion() 
+    #await wrapper.cerrar_sesion() 
+    # o limpiamos los datos guardados en el dispositivo
+    await page.shared_preferences.clear()
     
     # arrancamos el archivo de las rutas
     router = Router(page,auth_controller)

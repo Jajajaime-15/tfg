@@ -69,7 +69,7 @@ class Wrapper:
             await self.page.shared_preferences.clear() # borramos toda la información que hay guardada en el dispositivo
             self.id_usuario = None
             self.token = None
-            await self.page.push_route("/") # .push_route("/") redirige al inicio (login) ((ANTES ERA .GO))
+            self.page.go("/") # .push_route("/") redirige al inicio (login) ((ANTES ERA .GO))
             print("Sesión cerrada")
         except Exception as e:
             print(f"Error al cerrar sesión: {e}")
@@ -82,4 +82,4 @@ class Wrapper:
             return True, "Correo enviado para recuperar tu contraseña"
         except Exception as e:
             print(f"Error al enviar el correo:{e}")
-            return False, "Error al enviar el correo, no hay ninguna cuenta con el email indicado"
+            return False, str(e)

@@ -63,8 +63,7 @@ class VistaRegistro:
         
         self.mensaje_error = ft.Text(value="", color="red", weight="bold")
 
-        self.btn_registrar = ft.Button(
-            visible=True,
+        self.btn_registrar = ft.ElevatedButton(
             content=ft.Text("Registrarse"),
             icon=ft.Icons.APP_REGISTRATION,
             bgcolor="#1A6AFE",
@@ -74,31 +73,27 @@ class VistaRegistro:
         )
 
     async def volver(self,e):
-            await self.page.push_route("/")
+        self.page.go("/")
 
     async def registrar(self, e):
-        # comprobamos que las contraseñas coinciden
-        if self.psw_input.value != self.psw_confirmar.value:
-            self.mensaje_error.value = "Las contraseñas no coinciden"
-            self.page.update()
-        else:
-            # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
-            self.btn_registrar.disabled = True
-            self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
-            self.page.update()
+        # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
+        self.btn_registrar.disabled = True
+        self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
+        self.page.update()
 
-            # llamamos a la función para registrar a un usuario nuevo(registrar_usuario)
-            await self.controlador.registrar_usuario(
-                self.nombre_input, 
-                self.email_input, 
-                self.psw_input, 
-                self.telefono_input,
-                self.mensaje_error
-            )
+        # llamamos a la función para registrar a un usuario nuevo(registrar_usuario)
+        await self.controlador.registrar_usuario(
+            self.nombre_input, 
+            self.email_input, 
+            self.psw_input, 
+            self.psw_confirmar,
+            self.telefono_input,
+            self.mensaje_error
+        )
 
-            # activamos de nuevo el botón
-            self.btn_registrar.disabled = False
-            self.page.update()
+        # activamos de nuevo el botón
+        self.btn_registrar.disabled = False
+        self.page.update()
 
     # función para crear la vista que se mostrará en la pantalla
     def vista(self):
