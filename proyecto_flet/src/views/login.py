@@ -43,6 +43,14 @@ class VistaLogin:
             on_click=self.entrar
         )
 
+        self.btn_recuperar = ft.TextButton(
+            content=ft.Text("¿Olvidaste la contraseña? Haz click aquí para recuperarla",
+                color="black",
+                italic=True
+            ),
+            on_click=self.recuperar
+        )
+
         self.btn_registro = ft.TextButton(
             content=ft.Text("¿No tienes cuenta? Haz click aquí para registrarte",
                 color="black",
@@ -51,8 +59,11 @@ class VistaLogin:
             on_click=self.registrarse
         )
 
+    async def recuperar(self,e):
+        await self.controlador.recuperar_psw(self.email_input,self.mensaje_error)
+
     async def registrarse(self,e):
-            await self.page.push_route("/registro")
+        await self.page.push_route("/registro")
 
     # funcion para conectar el boton con el auth_controller
     async def entrar(self, e):
@@ -82,11 +93,12 @@ class VistaLogin:
                     self.psw_input,
                     self.btn_entrar,
                     self.btn_registro,
+                    self.btn_recuperar,
                     self.mensaje_error,
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 alignment=ft.MainAxisAlignment.CENTER,
-                spacing=20
+                spacing=10
             ),
             expand=True,
             alignment=ft.Alignment(0, 0),

@@ -39,3 +39,17 @@ class AuthController:
                 mensaje.value = aviso
 
         self.page.update()
+
+    async def recuperar_psw(self,email,mensaje):
+        if not email.value:
+            mensaje.value = "Introduce el email de tu cuenta para recuperarla"
+        else:
+            enviado, aviso = await self.wrapper.recu_psw(email.value)
+            if enviado:
+                self.page.snack_bar = ft.SnackBar(ft.Text("Correo enviado"))
+                self.page.snack_bar = True
+                await self.page.push_route("/")
+            else:
+                mensaje.value = aviso
+                
+        self.page.update()
