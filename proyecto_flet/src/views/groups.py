@@ -1,16 +1,14 @@
 import flet as ft
 from flet import TextField
 
-class VistaLogin:
+
+class VistaGrupos:
     def __init__(self, page, controlador_auth):
         self.page = page
         self.controlador_auth = controlador_auth
-    
 
     def cambiar_vista_registro(self, e):
         self.page.go("/registro")
-
-    
 
     def vista(self):
         cabecera = ft.Text(
@@ -63,12 +61,10 @@ class VistaLogin:
                         alignment=ft.MainAxisAlignment.CENTER
                     ),
                     ft.Row(
-                        controls=[ft.ElevatedButton("SIGN UP", width=200, on_click= self.cambiar_vista_registro)],
+                        controls=[ft.ElevatedButton("SIGN UP", width=200, on_click=self.cambiar_vista_registro)],
                         alignment=ft.MainAxisAlignment.CENTER
                     ),
                     ft.Container(expand=8),
                 ]
             ),
-        )
-    
-    
+        )    

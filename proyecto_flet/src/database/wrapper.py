@@ -64,3 +64,22 @@ class Wrapper:
             await self.page.push_route("/") # .push_route("/") redirige al inicio (login) ((ANTES ERA .GO))
         except Exception as e:
             print(f"Error al cerrar sesión: {e}")
+
+    # función para registrar usuarios nuevos
+    def crear_grupo (self, nombre):
+        try:
+            currentUser = self.auth().current_user
+            if not currentUser: # si no hay un usuario conectado, no se puede crear un grupo
+                print("No hay un usuario conectado")
+                return False
+            else:
+                id_usuario = currentUser["localId"]
+                token = currentUser["idToken"]
+                grupo = self.db.child("grupos").push({"nombre": nombre}, token) # se crea el grupo en la base de datos
+                id_grupo = grupo["name"] # se obtiene el id del grupo creado
+                self.db.child("usuarios").child(id_usuario).update({"id_grupo": id_grupo}, token) # se actualiza el usuario con el id del grupo al que pertenece
+                print("Grupo creado correctamente")
+            return True
+        except Exception as e:
+            print(f"Error a la hora de crear el grupo: {e}")
+            return False        
