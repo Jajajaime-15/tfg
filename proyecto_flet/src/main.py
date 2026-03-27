@@ -1,6 +1,7 @@
 import flet as ft
-from database.wrapper import Wrapper
+from proyecto_flet.src.services.wrapper import Wrapper
 from controllers.auth_controller import AuthController
+#from controllers.user_controller import CONTROLLER DEL USUARIO
 from router import Router
 
 async def main(page: ft.Page):
@@ -29,8 +30,8 @@ async def main(page: ft.Page):
         print("USUARIO INICIADO") # PRINT PARA PROBAR QUE SE QUEDA INICIADA LA SESION
         page.route = "/" # esta ruta será la de grupos
     else:
-        page.route = "/" # ruta de login (principal)
-
+        page.route = "/"#page.route = "/" # ruta de login (principal)
+        
     await router.route_change(None) # cargamos la primera vista
     page.update()
 

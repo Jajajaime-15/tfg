@@ -2,6 +2,7 @@ import flet as ft
 
 from views.login import VistaLogin
 from views.registro import VistaRegistro
+from views.perfil import VistaPerfil
 # Aquí importamos las nuevas vistas que se creen 
 
 class Router:
@@ -13,6 +14,7 @@ class Router:
         self.routes = {
             "/": VistaLogin,
             "/registro": VistaRegistro,
+            "/perfil": VistaPerfil,
         }
 
     async def route_change(self, e):
