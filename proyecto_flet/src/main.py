@@ -29,7 +29,7 @@ async def main(page: ft.Page):
         print("USUARIO INICIADO") # PRINT PARA PROBAR QUE SE QUEDA INICIADA LA SESION
         page.route = "/" # esta ruta será la de grupos
     else:
-        page.route = "/" # ruta de login (principal)
+        page.route = "/grupos" # ruta de login (principal)
 
     await router.route_change(None) # cargamos la primera vista
     page.update()

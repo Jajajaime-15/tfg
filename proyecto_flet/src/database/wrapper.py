@@ -74,8 +74,8 @@ class Wrapper:
         except Exception as e:
             print(f"Error al cerrar sesión: {e}")
 
-    # función para registrar usuarios nuevos
-    def crear_grupo (self, nombre):
+    # función para registrar grupos nuevos
+    async def crear_grupo (self, nombre):
         try:
             currentUser = self.auth().current_user
             if not currentUser: # si no hay un usuario conectado, no se puede crear un grupo

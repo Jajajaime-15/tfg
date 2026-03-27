@@ -112,3 +112,35 @@ class AuthController:
                     mensaje.value = "Error al procesar la solicitud"
                 
         self.page.update()
+
+    async def crear_grupo (self,nombre,mensaje):
+        mensaje.value = ""
+        self.page.update()
+
+        datos = [nombre.value]
+
+        if not all (datos):
+            mensaje.value = "Todos los campos son obligatorios"
+        else:
+            creado, aviso = await self.wrapper.crear_grupo(nombre.value)
+            if creado:
+                # provisional para confirmar en pantalla el registro
+                mensaje.value = "Grupo creado correctamente"
+                mensaje.color = "green"
+                self.page.update()
+                await asyncio.sleep(2)
+                await self.page.push_route("/")
+                '''# uso de snack_bar para mostrar el aviso de registrado y que desaparezca solo NO ME APARECE
+                self.page.snack_bar = ft.SnackBar(ft.Text("Grupo creado correctamente"))
+                self.page.snack_bar.open = True'''
+            else:
+                error_registro = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
+                if "EMAIL_EXISTS" in error_registro:
+                    mensaje.value = "Correo ya registrado"
+                elif "INVALID_EMAIL" in error_registro:
+                    mensaje.value = "No es un email valido"
+                else:
+                    mensaje.value = "Error al registrar"
+
+
+        self.page.update()

@@ -3,39 +3,50 @@ from flet import TextField
 
 
 class VistaGrupos:
-    def __init__(self, page, controlador_auth):
+    def __init__(self, page, controlador):
         self.page = page
-        self.controlador_auth = controlador_auth
+        self.controlador = controlador
 
-    def cambiar_vista_registro(self, e):
-        self.page.go("/registro")
+        self.nombre_grupo_input = ft.TextField(
+            label="Nombre Completo",
+            hint_text="Introduce tu nombre",
+            prefix_icon=ft.CupertinoIcons.PERSON,
+            focused_border_color="#1A6AFE",
+            width=300,
+            border_radius=10
+        )
+
+        self.btn_crear_grupo = ft.ElevatedButton(
+            content=ft.Text("Crear grupo"),
+            icon=ft.Icons.APP_REGISTRATION,
+            bgcolor="#1A6AFE",
+            color="white",
+            width=200,
+            on_click=self.crear_grupo
+        )
+
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+
+    async def crear_grupo(self, e):
+        # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
+        self.btn_crear_grupo.disabled = True
+        self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
+        self.page.update()
+
+        # llamamos a la función para registrar a un usuario nuevo(registrar_usuario)
+        await self.controlador.crear_grupo(
+            self.nombre_grupo_input,
+            self.mensaje_error
+        )
+
+        # activamos de nuevo el botón
+        self.btn_crear_grupo.disabled = False
+        self.page.update()    
 
     def vista(self):
-        cabecera = ft.Text(
-            "¡Bienvenido!", 
-            size=40,
-            color=ft.Colors.WHITE,
-            weight=ft.FontWeight.BOLD,
-        )
-        nombre = TextField(
-            hint_text="Nombre", 
-            width=250,
-            color=ft.Colors.BLACK, 
-            bgcolor=ft.Colors.WHITE,
-            prefix_icon=ft.CupertinoIcons.PROFILE_CIRCLED,
-            border_radius=20,
-            autofocus=True
-        )
-        password = TextField(
-            hint_text="Password", 
-            width=250, 
-            password=True,
-            color=ft.Colors.BLACK,
-            bgcolor=ft.Colors.WHITE,
-            prefix_icon=ft.CupertinoIcons.LOCK,
-            can_reveal_password=True,
-            border_radius=20,
-        )
+        
+    
+        
         
         return ft.Container(
             width=400,
@@ -51,19 +62,8 @@ class VistaGrupos:
             content=ft.Column(
                 controls=[
                     ft.Container(expand=1),
-                    ft.Row(controls=[cabecera], alignment=ft.MainAxisAlignment.CENTER),
-                    ft.Container(expand=2),
-                    ft.Row(controls=[nombre], alignment=ft.MainAxisAlignment.CENTER),
-                    ft.Row(controls=[password], alignment=ft.MainAxisAlignment.CENTER),
-                    ft.Container(expand=8),
-                    ft.Row(
-                        controls=[ft.ElevatedButton("LOGIN", width=200)],
-                        alignment=ft.MainAxisAlignment.CENTER
-                    ),
-                    ft.Row(
-                        controls=[ft.ElevatedButton("SIGN UP", width=200, on_click=self.cambiar_vista_registro)],
-                        alignment=ft.MainAxisAlignment.CENTER
-                    ),
+                    ft.Row(controls=[self.nombre_grupo_input], alignment=ft.MainAxisAlignment.CENTER),
+                    ft.Row(controls=[self.btn_crear_grupo], alignment=ft.MainAxisAlignment.CENTER),
                     ft.Container(expand=8),
                 ]
             ),
