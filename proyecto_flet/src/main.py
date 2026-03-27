@@ -4,24 +4,35 @@ from controllers.auth_controller import AuthController
 from router import Router
 
 async def main(page: ft.Page):
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.bgcolor = ft.Colors.with_opacity(0.95, ft.Colors.BLUE_GREY_100)
-    page.title = "Login"
+    page.title = "PROYECTO TFG"
     page.window_width = 400
     page.window_height = 700
-    
-    # Inicializamos la base de datos y el controlador
-    wrapper = Wrapper(page)
-    controlador_auth = AuthController(page, wrapper)
-    
-    # Instanciamos el router pasándole el page y el controlador 
-    my_router = Router(page, controlador_auth)
-    
-    # Cuando la ruta cambie, se llamara a my_router.route_change
-    page.on_route_change = my_router.route_change
-    
-    # Arrancamos en la ruta actual
-    await my_router.route_change(None)
+    page.bgcolor = "white"
 
-ft.app(target=main)
+    # arrancamos Firebase
+    wrapper = Wrapper(page)
+    auth_controller = AuthController(page,wrapper)
+
+    # Cerramos la sesión al arrancar para que siempre aparezca el login SOLO PARA PRUEBAS
+    #await wrapper.cerrar_sesion() 
+    # o limpiamos los datos guardados en el dispositivo
+    await page.shared_preferences.clear()
+    
+    # arrancamos el archivo de las rutas
+    router = Router(page,auth_controller)
+    # conectamos con la funcion de cambio de ruta del router (route_change)
+    page.on_route_change = router.route_change
+
+    # comprobamos si hay un usuario logueado ya
+    id_usuario = await wrapper.usuario_conectado()
+    if id_usuario:
+        print("USUARIO INICIADO") # PRINT PARA PROBAR QUE SE QUEDA INICIADA LA SESION
+        page.route = "/" # esta ruta será la de grupos
+    else:
+        page.route = "/" # ruta de login (principal)
+
+    await router.route_change(None) # cargamos la primera vista
+    page.update()
+
+if __name__ == "__main__":
+    ft.run(main, view=ft.AppView.WEB_BROWSER,assets_dir="../assets")
