@@ -8,14 +8,18 @@ authors = [
     { name = "Flet developer", email = "you@example.com" }
 ]
 dependencies = [
-    "flet>=0.81.0"
+    "flet==0.80.5",
+    "pyrebase4==4.9.0",
+    "flet-geolocator==0.80.5",
+    "flet-map==0.80.5",
+    "python-dotenv",
 ]
 
 [dependency-groups]
 dev = [
-    "flet-cli>=0.81.0",
-    "flet-desktop>=0.81.0",
-    "flet-web>=0.81.0",
+    "flet-cli==0.80.5",
+    "flet-desktop==0.80.5",
+    "flet-web==0.80.5",
 ]
 
 [tool.flet]
@@ -23,6 +27,12 @@ org = "com.mycompany"
 product = "proyecto-flet"
 company = "Flet"
 copyright = "Copyright (C) 2023-2026 by Flet"
+permissions = ["location"]
 
 [tool.flet.app]
 path = "src"
+
+[tool.flet.android.permission]
+"android.permission.ACCESS_FINE_LOCATION" = true
+"android.permission.ACCESS_COARSE_LOCATION" = true
+"android.permission.ACCESS_BACKGROUND_LOCATION" = true

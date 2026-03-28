@@ -9,7 +9,6 @@ db = firebase.database() # instanciamos la base de datos y la autenticacion
 auth = firebase.auth()
 
 
-
 async def main(page: ft.Page):
     print("Firebase conectado")
     page.add(ft.Text("Firebase conectado"))
@@ -17,8 +16,8 @@ async def main(page: ft.Page):
         configuration=ftg.GeolocatorConfiguration(
             accuracy=ftg.GeolocatorPositionAccuracy.BEST
         ),
-        on_position_change="", # para llamar a un metodo que actualice cuando haya un cambio de posicion
-        on_error=lambda e: page.add(ft.Text(f"Error: {e.data}")) # mensaje de error que aparecera en la pantalla
+        on_position_change=None, # para llamar a un metodo que actualice cuando haya un cambio de posicion
+        on_error=None # mensaje de error que aparecera en la pantalla
     )
 
     permiso_localizacion = await geo.get_permission_status() # comprobamos si esta habilitado el permiso de localizacion en el dispositivo
