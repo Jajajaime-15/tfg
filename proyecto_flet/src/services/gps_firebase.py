@@ -9,7 +9,7 @@ db = firebase.database() # instanciamos la base de datos y la autenticacion
 auth = firebase.auth()
 
 
-async def main(page: ft.Page):
+async def gps(page: ft.Page):
     print("Firebase conectado")
     page.add(ft.Text("Firebase conectado"))
     geo = ftg.Geolocator( # declaramos el geolocator configurando su precision de localizacion como la mejor posible
@@ -26,6 +26,13 @@ async def main(page: ft.Page):
         permiso_localizacion = await geo.get_permission_status() # comprobamos de nuevo
         if (permiso_localizacion != ftg.GeolocatorPermissionStatus.ALWAYS) and (permiso_localizacion != ftg.GeolocatorPermissionStatus.WHILE_IN_USE):
             page.add(ft.Text(f"Permisos de localización no habilitados"))
-            return # avisamos de nuevo y hacemos que no se siga ejecutando la funcion
-
-ft.run(main)
+            return # avisamos de que no han sido habilitados y hacemos que no se siga ejecutando la funcion
+    
+    localizacion = await geo.get_current_position() # obtenemos la posicion actual del dispositivo
+    page.add(ft.Text(f"Localizacion: {localizacion}"))
+    page.add(ft.Text(f"Latitud: {localizacion.latitude}"))
+    page.add(ft.Text(f"Longitud: {localizacion.longitude}"))
+    page.add(ft.Text(f"Altitud: {localizacion.altitude}"))
+    page.add(ft.Text(f"Velocidad: {localizacion.speed}"))
+    page.add(ft.Text(f"Fecha: {localizacion.timestamp}"))
+    

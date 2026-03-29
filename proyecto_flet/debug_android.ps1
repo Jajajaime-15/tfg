@@ -46,9 +46,9 @@ Write-Host "      Pulsa 'q' para salir" -ForegroundColor Gray
 Write-Host ""
 
 if ($DEVICE_ID -eq "") {
-    & $FLET debug android --module-name src/gps_firebase.py
+    & $FLET debug android --module-name src/main.py
 } else {
-    & $FLET debug android --device-id $DEVICE_ID --module-name src/gps_firebase.py
+    & $FLET debug android --device-id $DEVICE_ID --module-name src/main.py
 }
 
 # Volver al directorio original al salir

@@ -33,7 +33,7 @@ Write-Host ""
 Write-Host "[2/4] Ejecutando build APK (puede tardar 5-15 min)..." -ForegroundColor Yellow
 Write-Host ""
 
-& $FLET build apk --module-name src/gps_firebase.py --permissions location
+& $FLET build apk --module-name src/main.py --permissions location
 
 # 4. Comprobar si se generó el APK
 if (Test-Path "$APK_ORIGIN\app-release.apk") {
