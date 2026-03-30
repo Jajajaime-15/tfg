@@ -4,6 +4,7 @@ class VistaLogin:
     def __init__(self, page, controlador):
         self.page = page
         self.controlador = controlador
+        self.controlador.vista = self
 
         self.logo = ft.Image(
              src="logo2.png",
@@ -40,7 +41,7 @@ class VistaLogin:
             bgcolor="#1A6AFE",
             color="white",
             width=200,
-            on_click=self.entrar
+            on_click=self.controlador.conectarse
         )
 
         self.btn_recuperar = ft.TextButton(
@@ -48,7 +49,7 @@ class VistaLogin:
                 color="black",
                 italic=True
             ),
-            on_click=self.recuperar
+            on_click=self.controlador.recuperar_psw
         )
 
         self.btn_registro = ft.TextButton(
@@ -59,30 +60,9 @@ class VistaLogin:
             on_click=self.registrarse
         )
 
-    async def recuperar(self,e):
-        await self.controlador.recuperar_psw(self.email_input,self.mensaje_error)
-
     async def registrarse(self,e):
         self.page.go("/registro")
-
-    # funcion para conectar el boton con el auth_controller
-    async def entrar(self, e):
-        # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
-        self.btn_entrar.disabled = True
-        self.mensaje_error.value = ""
-        self.page.update()
-
-        # llamamos a la función para iniciar sesión(conectarse)
-        await self.controlador.conectarse(
-            self.email_input, 
-            self.psw_input, 
-            self.mensaje_error
-        )
-
-        # activamos de nuevo el botón
-        self.btn_entrar.disabled = False
-        self.page.update()
-
+        
     # función para crear la vista que se mostrará en la pantalla
     def vista(self):
         return ft.Container(

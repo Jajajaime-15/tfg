@@ -50,18 +50,18 @@ class AuthController:
 
         self.page.update()
 
-    async def conectarse (self,email,psw,mensaje):
-        mensaje.value = ""
+    async def conectarse (self,e):
+        self.vista.mensaje_error.value = ""
         self.page.update()
 
-        if not email.value or not psw.value:
-            mensaje.value = "Introduce email y contraseña"
+        if not self.vista.email_input.value or not self.vista.psw_input.value:
+            self.vista.mensaje_error.value = "Introduce email y contraseña"
         else:
-            conectado, aviso = await self.wrapper.iniciar_sesion(email.value,psw.value)
+            conectado, aviso = await self.wrapper.iniciar_sesion(self.vista.email_input.value,self.vista.psw_input.value)
             if conectado:
                 # provisional para confirmar en pantalla el inicio de sesion
-                mensaje.value = "Sesión iniciada"
-                mensaje.color = "green"
+                self.vista.mensaje_error.value = "Sesión iniciada"
+                self.vista.mensaje_error.color = "green"
                 self.page.update()
                 await asyncio.sleep(2)                
                 await self.page.push_route("/") # ruta a la pantalla principal/perfil/grupos
@@ -71,32 +71,32 @@ class AuthController:
             else:
                 error_log = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
                 if "INVALID_LOGIN_CREDENTIALS" in error_log or "INVALID_PASSWORD" in error_log:
-                    mensaje.value = "Email o contraseña incorrecto"
+                    self.vista.mensaje_error.value = "Email o contraseña incorrecto"
                 elif "USER_NOT_FOUND" in error_log:
-                    mensaje.value = "Usuario no encontrado"
+                    self.vista.mensaje_error.value = "Usuario no encontrado"
                 elif "TOO_MANY_ATTEMPTS" in error_log:
-                    mensaje.value = "Demasiados intentos, intentalo más tarde"
+                    self.vista.mensaje_error.value = "Demasiados intentos, intentalo más tarde"
                 else:
-                    mensaje.value = "Error al conectarse"
+                    self.vista.mensaje_error.value = "Error al conectarse"
                     
                 # limpiamos el campo de la contraseña y dejamos el focus ahí tras saltar un error    
-                psw.value = ""
-                psw.focus()
+                self.vista.psw_input.value = ""
+                self.vista.psw_input.focus()
 
         self.page.update()
 
-    async def recuperar_psw(self,email,mensaje):
-        mensaje.value = ""
+    async def recuperar_psw(self,e):
+        self.vista.mensaje_error.value = ""
         self.page.update()
 
-        if not email.value:
-            mensaje.value = "Introduce el email de tu cuenta para recuperarla"
+        if not self.vista.email_input.value:
+            self.vista.mensaje_error.value = "Introduce el email de tu cuenta para recuperarla"
         else:
-            enviado, aviso = await self.wrapper.recu_psw(email.value)
+            enviado, aviso = await self.wrapper.recu_psw(self.vista.email_input.value)
             if enviado:
                 # provisional para confirmar en pantalla correo enviado para recuperar contraseña
-                mensaje.value = "Correo enviado"
-                mensaje.color = "green"
+                self.vista.mensaje_error.value = "Correo enviado"
+                self.vista.mensaje_error.color = "green"
                 self.page.update()
                 await asyncio.sleep(2)    
                 await self.page.push_route("/")
@@ -106,10 +106,10 @@ class AuthController:
             else:
                 error_recu = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
                 if "NOT_FOUND" in error_recu:
-                    mensaje.value = "No hay ninguna cuenta con ese email"
+                    self.vista.mensaje_error.value = "No hay ninguna cuenta con ese email"
                 elif "INVALID_EMAIL" in error_recu:
-                    mensaje.value = "No es un email valido"
+                    self.vista.mensaje_error.value = "No es un email valido"
                 else:
-                    mensaje.value = "Error al procesar la solicitud"
+                    self.vista.mensaje_error.value = "Error al procesar la solicitud"
                 
         self.page.update()
