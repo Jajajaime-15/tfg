@@ -15,7 +15,7 @@ class VistaLogin:
         self.email_input = ft.TextField(
             label="Correo Electrónico",
             hint_text="Introduce tu email",
-            prefix_icon=ft.CupertinoIcons.MAIL,
+            prefix_icon=ft.Icons.MAIL,
             focused_border_color="#1A6AFE",
             width=300,
             border_radius=10
@@ -26,7 +26,7 @@ class VistaLogin:
             hint_text="Introduce tu contraseña",
             password=True,
             can_reveal_password=True,
-            prefix_icon=ft.CupertinoIcons.LOCK,
+            prefix_icon=ft.Icons.LOCK,
             focused_border_color="#1A6AFE",
             width=300,
             border_radius=10

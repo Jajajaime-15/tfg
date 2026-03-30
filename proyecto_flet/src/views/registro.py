@@ -15,7 +15,7 @@ class VistaRegistro:
         self.nombre_input = ft.TextField(
             label="Nombre Completo",
             hint_text="Introduce tu nombre",
-            prefix_icon=ft.CupertinoIcons.PERSON,
+            prefix_icon=ft.Icons.PERSON,
             focused_border_color="#1A6AFE",
             width=300,
             border_radius=10
@@ -24,7 +24,7 @@ class VistaRegistro:
         self.telefono_input = ft.TextField(
             label="Teléfono",
             hint_text="Introduce tu teléfono",
-            prefix_icon=ft.CupertinoIcons.PHONE,
+            prefix_icon=ft.Icons.PHONE,
             focused_border_color="#1A6AFE",
             width=300,
             border_radius=10
@@ -33,7 +33,7 @@ class VistaRegistro:
         self.email_input = ft.TextField(
             label="Correo Electrónico",
             hint_text="Introduce tu email",
-            prefix_icon=ft.CupertinoIcons.MAIL,
+            prefix_icon=ft.Icons.MAIL,
             focused_border_color="#1A6AFE",
             width=300,
             border_radius=10
@@ -44,7 +44,7 @@ class VistaRegistro:
             hint_text="Mínimo 8 caracteres",
             password=True,
             can_reveal_password=True,
-            prefix_icon=ft.CupertinoIcons.LOCK,
+            prefix_icon=ft.Icons.LOCK,
             focused_border_color="#1A6AFE",
             width=300,
             border_radius=10
