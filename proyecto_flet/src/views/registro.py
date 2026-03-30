@@ -4,6 +4,8 @@ class VistaRegistro:
     def __init__(self, page, controlador):
         self.page = page
         self.controlador = controlador
+        self.controlador.vista = self # indicamos al controlador la vista
+
 
         self.btn_volver = ft.IconButton(
             visible=True, 
@@ -69,31 +71,11 @@ class VistaRegistro:
             bgcolor="#1A6AFE",
             color="white",
             width=200,
-            on_click=self.registrar
+            on_click=self.controlador.registrar_usuario # llamamos a la funcion de registrar del controlador
         )
 
     async def volver(self,e):
         self.page.go("/")
-
-    async def registrar(self, e):
-        # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
-        self.btn_registrar.disabled = True
-        self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
-        self.page.update()
-
-        # llamamos a la función para registrar a un usuario nuevo(registrar_usuario)
-        await self.controlador.registrar_usuario(
-            self.nombre_input, 
-            self.email_input, 
-            self.psw_input, 
-            self.psw_confirmar,
-            self.telefono_input,
-            self.mensaje_error
-        )
-
-        # activamos de nuevo el botón
-        self.btn_registrar.disabled = False
-        self.page.update()
 
     # función para crear la vista que se mostrará en la pantalla
     def vista(self):

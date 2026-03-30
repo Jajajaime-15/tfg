@@ -2,32 +2,33 @@ import flet as ft
 import asyncio
 
 class AuthController:
-    def __init__(self,page,wrapper):
+    def __init__(self,page,wrapper, vista = None):
         self.page = page
         self.wrapper = wrapper
+        self.vista = vista
 
-    async def registrar_usuario (self,nombre,email,psw,psw_conf,telefono,mensaje):
-        mensaje.value = ""
+    async def registrar_usuario (self,e):
+        self.vista.mensaje_error.value = ""
         self.page.update()
 
-        datos = [nombre.value,email.value,psw.value,psw_conf.value,telefono.value]
+        datos = [self.vista.nombre_input.value,self.vista.email_input.value,self.vista.psw_input.value,self.vista.psw_confirmar.value,self.vista.telefono_input.value]
 
         if not all (datos):
-            mensaje.value = "Todos los campos son obligatorios"
-        elif psw.value != psw_conf.value:
-            mensaje.value = "Las contraseñas no coinciden"
-            psw.value = ""
-            psw_conf.value = ""
-        elif "@" not in email.value or "." not in email.value:
-            mensaje.value = "Introduce un email válido"
-        elif len(psw.value) < 8:
-                mensaje.value = "La contraseña debe de tener mínimo 8 caracteres"
+            self.vista.mensaje_error.value = "Todos los campos son obligatorios"
+        elif self.vista.psw_input.value != self.vista.psw_confirmar.value:
+            self.vista.mensaje_error.value = "Las contraseñas no coinciden"
+            self.vista.psw_input.value = ""
+            self.vista.psw_confirmar.value = ""
+        elif "@" not in self.vista.email_input.value or "." not in self.vista.email_input.value:
+            self.vista.mensaje_error.value = "Introduce un email válido"
+        elif len(self.vista.psw_input.value) < 8:
+                self.vista.mensaje_error.value = "La contraseña debe de tener mínimo 8 caracteres"
         else:
-            registrado, aviso = await self.wrapper.registrarse(nombre.value,telefono.value,email.value,psw.value)
+            registrado, aviso = await self.wrapper.registrarse(self.vista.nombre_input.value,self.vista.telefono_input.value,self.vista.email_input.value,self.vista.psw_input.value)
             if registrado:
                 # provisional para confirmar en pantalla el registro
-                mensaje.value = "Usuario registrado correctamente, puedes iniciar sesión"
-                mensaje.color = "green"
+                self.vista.mensaje_error.value = "Usuario registrado correctamente, puedes iniciar sesión"
+                self.vista.mensaje_error.color = "green"
                 self.page.update()
                 await asyncio.sleep(2)
                 await self.page.push_route("/")
@@ -37,15 +38,15 @@ class AuthController:
             else:
                 error_registro = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
                 if "EMAIL_EXISTS" in error_registro:
-                    mensaje.value = "Correo ya registrado"
+                    self.vista.mensaje_error.value = "Correo ya registrado"
                 elif "INVALID_EMAIL" in error_registro:
-                    mensaje.value = "No es un email valido"
+                    self.vista.mensaje_error.value = "No es un email valido"
                 else:
-                    mensaje.value = "Error al registrar"
+                    self.vista.mensaje_error.value = "Error al registrar"
 
         # limpiamos el campo de la contraseña tras saltar un error
-        psw.value = ""
-        psw_conf.value = ""
+        self.vista.psw_input.value = ""
+        self.vista.psw_confirmar.value = ""
 
         self.page.update()
 
