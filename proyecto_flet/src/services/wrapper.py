@@ -23,14 +23,27 @@ class Wrapper:
             usuario = self.auth.create_user_with_email_and_password(email,psw)
             self.id_usuario = usuario["localId"]
             self.token = usuario["idToken"]
+            refresh_token = usuario["refreshToken"]
+
             info_usuario = {
                 "nombre": nombre,
                 "telefono": telefono,
                 "email": email,
+                "pais": "", # se podrá rellenar desde el perfil de usuario
+                "localidad": "", # ''
                 "id_grupo":"", # se rellena cuando se tenga una familia
                 "fecha_registro": datetime.now().strftime("%Y-%m-%d %H:%M:%S") # se usa strtime porque firebase no lee fechas, tiene que ser texto o numeros
             }
             self.db.child("usuarios").child(self.id_usuario).set(info_usuario,self.token) # guardamos la informacion del usuario y el token en la base de datos
+            
+            # guardamos los datos en el dispositivo para que al arrancar ya estén si inicia sesión con esa cuenta
+            await self.page.shared_preferences.set("id_usuario", self.id_usuario)
+            await self.page.shared_preferences.set("token", self.token)
+            await self.page.shared_preferences.set("refresh_token", refresh_token)
+            await self.page.shared_preferences.set("nombre", nombre)
+            await self.page.shared_preferences.set("telefono", telefono)
+            await self.page.shared_preferences.set("email", email)
+
             print("Usuario registrado correctamente")
             return True,"Usuario registrado correctamente"
         except Exception as e:
@@ -43,12 +56,25 @@ class Wrapper:
             usuario = self.auth.sign_in_with_email_and_password(email, psw)
             self.id_usuario = usuario["localId"]
             self.token = usuario["idToken"]
-            await self.page.shared_preferences.set("id_usuario", self.id_usuario) # guardamos el id del usuario en el dispositivo 
+            refresh_token = usuario["refreshToken"]
+
+            # obtenemos la infor del usuario de Realtime
             infor_usuario = self.db.child("usuarios").child(self.id_usuario).get(self.token).val() 
-            if infor_usuario and "id_grupo" in infor_usuario: # comprobamos si en los datos del usuario ya tiene algun grupo asociado y se guarda en el dispositivo para poder recuperarlo
-                grupo = infor_usuario["id_grupo"]
-                await self.page.shared_preferences.set("id_grupo",grupo)
-                print(f"Grupo:{grupo}")
+
+            # guardamos la infor en el dispositivo para que se puedan leer
+            if infor_usuario:
+                await self.page.shared_preferences.set("id_usuario", self.id_usuario)
+                await self.page.shared_preferences.set("token", self.token)
+                await self.page.shared_preferences.set("refresh_token", refresh_token)
+                await self.page.shared_preferences.set("nombre", infor_usuario.get("nombre", ""))
+                await self.page.shared_preferences.set("email", infor_usuario.get("email", ""))
+                await self.page.shared_preferences.set("telefono", infor_usuario.get("telefono", ""))
+                await self.page.shared_preferences.set("pais", infor_usuario.get("pais", ""))
+                await self.page.shared_preferences.set("localidad", infor_usuario.get("localidad", ""))
+                if "id_grupo" in infor_usuario:
+                    await self.page.shared_preferences.set("id_grupo",infor_usuario["id_grupo"])
+                
+                print(f"Grupo:{infor_usuario.get("id_grupo")}")
             print("Sesión iniciada")
             return True, "Sesión iniciada correctamente"
         except Exception as e:
@@ -69,7 +95,7 @@ class Wrapper:
             await self.page.shared_preferences.clear() # borramos toda la información que hay guardada en el dispositivo
             self.id_usuario = None
             self.token = None
-            self.page.go("/") # .push_route("/") redirige al inicio (login) ((ANTES ERA .GO))
+            self.page.push_route("/") 
             print("Sesión cerrada")
         except Exception as e:
             print(f"Error al cerrar sesión: {e}")
@@ -82,4 +108,55 @@ class Wrapper:
             return True, "Correo enviado para recuperar tu contraseña"
         except Exception as e:
             print(f"Error al enviar el correo:{e}")
+            return False, str(e)
+    
+    # funcion de actualizar sesion pidiendo a Firebase un nuevo Token
+    async def actualizar_sesion(self):
+        try:
+            # recuperamos el refresh_token del dispositivo
+            token_refresh = await self.page.shared_preferences.get("refresh_token")
+            # pedimos a firebase el token nuevo
+            if token_refresh:
+                nuevo = self.auth.refresh(token_refresh)
+                # actualizamos el token
+                self.token = nuevo["idToken"]
+                await self.page.shared_preferences.set("token",self.token)
+                print("Token actualizado")
+                return True
+            return False
+        except Exception as e:
+            print(f"No se pudo actualizar la sesion:{e}")
+            return False
+        
+    # funcion para actualizar los datos del usuario
+    async def actualizar_datos(self,datos_actualizados):
+        try:
+            # recuperamos el id del usuario y el token
+            if not self.id_usuario:
+                self.id_usuario = await self.page.shared_preferences.get("id_usuario")
+            if not self.token:
+                self.token = await self.page.shared_preferences.get("token")
+            # intentamos actualizar los datos
+            try:
+                self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, self.token)
+            except Exception as e:
+                print ("Token caducado")
+                # llamamos a la funcion para actualizar el token
+                if await self.actualizar_sesion():
+                    try:
+                        # volvemos a intentar actualizar los datos
+                        self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados,self.token)
+                    except Exception as x:
+                        print("Error después de actualizar el token")
+                        return False, f"Error después de actualizar el token{x}"
+                else:
+                    print ("Sesion caducada")
+                    return False, "Sesion caducada, inicia sesión de nuevo"
+            # guardamos los datos en el dispositivo
+            for clave, valor in datos_actualizados.items():
+                await self.page.shared_preferences.set(clave,valor)
+            print ("Datos actualizados")
+            return True, "Datos actualizados"
+        except Exception as e:
+            print(f"Error: {e}")
             return False, str(e)
