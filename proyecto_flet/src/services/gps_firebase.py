@@ -14,13 +14,13 @@ async def gps(page: ft.Page):
     print("Firebase conectado")
     page.add(ft.Text("Firebase conectado"))
 
-    def cambio_ubicacion(cambio: ftg.GeolocatorPositionChangeEvent):
+    def cambio_ubicacion(cambio: ftg.GeolocatorPositionChangeEvent): # para el on position change del geolocator
         loc = {
             "latitud" : cambio.position.latitude,
             "longitud" : cambio.position.longitude,
             "timestamp" : str(cambio.position.timestamp)
         }
-        db.child("ubicaciones").child("grupo_01").child("jaime").set(loc)
+        db.child("ubicaciones").child("grupo_01").child("jaime").set(loc) # si se cambia la posicion la escribimos en la base de datos
         page.add(ft.Text(f"Cambio ubicacion OK: {cambio.position.latitude} {cambio.position.longitude} {cambio.position.timestamp}"))
 
     geo = ftg.Geolocator( # declaramos el geolocator configurando su precision de localizacion como la mejor posible
