@@ -72,8 +72,8 @@ async def gps(page: ft.Page):
         on_error=lambda e: None # mensaje de error que aparecera en la pantalla
     )
 
-    permitir_ubicacion(geo) # solicitamos el permiso de ubicacion
-    posicion_inicial(geo) # obtenemos la posicion actual del usuario
+    await permitir_ubicacion(geo) # solicitamos el permiso de ubicacion
+    await posicion_inicial(geo) # obtenemos la posicion actual del usuario
 
     hilo_listener = Thread(target=listener) # el listener va en un hilo para que pueda estar escuchando y no bloquee el programa
     hilo_listener.start()
