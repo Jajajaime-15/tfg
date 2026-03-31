@@ -1,15 +1,16 @@
 import flet as ft
 import flet_map as ftm
 
+marker_layer_user = ftm.MarkerLayer(markers=[])
+
 def actualizar_marcador_usuario(lat, lon):
-    marker_layer_user = ftm.MarkerLayer(
-        markers=[
+    marker_layer_user.markers=[
             ftm.Marker(
                 content=ft.Icon(ft.Icons.LOCATION_PIN),
                 coordinates=ftm.MapLatitudeLongitude(lat, lon)
             )
         ]
-    )
+    marker_layer_user.update()
 
 def map(page: ft.Page):
     mapa = ftm.Map( # creacion del mapa
