@@ -1,18 +1,23 @@
 import flet as ft
 import flet_map as ftm
+from services.gps_firebase import gps
 
-marker_layer_user = ftm.MarkerLayer(markers=[])
+async def map(page: ft.Page):
+    marker_layer_user = ftm.MarkerLayer(markers=[]) # capa para poder dibujar marcadores en el mapa
 
-def actualizar_marcador_usuario(lat, lon):
-    marker_layer_user.markers=[
-            ftm.Marker(
-                content=ft.Icon(ft.Icons.LOCATION_PIN),
-                coordinates=ftm.MapLatitudeLongitude(lat, lon)
-            )
-        ]
-    marker_layer_user.update()
+    # funcion para dibujar el marcador del usuario con cada cambio de posicion
+    def actualizar_marcador_usuario(lat, lon):
+        marker_layer_user.markers=[
+                ftm.Marker(
+                    content=ft.Icon(ft.Icons.LOCATION_PIN),
+                    coordinates=ftm.MapLatitudeLongitude(lat, lon) # las coordenadas obtenidas de la posicion del usuario
+                )
+            ]
+        page.update()
+    
+    # llamamos al geolocator
+    await gps(page, actualizar_marcador_usuario= actualizar_marcador_usuario) # le pasamos la pagina y la funcion para dibujar el marcador
 
-def map(page: ft.Page):
     mapa = ftm.Map( # creacion del mapa
         expand=True, # para que ocupe toda la pantalla
         initial_center=ftm.MapLatitudeLongitude(40.41,-3.70), # el lugar donde comienza al abrir el mapa
