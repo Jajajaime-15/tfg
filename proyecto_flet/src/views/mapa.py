@@ -1,19 +1,17 @@
 import flet as ft
 import flet_map as ftm
 
-def map(page: ft.Page):
-    marker_layer = ftm.MarkerLayer(
+def actualizar_marcador_usuario(lat, lon):
+    marker_layer_user = ftm.MarkerLayer(
         markers=[
             ftm.Marker(
                 content=ft.Icon(ft.Icons.LOCATION_PIN),
-                coordinates=ftm.MapLatitudeLongitude(40.4109,-3.7088)
-            ),
-            ftm.Marker(
-                content=ft.Icon(ft.Icons.LOCATION_ON),
-                coordinates=ftm.MapLatitudeLongitude(40.4035,-3.6899)
-            ),
+                coordinates=ftm.MapLatitudeLongitude(lat, lon)
+            )
         ]
     )
+
+def map(page: ft.Page):
     mapa = ftm.Map( # creacion del mapa
         expand=True, # para que ocupe toda la pantalla
         initial_center=ftm.MapLatitudeLongitude(40.41,-3.70), # el lugar donde comienza al abrir el mapa
@@ -29,7 +27,7 @@ def map(page: ft.Page):
                 url_template="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png", # el mapa que usamos, en este caso el de CartoDB
                 on_image_error=lambda e: print("TileLayer Error") # en caso de que salte error avisamos por la consola
             ),
-            marker_layer
+            marker_layer_user
         ]
     )
 
