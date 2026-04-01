@@ -16,7 +16,7 @@ async def main(page: ft.Page):
     # Cerramos la sesión al arrancar para que siempre aparezca el login SOLO PARA PRUEBAS
     #await wrapper.cerrar_sesion() 
     # o limpiamos los datos guardados en el dispositivo
-    await page.shared_preferences.clear()
+    #await page.shared_preferences.clear()
     
     # arrancamos el archivo de las rutas
     router = Router(page,auth_controller)
@@ -29,7 +29,7 @@ async def main(page: ft.Page):
         print("USUARIO INICIADO") # PRINT PARA PROBAR QUE SE QUEDA INICIADA LA SESION
         page.route = "/" # esta ruta será la de grupos
     else:
-        page.route = "/grupos" # ruta de login (principal)
+        page.route = "/" # ruta de login (principal)
 
     await router.route_change(None) # cargamos la primera vista
     page.update()

@@ -81,6 +81,7 @@ class VistaLogin:
 
         # activamos de nuevo el botón
         self.btn_entrar.disabled = False
+        self.page.go("/grupos")
         self.page.update()
 
     # función para crear la vista que se mostrará en la pantalla

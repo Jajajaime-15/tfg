@@ -134,13 +134,8 @@ class AuthController:
                 self.page.snack_bar = ft.SnackBar(ft.Text("Grupo creado correctamente"))
                 self.page.snack_bar.open = True'''
             else:
-                error_registro = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
-                if "EMAIL_EXISTS" in error_registro:
-                    mensaje.value = "Correo ya registrado"
-                elif "INVALID_EMAIL" in error_registro:
-                    mensaje.value = "No es un email valido"
-                else:
-                    mensaje.value = "Error al registrar"
+                mensaje.value = f"Error al crear grupo: {aviso}"
+                mensaje.color = "red"
 
 
         self.page.update()

@@ -43,7 +43,8 @@ class Wrapper:
             usuario = self.auth.sign_in_with_email_and_password(email, psw)
             self.id_usuario = usuario["localId"]
             self.token = usuario["idToken"]
-            await self.page.shared_preferences.set("id_usuario", self.id_usuario) # guardamos el id del usuario en el dispositivo 
+            await self.page.shared_preferences.set("id_usuario", self.id_usuario) # guardamos el id del usuario en el dispositivo
+            await self.page.shared_preferences.set("token", self.token)  # guardamos el token en el dispositivo para poder usarlo en otras funciones sin tener que pedir al usuario que inicie sesión cada vez
             infor_usuario = self.db.child("usuarios").child(self.id_usuario).get(self.token).val() 
             if infor_usuario and "id_grupo" in infor_usuario: # comprobamos si en los datos del usuario ya tiene algun grupo asociado y se guarda en el dispositivo para poder recuperarlo
                 grupo = infor_usuario["id_grupo"]
@@ -75,23 +76,36 @@ class Wrapper:
             print(f"Error al cerrar sesión: {e}")
 
     # función para registrar grupos nuevos
-    async def crear_grupo (self, nombre):
+    async def crear_grupo(self, nombre_grupo):
+    
         try:
-            currentUser = self.auth().current_user
-            if not currentUser: # si no hay un usuario conectado, no se puede crear un grupo
-                print("No hay un usuario conectado")
-                return False
-            else:
-                id_usuario = currentUser["localId"]
-                token = currentUser["idToken"]
-                grupo = self.db.child("grupos").push({"nombre": nombre}, token) # se crea el grupo en la base de datos
-                id_grupo = grupo["name"] # se obtiene el id del grupo creado
-                self.db.child("usuarios").child(id_usuario).update({"id_grupo": id_grupo}, token) # se actualiza el usuario con el id del grupo al que pertenece
-                print("Grupo creado correctamente")
-            return True
+            # Verifica que el usuario esté autenticado antes de crear un grupo
+            if not self.token or not self.id_usuario:
+                return False, "Debes iniciar sesión para crear un grupo"
+            
+            # Los datos del grupo
+            info_grupo = {
+                "nombre": nombre_grupo,
+                "fecha_creacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+            
+            # Guarda el grupo en la base de datos
+            grupos_ref = self.db.child("grupos")
+            resultado = grupos_ref.push(info_grupo, self.token)  
+            id_grupo = resultado["name"]  
+            
+            # Asigna el grupo al usuario que lo creó
+            usuario_ref = self.db.child("usuarios").child(self.id_usuario)
+            usuario_ref.update({
+                "id_grupo": id_grupo
+            }, self.token)
+            
+            print(f"Grupo '{nombre_grupo}' creado correctamente con ID: {id_grupo}")
+            return True, "Grupo creado correctamente"
+            
         except Exception as e:
-            print(f"Error a la hora de crear el grupo: {e}")
-            return False        
+            print(f"Error al crear grupo: {e}")
+            return False, str(e)    
 
     # función para recuperar la contraseña mediante el correo
     async def recu_psw(self,email):
