@@ -25,6 +25,15 @@ class VistaGrupos:
             on_click=self.crear_grupo
         )
 
+        self.btn_eliminar_grupo = ft.ElevatedButton(
+            content=ft.Text("Eliminar grupo"),
+            icon=ft.Icons.DELETE,
+            bgcolor="#FF4136",
+            color="white",
+            width=200,
+            on_click=self.eliminar_grupo
+        )
+
         self.mensaje_error = ft.Text(value="", color="red", weight="bold")
 
     async def crear_grupo(self, e):
@@ -33,7 +42,7 @@ class VistaGrupos:
         self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
         self.page.update()
 
-        # llamamos a la función para registrar a un usuario nuevo(registrar_usuario)
+        # llamamos a la función para crear un grupo
         await self.controlador.crear_grupo(
             self.nombre_grupo_input,
             self.mensaje_error
@@ -42,6 +51,22 @@ class VistaGrupos:
         # activamos de nuevo el botón
         self.btn_crear_grupo.disabled = False
         self.page.update()    
+
+    async def eliminar_grupo(self, e):
+        # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
+        self.btn_crear_grupo.disabled = True
+        self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
+        self.page.update()
+
+        # llamamos a la función para eliminar un grupo
+        await self.controlador.eliminar_grupo(
+            self.nombre_grupo_input,
+            self.mensaje_error
+        )
+
+        # activamos de nuevo el botón
+        self.btn_crear_grupo.disabled = False
+        self.page.update()        
 
     def vista(self):
         
@@ -64,6 +89,7 @@ class VistaGrupos:
                     ft.Container(expand=1),
                     ft.Row(controls=[self.nombre_grupo_input], alignment=ft.MainAxisAlignment.CENTER),
                     ft.Row(controls=[self.btn_crear_grupo], alignment=ft.MainAxisAlignment.CENTER),
+                    ft.Row(controls=[self.btn_eliminar_grupo], alignment=ft.MainAxisAlignment.CENTER),
                     ft.Container(expand=8),
                 ]
             ),

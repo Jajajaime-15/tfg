@@ -106,6 +106,37 @@ class Wrapper:
         except Exception as e:
             print(f"Error al crear grupo: {e}")
             return False, str(e)    
+        
+    # función para eliminar grupos
+    async def eliminar_grupo(self, nombre_grupo):
+    # Falta comprobar que el grupo que se quiere eliminar es el mismo que el del usuario
+    # Falta poder eliminar un grupo por su nombre, ahora mismo se elimina el grupo asociado al usuario que ha iniciado sesión sin comprobar el nombre del grupo
+        try:
+            # Verifica que el usuario esté autenticado antes de eliminar un grupo
+            if not self.token or not self.id_usuario:
+                return False, "Debes iniciar sesión para eliminar un grupo"
+            
+            # Los datos del grupo
+            info_grupo = {
+                "nombre": nombre_grupo,
+                "fecha_creacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            }
+
+            
+            
+            # Obtener el ID del grupo desde el usuario
+            datos_usuario = self.db.child("usuarios").child(self.id_usuario).get(self.token)
+            id_grupo = datos_usuario.val().get("id_grupo")
+            grupo_ref = self.db.child("grupos").child(id_grupo)
+            grupo_ref.remove(self.token)  # Elimina el grupo de la base de datos
+            
+            
+            print(f"Grupo '{nombre_grupo}' eliminado correctamente con ID: {self.id_usuario}")
+            return True, "Grupo eliminado correctamente"
+            
+        except Exception as e:
+            print(f"Error al eliminar grupo: {e}")
+            return False, str(e)        
 
     # función para recuperar la contraseña mediante el correo
     async def recu_psw(self,email):
