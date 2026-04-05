@@ -12,6 +12,7 @@ class Wrapper:
             self.auth = self.firebase.auth()
             self.db = self.firebase.database()
             self.id_usuario = None
+            self.id_grupo = None
             self.token = None
             print("Conectado a firebase") # print para comprobar que no hay problema a la hora de conectarse
         except Exception as e:
@@ -122,8 +123,20 @@ class Wrapper:
                 "fecha_creacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
 
+            datos_grupo = self.db.child("grupos").get(self.token) # obtenemos todos los grupos para comprobar que el grupo que se quiere eliminar existe
+            id_grupo = None
+            for grupo in datos_grupo.each():
+                    if grupo.val().get("nombre") == nombre_grupo:
+                        id_grupo = grupo.key() # obtenemos el id del grupo que se quiere eliminar para poder eliminarlo de la base de datos
+                        grupo_ref = self.db.child("grupos").child(id_grupo)
+                        grupo_ref.remove(self.token)  # Elimina el grupo de la base de datos
+                        print(f"Grupo '{nombre_grupo}' eliminado correctamente con ID: {id_grupo}")
+                    else:
+                        print(f"Grupo '{nombre_grupo}' no encontrado")
+                        return False, "No se ha encontrado el grupo que quieres eliminar"    
             
-            
+
+
             # Obtener el ID del grupo desde el usuario
             datos_usuario = self.db.child("usuarios").child(self.id_usuario).get(self.token)
             id_grupo = datos_usuario.val().get("id_grupo")
