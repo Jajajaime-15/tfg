@@ -10,7 +10,7 @@ db = firebase.database() # instanciamos la base de datos y la autenticacion
 auth = firebase.auth()
 
 async def gps(page: ft.Page, actualizar_marcador_usuario=None): # recibe la pagina y para actualizar el marcador en tiempo real
-    page.add(ft.Text("Firebase conectado"))
+    #page.add(ft.Text("Firebase conectado"))
 
     # funcion para gestionar el cambio de ubicacion del geolocator tanto en firebase como en el mapa
     def cambio_ubicacion(cambio: ftg.GeolocatorPositionChangeEvent): # para el on position change del geolocator
@@ -28,7 +28,7 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None): # recibe la pagi
         if actualizar_marcador_usuario: # solo en caso de que exista
             actualizar_marcador_usuario(latitud, longitud) # llamamos a la funcion del mapa para pintar el marcador propio cada vez que se actualice la posicion
         
-        page.add(ft.Text(f"Cambio ubicacion OK: {latitud} {longitud} {timestamp}"))
+        #page.add(ft.Text(f"Cambio ubicacion OK: {latitud} {longitud} {timestamp}"))
 
     # funcion para solicitar que se active el permiso de ubicacion si no esta activado en la aplicacion
     async def permitir_ubicacion(geo):
@@ -47,28 +47,29 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None): # recibe la pagi
     # funcion para obtener la posicion inicial del usuario
     async def posicion_inicial(geo):
         localizacion = await geo.get_current_position() # obtenemos la posicion actual del dispositivo
-        page.add(ft.Text(f"Localizacion: {localizacion}"))
-        page.add(ft.Text(f"Latitud: {localizacion.latitude}"))
-        page.add(ft.Text(f"Longitud: {localizacion.longitude}"))
-        page.add(ft.Text(f"Altitud: {localizacion.altitude}"))
-        page.add(ft.Text(f"Velocidad: {localizacion.speed}"))
-        page.add(ft.Text(f"Fecha: {localizacion.timestamp}"))
+
+        latitud = localizacion.latitude
+        longitud = localizacion.longitude
+        timestamp = str(localizacion.timestamp)
 
         loc = {
-            "latitud" : localizacion.latitude,
-            "longitud" : localizacion.longitude,
-            "timestamp" : str(localizacion.timestamp) # el timestamp no es algo valido en json asi que hay que convertirlo a string
+            "latitud" : latitud,
+            "longitud" : longitud,
+            "timestamp" : timestamp # el timestamp no es algo valido en json asi que hay que convertirlo a string
         }
 
         try:
             db.child("ubicaciones").child("grupo_01").child("jaime").set(loc) # para escribir los valores debemos marcar el nivel dentro de los json con los 'child' y 'set'
-            page.add(ft.Text(f"Escritura OK"))
+            #page.add(ft.Text(f"Escritura OK"))
         except Exception as e:
             page.add(ft.Text(f"Error escritura Firebase: {e}"))
+        
+        return latitud, longitud
     
     # funcion callback para usar el cambio de la ubicacion
     def cambio_ubicacion_amigo(ubicacion_amigo): 
-        page.add(ft.Text(f"{ubicacion_amigo}")) # por ahora solo lo escribimos en pantalla
+        #page.add(ft.Text(f"{ubicacion_amigo}")) # por ahora solo lo escribimos en pantalla
+        pass
 
     # listener para recibir cada vez que haya un cambio en la ubicacion de alguien
     def listener(): 
@@ -86,9 +87,9 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None): # recibe la pagi
     if not await permitir_ubicacion(geo): # solicitamos el permiso de ubicacion
         return # para salir del programa si no se han concedido los permisos de ubicacion
     
-    await posicion_inicial(geo) # obtenemos la posicion actual del usuario
+    lat, lon = await posicion_inicial(geo) # obtenemos la posicion actual del usuario
 
     hilo_listener = Thread(target=listener) # el listener va en un hilo para que pueda estar escuchando y no bloquee el programa
     hilo_listener.start()
 
-    page.add(geo)
+    return lat, lon, geo # para poder dibujar la posicion inicial en el mapa y pasar el geo para añadirlo a la pagina desde el mapa en un Stack
