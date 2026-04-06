@@ -14,13 +14,13 @@ async def map(page: ft.Page):
                 )
             ]
         page.update()
-    
+
     # llamamos al geolocator
-    await gps(page, actualizar_marcador_usuario= actualizar_marcador_usuario) # le pasamos la pagina y la funcion para dibujar el marcador
+    lat, lon, geo = await gps(page, actualizar_marcador_usuario= actualizar_marcador_usuario) # le pasamos la pagina y la funcion para dibujar el marcador
 
     mapa = ftm.Map( # creacion del mapa
         expand=True, # para que ocupe toda la pantalla
-        initial_center=ftm.MapLatitudeLongitude(40.41,-3.70), # el lugar donde comienza al abrir el mapa
+        initial_center=ftm.MapLatitudeLongitude(lat, lon), # el lugar donde comienza al abrir el mapa, que sera la ubicacion inicial del usuario
         initial_zoom=12, # el zoom inicial
         on_tap=None, # lo que hara en caso de pulsar una vez en el mapa 
         on_secondary_tap=None, # lo mismo pero dos veces
@@ -37,4 +37,4 @@ async def map(page: ft.Page):
         ]
     )
 
-    page.add(mapa)
+    page.add(ft.Stack(controls=[geo, mapa], expand=True))
