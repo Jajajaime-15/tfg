@@ -116,6 +116,52 @@ def SecondaryButton(text, on_click=None, width=150, disabled=False, loading=Fals
     
     return boton
 
+def tarjeta_grupos(text, on_click=None, width=150, disabled=False, loading=False):
+    
+    # En este caso, esta función se utilizará para crear tarjetas que representen a los grupos.  
+    
+    if loading:
+        content = ft.Row(
+            [
+                ft.ProgressRing(
+                    width=20,
+                    height=20,
+                    stroke_width=2,
+                    color=ft.Colors.BLACK,
+                ),
+                ft.Text(
+                    text,
+                    size=16,
+                    weight=ft.FontWeight.BOLD,
+                    color=ft.Colors.BLACK,
+                ),
+            ],
+            alignment=ft.MainAxisAlignment.CENTER,
+            spacing=10,
+        )
+    else:
+        content = ft.Column(
+            controls = [
+                ft.Text("Grupo 1", size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                ft.Text("Miembros: 3", size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                ft.Text("Integrante 1", size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                ft.Text("Integrante 2", size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                ft.Text("Integrante 3", size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+            ],
+        )
+    
+    
+    tarjeta = ft.Container(
+        content=content,
+        width=400,
+        height=500,
+        bgcolor=ft.Colors.CYAN_300,
+        alignment=ft.Alignment.CENTER,
+        border_radius=8,
+    )
+    
+    return tarjeta
+
 def IconButton(
     icon, 
     on_click=None, 

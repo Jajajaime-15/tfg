@@ -113,16 +113,16 @@ class AuthController:
                 
         self.page.update()
 
-    async def crear_grupo (self,nombre,mensaje):
+    async def crear_grupo (self,nombre,integrante,mensaje):
         mensaje.value = ""
         self.page.update()
 
-        datos = [nombre.value]
+        datos = [nombre.value, integrante.value]
 
         if not all (datos):
             mensaje.value = "Todos los campos son obligatorios"
         else:
-            creado, aviso = await self.wrapper.crear_grupo(nombre.value)
+            creado, aviso = await self.wrapper.crear_grupo(nombre.value, integrante.value)
             if creado:
                 # provisional para confirmar en pantalla el registro
                 mensaje.value = "Grupo creado correctamente"
@@ -166,3 +166,7 @@ class AuthController:
 
 
         self.page.update()    
+
+        
+
+               

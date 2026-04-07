@@ -76,8 +76,18 @@ class Wrapper:
         except Exception as e:
             print(f"Error al cerrar sesión: {e}")
 
+    # función para recuperar la contraseña mediante el correo
+    async def recu_psw(self,email):
+        try:
+            self.auth.send_password_reset_email(email) # firebase envía automáticamente un correo al email que se indique (tiene que ser un email registrado)
+            print("Correo enviado para recuperar contraseña")
+            return True, "Correo enviado para recuperar tu contraseña"
+        except Exception as e:
+            print(f"Error al enviar el correo:{e}")
+            return False, str(e)
+        
     # función para registrar grupos nuevos
-    async def crear_grupo(self, nombre_grupo):
+    async def crear_grupo(self, nombre_grupo,integrante):
     
         try:
             # Verifica que el usuario esté autenticado antes de crear un grupo
@@ -87,6 +97,7 @@ class Wrapper:
             # Los datos del grupo
             info_grupo = {
                 "nombre": nombre_grupo,
+                "integrante": integrante,
                 "fecha_creacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             
@@ -124,7 +135,6 @@ class Wrapper:
             }
 
             datos_grupo = self.db.child("grupos").get(self.token) # obtenemos todos los grupos para comprobar que el grupo que se quiere eliminar existe
-            id_grupo = None
             for grupo in datos_grupo.each():
                     if grupo.val().get("nombre") == nombre_grupo:
                         id_grupo = grupo.key() # obtenemos el id del grupo que se quiere eliminar para poder eliminarlo de la base de datos
@@ -135,28 +145,32 @@ class Wrapper:
                         print(f"Grupo '{nombre_grupo}' no encontrado")
                         return False, "No se ha encontrado el grupo que quieres eliminar"    
             
-
-
-            # Obtener el ID del grupo desde el usuario
-            datos_usuario = self.db.child("usuarios").child(self.id_usuario).get(self.token)
-            id_grupo = datos_usuario.val().get("id_grupo")
-            grupo_ref = self.db.child("grupos").child(id_grupo)
-            grupo_ref.remove(self.token)  # Elimina el grupo de la base de datos
-            
-            
             print(f"Grupo '{nombre_grupo}' eliminado correctamente con ID: {self.id_usuario}")
             return True, "Grupo eliminado correctamente"
             
         except Exception as e:
             print(f"Error al eliminar grupo: {e}")
-            return False, str(e)        
+            return False, str(e)     
 
-    # función para recuperar la contraseña mediante el correo
-    async def recu_psw(self,email):
+    
+    async def mostrar_grupos(self):
+
         try:
-            self.auth.send_password_reset_email(email) # firebase envía automáticamente un correo al email que se indique (tiene que ser un email registrado)
-            print("Correo enviado para recuperar contraseña")
-            return True, "Correo enviado para recuperar tu contraseña"
+            # Verifica que el usuario esté autenticado antes de eliminar un grupo
+            if not self.token or not self.id_usuario:
+                return False, "Debes iniciar sesión para ver los grupos"
+            
+
+            datos_grupo = self.db.child("grupos").get(self.token) # obtenemos todos los grupos para comprobar que el grupo que se quiere eliminar existe
+            print(f"Grupos disponibles: {datos_grupo.val()}") # mostramos en consola los grupos disponibles para comprobar que se están recuperando correctamente
+            
+
+            return True, "Grupos mostrados correctamente"
+            
         except Exception as e:
-            print(f"Error al enviar el correo:{e}")
-            return False, str(e)
+            print(f"Error al eliminar grupo: {e}")
+            return False, str(e)   
+        
+
+    async def editar_grupos(self):
+        pass    
