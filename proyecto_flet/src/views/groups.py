@@ -7,6 +7,10 @@ class VistaGrupos:
     def __init__(self, page, controlador):
         self.page = page
         self.controlador = controlador
+        self.datos_grupo = None
+        self.integrantes = None
+        
+        
 
 
         self.nombre_grupo_input = ft.TextField(
@@ -28,7 +32,7 @@ class VistaGrupos:
         )
 
 
-        self.btn_crear_grupo = ft.ElevatedButton(
+        self.btn_crear_grupos = ft.ElevatedButton(
             content=ft.Text("Crear grupo"),
             icon=ft.Icons.APP_REGISTRATION,
             bgcolor="#1A6AFE",
@@ -46,20 +50,13 @@ class VistaGrupos:
             on_click=self.eliminar_grupo
         )
 
-        self.btn_mostrar_grupos = ft.ElevatedButton(
-            content=ft.Text("Mostrar grupos"),
-            icon=ft.Icons.VIEW_LIST,
-            bgcolor="#2E8B57",
-            color="white",
-            width=200,
-            #on_click=self.mostrar_grupos
-        )
+        
 
         self.mensaje_error = ft.Text(value="", color="red", weight="bold")
 
     async def crear_grupo(self, e):
         # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
-        self.btn_crear_grupo.disabled = True
+        self.btn_crear_grupos.disabled = True
         self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
         self.page.update()
 
@@ -69,23 +66,28 @@ class VistaGrupos:
             self.integrante_input,
             self.mensaje_error
         )
+    
+    async def obtener_info_grupos(self):
 
-        async def mostrar_grupos(self, e):
-
-            # llamamos a la función para crear un grupo
-            await self.controlador.crear_grupo(
-                self.nombre_grupo_input,
-                self.integrante_input,
-                self.mensaje_error
+        # llamamos a la función para crear un grupo
+        
+        self.datos_grupo, self.integrantes = await self.controlador.mostrar_grupos(
+            self.mensaje_error
         )
+        
+             # obtenemos solo los nombres de los grupos para mostrarlos en las tarjetas
+        print(f"Grupos disponibles: {self.datos_grupo}") # mostramos en consola los grupos disponibles para comprobar que se están recuperando correctamente
+        
 
         # activamos de nuevo el botón
-        self.btn_crear_grupo.disabled = False
+        self.btn_crear_grupos.disabled = False
         self.page.update()    
+
+       
 
     async def eliminar_grupo(self, e):
         # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
-        self.btn_crear_grupo.disabled = True
+        self.btn_crear_grupos.disabled = True
         self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
         self.page.update()
 
@@ -96,9 +98,9 @@ class VistaGrupos:
         )
 
         # activamos de nuevo el botón
-        self.btn_crear_grupo.disabled = False
+        self.btn_crear_grupos.disabled = False
         self.page.update()        
-
+    
     def vista(self):
         return ft.Container(
             expand=True,
@@ -121,7 +123,7 @@ class VistaGrupos:
                             ft.Text("Bienvenido", size=20, weight="bold"),
                             self.nombre_grupo_input,
                             self.integrante_input,
-                            self.btn_crear_grupo,
+                            self.btn_crear_grupos,
                             self.btn_eliminar_grupo,
                         ], spacing=10),
                     ),
@@ -135,20 +137,9 @@ class VistaGrupos:
                             scroll=ft.ScrollMode.AUTO,  # Esto permite desplazarte si hay muchas tarjetas
                             controls=[
                                 ft.Container(
-                                    tarjeta_grupos("Grupo 1"),
-                                ),
-                                ft.Container(
-                                    tarjeta_grupos("Grupo 2"),
-                                ),
-                                ft.Container(
-                                    tarjeta_grupos("Grupo 3"),
-                                ),
-                                ft.Container(
-                                    tarjeta_grupos("Grupo 4"),
-                                ),
-                                ft.Container(
-                                    tarjeta_grupos("Grupo 5"),
-                                ),
+                                        tarjeta_grupos(grupos, self.integrantes), # mostramos el primer grupo recuperado de la base de datos
+                                    )
+                                    for grupos in self.datos_grupo
                             ],
                         ),
                     ),  

@@ -32,5 +32,7 @@ class Router:
         pantalla = vista_clase(self.page, self.controlador_auth)
         
         # 4. Agregamos la vista a la página y actualizamos
+        if isinstance(pantalla, VistaGrupos):
+            await pantalla.obtener_info_grupos() # llamamos a la función para obtener los datos de los grupos
         self.page.add(pantalla.vista())
         self.page.update()

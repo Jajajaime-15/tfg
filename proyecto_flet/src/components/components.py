@@ -1,4 +1,5 @@
 import flet as ft
+from database.wrapper import Wrapper #type: ignore
 
 
 def PrimaryButton(text, on_click=None, width=150, disabled=False, loading=False):
@@ -55,6 +56,16 @@ def PrimaryButton(text, on_click=None, width=150, disabled=False, loading=False)
                 ft.ControlState.DEFAULT: ft.Colors.WHITE,
             },
         ),
+    )
+    
+    return boton
+
+def plus_Button(on_click=None, width=150, disabled=False, loading=False):
+    
+    boton = ft.Button(
+        content=ft.Icon(ft.CupertinoIcons.PLUS_CIRCLE_FILL),
+        disabled=disabled or loading,
+        on_click=on_click if not disabled and not loading else None,
     )
     
     return boton
@@ -116,48 +127,56 @@ def SecondaryButton(text, on_click=None, width=150, disabled=False, loading=Fals
     
     return boton
 
-def tarjeta_grupos(text, on_click=None, width=150, disabled=False, loading=False):
+def tarjeta_grupos(nombre_grupo, miembros=None, on_click=None, width=400, height=500):
+    """
+    Crea una tarjeta para mostrar información de un grupo.
     
-    # En este caso, esta función se utilizará para crear tarjetas que representen a los grupos.  
+    Parámetros:
+        nombre_grupo: Nombre del grupo (string)
+        miembros: Lista de miembros del grupo (lista de strings)
+        on_click: Función a ejecutar al hacer clic
+        width: Ancho de la tarjeta
+        height: Alto de la tarjeta
+    """
     
-    if loading:
-        content = ft.Row(
-            [
-                ft.ProgressRing(
-                    width=20,
-                    height=20,
-                    stroke_width=2,
-                    color=ft.Colors.BLACK,
-                ),
-                ft.Text(
-                    text,
-                    size=16,
-                    weight=ft.FontWeight.BOLD,
-                    color=ft.Colors.BLACK,
-                ),
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-            spacing=10,
-        )
-    else:
-        content = ft.Column(
-            controls = [
-                ft.Text("Grupo 1", size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                ft.Text("Miembros: 3", size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                ft.Text("Integrante 1", size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                ft.Text("Integrante 2", size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                ft.Text("Integrante 3", size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-            ],
+    if miembros is None:
+        miembros = []
+    
+    # lista de textos para los miembros
+    miembros_controls = []
+    for miembro in miembros:
+        miembros_controls.append(
+            ft.Text(miembro, size=14, color=ft.Colors.BLACK)
         )
     
+    # Si no hay miembros, mostrar un mensaje
+    if not miembros_controls:
+        miembros_controls.append(
+            ft.Text("Sin miembros", size=14, color=ft.Colors.GREY_600)
+        )
+    
+    content = ft.Column(
+        controls=[
+            ft.Text(nombre_grupo, size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+            ft.Text(f"Miembros: {len(miembros)}", size=14, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK), # Botón para agregar miembros
+            ft.Divider(height=10, thickness=1),
+
+            ft.Column(miembros_controls, spacing=5, scroll=ft.ScrollMode.AUTO),
+            plus_Button(on_click=on_click, width=30),
+        ],
+        spacing=10,
+        horizontal_alignment=ft.CrossAxisAlignment.START,
+    )
     
     tarjeta = ft.Container(
         content=content,
-        width=400,
-        height=500,
-        bgcolor=ft.Colors.CYAN_300,
-        alignment=ft.Alignment.CENTER,
+        width=width,
+        height=height,
+        bgcolor=ft.Colors.CYAN_200,
+        padding=15,
         border_radius=8,
+        on_click=on_click,
+        ink=True, 
     )
     
     return tarjeta

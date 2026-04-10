@@ -160,12 +160,16 @@ class Wrapper:
             if not self.token or not self.id_usuario:
                 return False, "Debes iniciar sesión para ver los grupos"
             
-
-            datos_grupo = self.db.child("grupos").get(self.token) # obtenemos todos los grupos para comprobar que el grupo que se quiere eliminar existe
-            print(f"Grupos disponibles: {datos_grupo.val()}") # mostramos en consola los grupos disponibles para comprobar que se están recuperando correctamente
+            #datos_grupo_diccionario = {}
+            datos_grupo = self.db.child("grupos").get(self.token)
+            nombres_grupos_limpios = [grupo.val().get("nombre") for grupo in datos_grupo.each()]
+            integrantes = [grupo.val().get("integrante") for grupo in datos_grupo.each()]
+            nombre_grupos = nombres_grupos_limpios
+            nombre_integrantes = integrantes 
+            #print(f"Grupos disponibles: {nombre_grupo}") # mostramos en consola los grupos disponibles para comprobar que se están recuperando correctamente
             
 
-            return True, "Grupos mostrados correctamente"
+            return nombre_grupos, integrantes, True
             
         except Exception as e:
             print(f"Error al eliminar grupo: {e}")

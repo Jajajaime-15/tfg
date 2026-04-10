@@ -168,5 +168,26 @@ class AuthController:
         self.page.update()    
 
         
+    async def mostrar_grupos (self,mensaje):
+        mensaje.value = ""
+        self.page.update()
+        
+        datos_grupo, integrantes, aviso = await self.wrapper.mostrar_grupos()
+        if datos_grupo:
+            # provisional para confirmar en pantalla el registro
+            mensaje.value = "Grupos encontrados"
+            mensaje.color = "green"
+            self.page.update()
+            await asyncio.sleep(2)
+            #await self.page.push_route("/")
+            '''# uso de snack_bar para mostrar el aviso de registrado y que desaparezca solo NO ME APARECE
+            self.page.snack_bar = ft.SnackBar(ft.Text("Grupo creado correctamente"))
+            self.page.snack_bar.open = True'''
+            return datos_grupo, integrantes
+        else:
+            mensaje.value = f"Error al crear grupo: {aviso}"
+            mensaje.color = "red"
 
+
+        self.page.update()    
                
