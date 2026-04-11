@@ -32,9 +32,7 @@ class AuthController:
                 self.page.update()
                 await asyncio.sleep(2)
                 await self.page.push_route("/")
-                '''# uso de snack_bar para mostrar el aviso de registrado y que desaparezca solo NO ME APARECE
-                self.page.snack_bar = ft.SnackBar(ft.Text("Registro completado correctamente, ya puedes iniciar sesion"))
-                self.page.snack_bar.open = True'''
+                return
             else:
                 error_registro = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
                 if "EMAIL_EXISTS" in error_registro:
@@ -64,10 +62,7 @@ class AuthController:
                 self.vista.mensaje_error.color = "green"
                 self.page.update()
                 await asyncio.sleep(2)                
-                await self.page.push_route("/") # ruta a la pantalla principal/perfil/grupos
-                '''self.page.snack_bar = ft.SnackBar(ft.Text("Sesión iniciada"))
-                self.page.snack_bar.open = True
-                self.page.update()'''
+                await self.page.push_route("/home") # ruta a la pantalla principal/perfil/grupos
             else:
                 error_log = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
                 if "INVALID_LOGIN_CREDENTIALS" in error_log or "INVALID_PASSWORD" in error_log:
@@ -100,9 +95,6 @@ class AuthController:
                 self.page.update()
                 await asyncio.sleep(2)    
                 await self.page.push_route("/")
-                '''self.page.snack_bar = ft.SnackBar(ft.Text("Correo enviado"))
-                self.page.snack_bar.open = True
-                self.page.update()'''
             else:
                 error_recu = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
                 if "NOT_FOUND" in error_recu:
