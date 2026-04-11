@@ -95,7 +95,6 @@ class Wrapper:
             await self.page.shared_preferences.clear() # borramos toda la información que hay guardada en el dispositivo
             self.id_usuario = None
             self.token = None
-            self.page.push_route("/") 
             print("Sesión cerrada")
         except Exception as e:
             print(f"Error al cerrar sesión: {e}")
@@ -164,23 +163,28 @@ class Wrapper:
     # funcion para cambiar la contraseña estando conectado    
     async def cambiar_psw(self,nueva_psw):
         try:
+            self.token = await self.page.shared_preferences.get("token")
             # obtenemos el token si no está en memoria
             if not self.token:
-                self.token = await self.page.shared_preferences.get("token")
-            
+                return False, "TOKEN_EXPIRED"            
             # actualizamos la contraseña
-            self.auth.update_user_password(self.token,nueva_psw)
+            self.auth.change_password(self.token,nueva_psw)
             print("Contraseña actualizada")
             return True, "Contraseña actualizada"
         except Exception as e:
+            mensaje = str(e).upper()
+            print(f"DEBUG: Error detectado en Firebase: {mensaje}")
+            if "CREDENTIAL_TOO_OLD" in mensaje or "SENSITIVE_OPERATION" in mensaje:
+                return False, "REQUIRES_RECENT_LOGIN" 
             # si el token está caducado, refrescamos el token
             if await self.actualizar_sesion():
                 try:
-                    self.auth.update_user_password(self.token,nueva_psw)
+                    self.token = await self.page.shared_preferences.get("token")
+                    self.auth.change_password(self.token,nueva_psw)
                     return True, "Contraseña actualizada"
-                except Exception as error:
-                    return False, str(error)
-            return False, "Sesión caducada, vuelve a iniciar"
+                except:
+                    return False, "REQUIRES_RECENT_LOGIN"
+            return False, "Error desconocido"
         
     # funcion para eliminar la cuenta y los datos de dicha cuenta
     async def borrar_cuenta(self):
