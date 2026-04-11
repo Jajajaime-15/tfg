@@ -52,9 +52,9 @@ class UserController:
                 else:
                     self.vista.mensaje_error.value = "Error al guardar los datos"
         
-        self.vista.btn_guardar.disable = False # activamos el botón de nuevo
+        self.vista.btn_guardar.disabled = False # activamos el botón de nuevo
         self.page.update()
 
     # funcion para abrir los ajustes (PDTE. DE CONFIGURAR, A FALTA DE CREAR LOS AJUSTES)
     async def ajustes (self,e):
-         pass
+         await self.page.push_route("/settings")
