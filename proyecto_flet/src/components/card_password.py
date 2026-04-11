@@ -52,4 +52,4 @@ class CardPassword(ft.Card):
 
     # funcion que hace de puente para guardar
     async def guardar(self, e):
-        await self.controlador.cambiar_psw(self)
+        await self.controlador.cambio_psw(self)
