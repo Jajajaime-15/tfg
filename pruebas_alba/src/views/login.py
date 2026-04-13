@@ -1,0 +1,86 @@
+import flet as ft
+
+class VistaLogin:
+    def __init__(self, page, controlador):
+        self.page = page
+        self.controlador = controlador
+        self.controlador.vista = self
+
+        self.logo = ft.Image(
+             src="logo2.png",
+             width=200,
+             height=120,
+             fit="contain"
+        )
+
+        self.email_input = ft.TextField(
+            label="Correo Electrónico",
+            hint_text="Introduce tu email",
+            prefix_icon=ft.Icons.MAIL,
+            focused_border_color="#1A6AFE",
+            width=300,
+            border_radius=10
+        )
+        
+        self.psw_input = ft.TextField(
+            label="Contraseña",
+            hint_text="Introduce tu contraseña",
+            password=True,
+            can_reveal_password=True,
+            prefix_icon=ft.Icons.LOCK,
+            focused_border_color="#1A6AFE",
+            width=300,
+            border_radius=10
+        )
+        
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+
+        self.btn_entrar = ft.ElevatedButton(
+            content=ft.Text("Iniciar Sesión"),
+            icon=ft.Icons.LOGIN_ROUNDED,
+            bgcolor="#1A6AFE",
+            color="white",
+            width=200,
+            on_click=self.controlador.conectarse
+        )
+
+        self.btn_recuperar = ft.TextButton(
+            content=ft.Text("¿Olvidaste la contraseña? Haz click aquí para recuperarla",
+                color="black",
+                italic=True
+            ),
+            on_click=self.controlador.recuperar_psw
+        )
+
+        self.btn_registro = ft.TextButton(
+            content=ft.Text("¿No tienes cuenta? Haz click aquí para registrarte",
+                color="black",
+                italic=True
+            ),
+            on_click=self.registrarse
+        )
+
+    async def registrarse(self,e):
+        self.page.go("/registro")
+        
+    # función para crear la vista que se mostrará en la pantalla
+    def vista(self):
+        return ft.Container(
+            content=ft.Column(
+                [
+                    self.logo,
+                    ft.Text("Bienvenido", size=20, weight="bold"),
+                    self.email_input,
+                    self.psw_input,
+                    self.btn_entrar,
+                    self.btn_registro,
+                    self.btn_recuperar,
+                    self.mensaje_error,
+                ],
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                alignment=ft.MainAxisAlignment.CENTER,
+                spacing=10
+            ),
+            expand=True,
+            alignment=ft.Alignment(0, 0),
+        )

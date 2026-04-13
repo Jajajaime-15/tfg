@@ -1,0 +1,100 @@
+import flet as ft
+import asyncio
+
+class GroupController:
+    def __init__(self,page,wrapper, vista = None):
+        self.page = page
+        self.wrapper = wrapper
+        self.vista = vista
+
+    async def crear_grupo (self,nombre,integrante,mensaje):
+        mensaje.value = ""
+        self.page.update()
+
+        datos = [nombre.value, integrante.value]
+
+        if not all (datos):
+            mensaje.value = "Todos los campos son obligatorios"
+        else:
+            creado, aviso = await self.wrapper.crear_grupo(nombre.value, integrante.value)
+            if creado:
+                # provisional para confirmar en pantalla el registro
+                mensaje.value = "Grupo creado correctamente"
+                mensaje.color = "green"
+                self.page.update()
+                await asyncio.sleep(2)
+                await self.page.push_route("/")
+            else:
+                mensaje.value = f"Error al crear grupo: {aviso}"
+                mensaje.color = "red"
+
+        self.page.update()
+
+    async def eliminar_grupo (self,nombre,mensaje):
+        mensaje.value = ""
+        self.page.update()
+
+        datos = [nombre.value]
+
+        if not all (datos):
+            mensaje.value = "Todos los campos son obligatorios"
+        else:
+            borrado, aviso = await self.wrapper.eliminar_grupo(nombre.value)
+            if borrado:
+                # provisional para confirmar en pantalla el registro
+                mensaje.value = "Grupo eliminado correctamente"
+                mensaje.color = "green"
+                self.page.update()
+                await asyncio.sleep(2)
+                await self.page.push_route("/")
+            else:
+                mensaje.value = f"Error al crear grupo: {aviso}"
+                mensaje.color = "red"
+
+        self.page.update()    
+        
+    async def mostrar_grupos(self, mensaje):
+        mensaje.value = ""
+        self.page.update()
+        
+        datos_grupo, integrantes, aviso = await self.wrapper.mostrar_grupos()
+        
+        if aviso is False:
+            mensaje.value = "Error al obtener grupos" #f"Error: {integrantes}"
+            mensaje.color = "red"
+            self.page.update()
+            return [], []  # Retornar listas vacías en caso de error
+        
+        if datos_grupo:
+            mensaje.value = f"Se encontraron {len(datos_grupo)} grupos"
+            mensaje.color = "green"
+        else:
+            mensaje.value = "No tienes grupos aún"
+            mensaje.color = "orange"
+        
+        self.page.update()
+        return datos_grupo, integrantes
+        
+    async def anyadir_participante(self, nombre_grupo, nuevo_integrante, mensaje):
+        mensaje.value = ""
+        self.page.update()
+
+        datos = [nombre_grupo.value, nuevo_integrante.value]
+
+        if not all (datos):
+            mensaje.value = "Todos los campos son obligatorios"
+        else:
+            anyadido, aviso = await self.wrapper.anyadir_participante(nombre_grupo.value, nuevo_integrante.value)
+            if anyadido:
+                # provisional para confirmar en pantalla el registro
+                mensaje.value = "Participante añadido correctamente"
+                mensaje.color = "green"
+                self.page.update()
+                await asyncio.sleep(2)
+                await self.page.push_route("/")
+            else:
+                mensaje.value = f"Error al crear grupo: {aviso}"
+                mensaje.color = "red"
+                
+        self.page.update()    
+        
