@@ -75,7 +75,7 @@ class VistaGrupos:
             self.mensaje_error
         )
         
-             # obtenemos solo los nombres de los grupos para mostrarlos en las tarjetas
+        # obtenemos solo los nombres de los grupos para mostrarlos en las tarjetas
         print(f"Grupos disponibles: {self.datos_grupo}") # mostramos en consola los grupos disponibles para comprobar que se están recuperando correctamente
         
 

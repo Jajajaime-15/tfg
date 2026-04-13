@@ -86,11 +86,9 @@ class Wrapper:
             print(f"Error al enviar el correo:{e}")
             return False, str(e)
         
-    # función para registrar grupos nuevos
-    async def crear_grupo(self, nombre_grupo,integrante):
-    
+    # función para registrar grupos nuevos (VERSIÓN CON RUTAS COMPLETAS)
+    async def crear_grupo(self, nombre_grupo, integrante):
         try:
-            # Verifica que el usuario esté autenticado antes de crear un grupo
             if not self.token or not self.id_usuario:
                 return False, "Debes iniciar sesión para crear un grupo"
             
@@ -105,76 +103,89 @@ class Wrapper:
             grupos_ref = self.db.child("grupos")
             resultado = grupos_ref.push(info_grupo, self.token)  
             id_grupo = resultado["name"]  
+
+            # RUTA COMPLETA para leer el campo id_grupo del usuario
+            ruta_id_grupo = f"usuarios/{self.id_usuario}/id_grupo"
             
-            # Asigna el grupo al usuario que lo creó
-            usuario_ref = self.db.child("usuarios").child(self.id_usuario)
-            usuario_ref.update({
-                "id_grupo": id_grupo
-            }, self.token)
+            # Leer diccionario de grupos usando ruta completa
+            valor_actual = self.db.child(ruta_id_grupo).get(self.token).val()
+            
+            # Si es None o string, lo convertimos a diccionario vacío
+            if not isinstance(valor_actual, dict):
+                dic_grupos = {}
+            else:
+                dic_grupos = valor_actual
+
+            print(f"Diccionario de grupos antes de añadir el nuevo grupo: {dic_grupos}")
+
+            # Añadir el nuevo grupo al diccionario
+            dic_grupos = {
+                id_grupo: {
+                    "nombre": nombre_grupo,
+                    "integrante": integrante
+                    }
+            }
+            
+            # Guardar usando la misma RUTA COMPLETA
+            print(f"Actualizando el usuario con el nuevo grupo: {dic_grupos}")
+            self.db.child(ruta_id_grupo).update(dic_grupos, self.token)
             
             print(f"Grupo '{nombre_grupo}' creado correctamente con ID: {id_grupo}")
             return True, "Grupo creado correctamente"
             
         except Exception as e:
             print(f"Error al crear grupo: {e}")
-            return False, str(e)    
+            return False, str(e)
+
         
     # función para eliminar grupos
     async def eliminar_grupo(self, nombre_grupo):
-    # Falta comprobar que el grupo que se quiere eliminar es el mismo que el del usuario
-    # Falta poder eliminar un grupo por su nombre, ahora mismo se elimina el grupo asociado al usuario que ha iniciado sesión sin comprobar el nombre del grupo
         try:
-            # Verifica que el usuario esté autenticado antes de eliminar un grupo
             if not self.token or not self.id_usuario:
                 return False, "Debes iniciar sesión para eliminar un grupo"
-            
-            # Los datos del grupo
-            info_grupo = {
-                "nombre": nombre_grupo,
-                "fecha_creacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
 
-            datos_grupo = self.db.child("grupos").get(self.token) # obtenemos todos los grupos para comprobar que el grupo que se quiere eliminar existe
+            datos_grupo = self.db.child("grupos").get(self.token)
             for grupo in datos_grupo.each():
-                    if grupo.val().get("nombre") == nombre_grupo:
-                        id_grupo = grupo.key() # obtenemos el id del grupo que se quiere eliminar para poder eliminarlo de la base de datos
-                        grupo_ref = self.db.child("grupos").child(id_grupo)
-                        grupo_ref.remove(self.token)  # Elimina el grupo de la base de datos
-                        print(f"Grupo '{nombre_grupo}' eliminado correctamente con ID: {id_grupo}")
-                    else:
-                        print(f"Grupo '{nombre_grupo}' no encontrado")
-                        return False, "No se ha encontrado el grupo que quieres eliminar"    
+                if grupo.val().get("nombre") == nombre_grupo:
+                    id_grupo = grupo.key()
+                    grupo_ref = self.db.child("grupos").child(id_grupo)
+                    grupo_ref.remove(self.token)
+                    print(f"Grupo '{nombre_grupo}' eliminado correctamente")
+                    return True, "Grupo eliminado correctamente"
             
-            print(f"Grupo '{nombre_grupo}' eliminado correctamente con ID: {self.id_usuario}")
-            return True, "Grupo eliminado correctamente"
+            return False, "No se ha encontrado el grupo que quieres eliminar"
             
         except Exception as e:
             print(f"Error al eliminar grupo: {e}")
-            return False, str(e)     
+            return False, str(e)
+
 
     
     async def mostrar_grupos(self):
-
+        nombres_grupos = []  
+        integrantes = []  
         try:
-            # Verifica que el usuario esté autenticado antes de eliminar un grupo
             if not self.token or not self.id_usuario:
-                return False, "Debes iniciar sesión para ver los grupos"
+                return [], "Debes iniciar sesión para ver los grupos", False  # ✅ 3 valores
             
-            #datos_grupo_diccionario = {}
-            datos_grupo = self.db.child("grupos").get(self.token)
-            nombres_grupos_limpios = [grupo.val().get("nombre") for grupo in datos_grupo.each()]
-            integrantes = [grupo.val().get("integrante") for grupo in datos_grupo.each()]
-            nombre_grupos = nombres_grupos_limpios
-            nombre_integrantes = integrantes 
-            #print(f"Grupos disponibles: {nombre_grupo}") # mostramos en consola los grupos disponibles para comprobar que se están recuperando correctamente
+            datos_grupo = self.db.child("usuarios").child(self.id_usuario).child("id_grupo").get(self.token)
             
+            if datos_grupo.val() is not None:
+                print("Hay grupos asociados a este usuario")
+                nombres_grupos = [grupo.val().get("nombre") for grupo in datos_grupo.each()]
+                integrantes = [grupo.val().get("integrante") for grupo in datos_grupo.each()]
+                aviso = True
+            else:
+                print("No hay grupos asociados a este usuario")
+                aviso = True  # No es error, solo no tiene grupos
 
-            return nombre_grupos, integrantes, True
+            return nombres_grupos, integrantes, aviso
             
         except Exception as e:
-            print(f"Error al eliminar grupo: {e}")
-            return False, str(e)   
-        
+            print(f"Error al mostrar grupos: {e}")
+            return [], [], False  # En caso de error, éxito=False
+                
 
-    async def editar_grupos(self):
-        pass    
+    #async def anyadir_participante(self):
+
+         
