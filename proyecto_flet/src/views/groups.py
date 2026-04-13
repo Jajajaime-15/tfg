@@ -49,6 +49,16 @@ class VistaGrupos:
             width=200,
             on_click=self.eliminar_grupo
         )
+        
+        self.btn_anyadir_integrante = ft.ElevatedButton(
+            content=ft.Text("Añadir integrante"),
+            icon=ft.Icons.DELETE,
+            bgcolor="#FF4136",
+            color="white",
+            width=200,
+            on_click=self.anyadir_integrante
+        )
+        
 
         
 
@@ -100,6 +110,23 @@ class VistaGrupos:
         # activamos de nuevo el botón
         self.btn_crear_grupos.disabled = False
         self.page.update()        
+
+    async def anyadir_integrante(self, e):
+        # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
+        self.btn_crear_grupos.disabled = True
+        self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
+        self.page.update()
+
+        # llamamos a la función para eliminar un grupo
+        await self.controlador.anyadir_participante(
+            self.nombre_grupo_input,
+            self.integrante_input,
+            self.mensaje_error
+        )
+
+        # activamos de nuevo el botón
+        self.btn_crear_grupos.disabled = False
+        self.page.update()     
     
     def vista(self):
         return ft.Container(
@@ -125,6 +152,7 @@ class VistaGrupos:
                             self.integrante_input,
                             self.btn_crear_grupos,
                             self.btn_eliminar_grupo,
+                            self.btn_anyadir_integrante,
                         ], spacing=10),
                     ),
                     
@@ -137,9 +165,9 @@ class VistaGrupos:
                             scroll=ft.ScrollMode.AUTO,  # Esto permite desplazarte si hay muchas tarjetas
                             controls=[
                                 ft.Container(
-                                        tarjeta_grupos(grupos, self.integrantes), # mostramos el primer grupo recuperado de la base de datos
+                                        tarjeta_grupos(grupos, self.integrantes[i]), # mostramos los grupos e integrantes en las tarjetas.
                                     )
-                                    for grupos in self.datos_grupo
+                                    for i, grupos in enumerate(self.datos_grupo)
                             ],
                         ),
                     ),  

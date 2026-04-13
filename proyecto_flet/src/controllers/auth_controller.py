@@ -189,3 +189,31 @@ class AuthController:
         
         self.page.update()
         return datos_grupo, integrantes
+    
+    
+    async def anyadir_participante(self, nombre_grupo, nuevo_integrante, mensaje):
+        mensaje.value = ""
+        self.page.update()
+
+        anyadido, aviso = await self.wrapper.anyadir_participante(nombre_grupo, nuevo_integrante)
+
+        datos = [nombre_grupo.value, nuevo_integrante.value]
+
+        if not all (datos):
+            mensaje.value = "Todos los campos son obligatorios"
+        else:
+            anyadido, aviso = await self.wrapper.anyadir_participante(nombre_grupo.value, nuevo_integrante.value)
+            if anyadido:
+                # provisional para confirmar en pantalla el registro
+                mensaje.value = "Participante añadido correctamente"
+                mensaje.color = "green"
+                self.page.update()
+                await asyncio.sleep(2)
+                await self.page.push_route("/")
+            else:
+                mensaje.value = f"Error al crear grupo: {aviso}"
+                mensaje.color = "red"
+
+
+        self.page.update()    
+        
