@@ -1,6 +1,9 @@
 import flet as ft
 from flet import TextField
 from components.components import tarjeta_grupos
+from views.perfil import VistaPerfil
+from controllers.user_controller import UserController
+from controllers.group_controller import GroupController # llamas al controlador de grupos
 
 
 class VistaGrupos:
@@ -57,6 +60,16 @@ class VistaGrupos:
             color="white",
             width=200,
             on_click=self.anyadir_integrante
+        )
+
+        self.inferior = ft.NavigationBar(
+            selected_index=0,
+            destinations=[
+                ft.NavigationBarDestination(icon=ft.Icons.GROUP_OUTLINED, label="Grupos"),
+                ft.NavigationBarDestination(icon=ft.Icons.MAP_OUTLINED, label="Mapa"),
+                ft.NavigationBarDestination(icon=ft.Icons.PERSON_OUTLINED, label="Perfil"),
+            ],
+            on_change=self.cambiar_pestana
         )
         
 
@@ -127,6 +140,20 @@ class VistaGrupos:
         # activamos de nuevo el botón
         self.btn_crear_grupos.disabled = False
         self.page.update()     
+
+    async def cambiar_pestana(self, e):
+        indice = e.control.selected_index # guardamos el indice del botón que se selecciona
+        
+        if indice == 0:
+            self.mostrar_grupos()
+        elif indice == 1:
+            # aqui el controlador de mapay agregamos al centro la vista del mapa
+            print ("MAPA JAIME")
+        elif indice == 2:
+            controlador_u = UserController(self.page, self.wrapper)
+            self.centro.content = VistaPerfil(self.page, controlador_u).vista()
+
+        self.page.update()     
     
     def vista(self):
         return ft.Container(
@@ -169,8 +196,10 @@ class VistaGrupos:
                                     )
                                     for i, grupos in enumerate(self.datos_grupo)
                             ],
+                            
                         ),
                     ),  
+                    self.inferior
                 ],
             ),
         )
