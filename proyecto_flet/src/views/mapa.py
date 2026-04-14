@@ -21,7 +21,9 @@ async def map(page: ft.Page):
     mapa = ftm.Map( # creacion del mapa
         expand=True, # para que ocupe toda la pantalla
         initial_center=ftm.MapLatitudeLongitude(lat, lon), # el lugar donde comienza al abrir el mapa, que sera la ubicacion inicial del usuario
-        initial_zoom=12, # el zoom inicial
+        initial_zoom=12, 
+        min_zoom=3,
+        max_zoom=25,
         on_tap=None, # lo que hara en caso de pulsar una vez en el mapa 
         on_secondary_tap=None, # lo mismo pero dos veces
         on_event=print, # lo que hara en cada evento del mapa, para depurar he puesto que imprima cada accion en la consola
