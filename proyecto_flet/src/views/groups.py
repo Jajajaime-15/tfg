@@ -12,13 +12,12 @@ class VistaGrupos:
         self.controlador = controlador
         self.datos_grupo = None
         self.integrantes = None
+        self.centro = ft.Container(expand=True)
         
-        
-
 
         self.nombre_grupo_input = ft.TextField(
-            label="Nombre Completo",
-            hint_text="Introduce tu nombre",
+            label="Nombre del grupo",
+            hint_text="Introduce el nombre del grupo",
             prefix_icon=ft.CupertinoIcons.PERSON,
             focused_border_color="#1A6AFE",
             width=300,
@@ -130,7 +129,7 @@ class VistaGrupos:
         self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
         self.page.update()
 
-        # llamamos a la función para eliminar un grupo
+        # llamamos a la función para añadir un integrante a un grupo
         await self.controlador.anyadir_participante(
             self.nombre_grupo_input,
             self.integrante_input,
@@ -145,61 +144,75 @@ class VistaGrupos:
         indice = e.control.selected_index # guardamos el indice del botón que se selecciona
         
         if indice == 0:
-            self.mostrar_grupos()
+            await self.obtener_info_grupos()
+            self.centro.content = ft.Row(
+            expand=True,
+            spacing=10,
+            scroll=ft.ScrollMode.AUTO,
+            controls=[
+                ft.Container(
+                    tarjeta_grupos(grupos, self.integrantes[i] if self.integrantes else ""),
+                )
+                for i, grupos in enumerate(self.datos_grupo or [])
+            ],
+        )
         elif indice == 1:
             # aqui el controlador de mapay agregamos al centro la vista del mapa
             print ("MAPA JAIME")
         elif indice == 2:
-            controlador_u = UserController(self.page, self.wrapper)
+            wrapper = self.controlador.wrapper 
+            controlador_u = UserController(self.page, wrapper)
             self.centro.content = VistaPerfil(self.page, controlador_u).vista()
 
         self.page.update()     
     
     def vista(self):
-        return ft.Container(
+
+        # Construir el contenido inicial del centro (grupos)
+        contenido_centro = ft.Row(
             expand=True,
-            bgcolor=ft.Colors.WHITE,
-            border_radius=ft.BorderRadius.all(20),
-            padding=20,
-            shadow=ft.BoxShadow(
-                blur_radius=15,
-                color=ft.Colors.with_opacity(0.3, ft.Colors.BLACK), 
-                offset=ft.Offset(3, 3)
-            ),
-            content=ft.Row(
-                spacing=8,
-                expand=True,
-                controls=[
-                    # Columna izquierda (formulario)
-                    ft.Container(
-                        width=200,
-                        content=ft.Column([
-                            ft.Text("Bienvenido", size=20, weight="bold"),
-                            self.nombre_grupo_input,
-                            self.integrante_input,
-                            self.btn_crear_grupos,
-                            self.btn_eliminar_grupo,
-                            self.btn_anyadir_integrante,
-                        ], spacing=10),
-                    ),
-                    
-                    # Columna central (tarjetas horizontales)
-                    ft.Container(
-                        expand=True,
-                        content=ft.Row(
-                            expand=True,
-                            spacing=10,
-                            scroll=ft.ScrollMode.AUTO,  # Esto permite desplazarte si hay muchas tarjetas
-                            controls=[
-                                ft.Container(
-                                        tarjeta_grupos(grupos, self.integrantes[i]), # mostramos los grupos e integrantes en las tarjetas.
-                                    )
-                                    for i, grupos in enumerate(self.datos_grupo)
-                            ],
-                            
-                        ),
-                    ),  
-                    self.inferior
-                ],
-            ),
+            spacing=10,
+            scroll=ft.ScrollMode.AUTO,
+            controls=[
+                ft.Container(
+                    tarjeta_grupos(grupos, self.integrantes[i] if self.integrantes else ""),
+                )
+                for i, grupos in enumerate(self.datos_grupo or [])
+            ],
         )
+
+        self.centro.content = contenido_centro
+
+        return ft.Container(
+        expand=True,
+        bgcolor=ft.Colors.WHITE,
+        border_radius=ft.BorderRadius.all(20),
+        padding=20,
+        shadow=ft.BoxShadow(
+            blur_radius=15,
+            color=ft.Colors.with_opacity(0.3, ft.Colors.BLACK), 
+            offset=ft.Offset(3, 3)
+        ),
+        content=ft.Column(
+            expand=True,
+            controls=[
+                # Fila superior con formulario
+                ft.Container(
+                    width=200,
+                    content=ft.Column([
+                        ft.Text("Bienvenido", size=20, weight="bold"),
+                        self.nombre_grupo_input,
+                        self.integrante_input,
+                        self.btn_crear_grupos,
+                        self.btn_eliminar_grupo,
+                        self.btn_anyadir_integrante,
+                    ], spacing=10),
+                ),
+                # Centro dinámico (expande para ocupar el espacio)
+                ft.Container(expand=True, content=self.centro),
+                # Barra de navegación inferior
+                self.inferior,
+            ],
+            spacing=10,
+        ),
+    )

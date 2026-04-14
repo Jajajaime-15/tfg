@@ -46,11 +46,7 @@ class Wrapper:
             self.token = usuario["idToken"]
             await self.page.shared_preferences.set("id_usuario", self.id_usuario) # guardamos el id del usuario en el dispositivo
             await self.page.shared_preferences.set("token", self.token)  # guardamos el token en el dispositivo para poder usarlo en otras funciones sin tener que pedir al usuario que inicie sesión cada vez
-            infor_usuario = self.db.child("usuarios").child(self.id_usuario).get(self.token).val() 
-            if infor_usuario and "id_grupo" in infor_usuario: # comprobamos si en los datos del usuario ya tiene algun grupo asociado y se guarda en el dispositivo para poder recuperarlo
-                grupo = infor_usuario["id_grupo"]
-                await self.page.shared_preferences.set("id_grupo",grupo)
-                print(f"Grupo:{grupo}")
+            
             print("Sesión iniciada")
             return True, "Sesión iniciada correctamente"
         except Exception as e:
@@ -144,19 +140,37 @@ class Wrapper:
             if not self.token or not self.id_usuario:
                 return False, "Debes iniciar sesión para eliminar un grupo"
 
-            datos_grupo = self.db.child("grupos").get(self.token)
-            for grupo in datos_grupo.each():
-                if grupo.val().get("nombre") == nombre_grupo:
-                    id_grupo = grupo.key()
-                    grupo_ref = self.db.child("grupos").child(id_grupo)
-                    grupo_ref.remove(self.token)
-                    print(f"Grupo '{nombre_grupo}' eliminado correctamente")
-                    return True, "Grupo eliminado correctamente"
+            # Obtener los grupos del usuario
+            ruta_usuario_grupos = f"usuarios/{self.id_usuario}/id_grupo"
+            grupos_usuario = self.db.child(ruta_usuario_grupos).get(self.token).val()
             
-            return False, "No se ha encontrado el grupo que quieres eliminar"
+            if not grupos_usuario:
+                return False, "No tienes grupos para eliminar"
+            
+            # Buscar el ID del grupo por nombre
+            id_grupo_encontrar = None
+            for id_grupo, info_grupo in grupos_usuario.items():
+                if info_grupo.get("nombre") == nombre_grupo:
+                    id_grupo_encontrar = id_grupo
+                    break
+            
+            if not id_grupo_encontrar:
+                return False, f"No se encontró el grupo '{nombre_grupo}'"
+            
+            # Eliminar el grupo del nodo "grupos"
+            self.db.child(f"grupos/{id_grupo_encontrar}").remove(self.token)
+            
+            # Eliminar el grupo del diccionario del usuario
+            del grupos_usuario[id_grupo_encontrar]
+            
+            # Guardar el diccionario actualizado del usuario
+            self.db.child(ruta_usuario_grupos).set(grupos_usuario, self.token)
+            
+            print(f" Grupo '{nombre_grupo}' eliminado correctamente")
+            return True, "Grupo eliminado correctamente"
             
         except Exception as e:
-            print(f"Error al eliminar grupo: {e}")
+            print(f" Error al eliminar grupo: {e}")
             return False, str(e)
 
 

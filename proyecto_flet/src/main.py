@@ -19,7 +19,7 @@ async def main(page: ft.Page):
     #await page.shared_preferences.clear()
     
     # arrancamos el archivo de las rutas
-    router = Router(page,auth_controller)
+    router = Router(page,wrapper)
     # conectamos con la funcion de cambio de ruta del router (route_change)
     page.on_route_change = router.route_change
 

@@ -88,8 +88,6 @@ class GroupController:
         mensaje.value = ""
         self.page.update()
 
-        anyadido, aviso = await self.wrapper.anyadir_participante(nombre_grupo, nuevo_integrante)
-
         datos = [nombre_grupo.value, nuevo_integrante.value]
 
         if not all (datos):

@@ -3,18 +3,22 @@ import flet as ft
 from views.login import VistaLogin
 from views.registro import VistaRegistro
 from views.groups import VistaGrupos
+from controllers.auth_controller import AuthController
+from controllers.group_controller import GroupController
 # Aquí importamos las nuevas vistas que se creen 
 
 class Router:
-    def __init__(self, page, controlador_auth):
+    def __init__(self, page, wrapper):
         self.page = page
-        self.controlador_auth = controlador_auth
+        self.wrapper = wrapper
+        self.auth_controller = AuthController(page, wrapper)
+        self.group_controller = GroupController(page, wrapper)
         
         # Diccionario de rutas
         self.routes = {
-            "/": VistaLogin,
-            "/registro": VistaRegistro,
-            "/grupos": VistaGrupos,
+            "/": (VistaLogin, self.auth_controller),
+            "/registro": (VistaRegistro, self.auth_controller),
+            "/grupos": (VistaGrupos, self.group_controller), 
         }
 
     async def route_change(self, e):
@@ -25,11 +29,11 @@ class Router:
         self.page.controls.clear()
         
         # Buscamos la vista en nuestro diccionario y la ruta no existe, por defecto cargamos el login
-        vista_clase = self.routes.get(self.page.route, VistaLogin)
+        vista_clase, controlador = self.routes.get(self.page.route, (VistaLogin, self.auth_controller))
         
         #Instanciamos la vista pasándole el page y el controlador
         # Todas las vistas deben tener (page, controlador) en el __init__
-        pantalla = vista_clase(self.page, self.controlador_auth)
+        pantalla = vista_clase(self.page, controlador)
         
         # 4. Agregamos la vista a la página y actualizamos
         if isinstance(pantalla, VistaGrupos):
