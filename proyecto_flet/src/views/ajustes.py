@@ -17,7 +17,7 @@ class VistaAjustes:
                 ft.Row([
                     ft.IconButton(
                         icon=ft.Icons.ARROW_BACK_IOS_NEW,
-                        on_click=lambda _: self.page.go("/")
+                        on_click=lambda _: self.page.go("/perfil")
                     ),
                     ft.Text("Ajustes",size=25, weight="bold")
                 ]),
