@@ -1,4 +1,5 @@
 import flet as ft
+from components.componentes import BotonPrincipal, InputTexto
 
 class VistaRegistro:
     def __init__(self, page, controlador):
@@ -14,68 +15,50 @@ class VistaRegistro:
             on_click=self.volver
         )
 
-        self.nombre_input = ft.TextField(
+        self.nombre_input = InputTexto(
             label="Nombre Completo",
-            hint_text="Introduce tu nombre",
-            prefix_icon=ft.Icons.PERSON,
-            focused_border_color="#1A6AFE",
-            width=300,
-            border_radius=10
+            hint="Introduce tu nombre",
+            icono=ft.Icons.PERSON
         )
         
-        self.telefono_input = ft.TextField(
+        self.telefono_input = InputTexto(
             label="Teléfono",
-            hint_text="Introduce tu teléfono",
-            prefix_icon=ft.Icons.PHONE,
-            focused_border_color="#1A6AFE",
-            width=300,
-            border_radius=10
+            hint="Introduce tu teléfono",
+            icono=ft.Icons.PHONE
         )
 
-        self.email_input = ft.TextField(
+        self.email_input = InputTexto(
             label="Correo Electrónico",
-            hint_text="Introduce tu email",
-            prefix_icon=ft.Icons.MAIL,
-            focused_border_color="#1A6AFE",
-            width=300,
-            border_radius=10
+            hint="Introduce tu email",
+            icono=ft.Icons.MAIL
         )
         
-        self.psw_input = ft.TextField(
+        self.psw_input = InputTexto(
             label="Contraseña",
-            hint_text="Mínimo 8 caracteres",
+            hint="Mínimo 8 caracteres",
+            icono=ft.Icons.LOCK,
             password=True,
-            can_reveal_password=True,
-            prefix_icon=ft.Icons.LOCK,
-            focused_border_color="#1A6AFE",
-            width=300,
-            border_radius=10
+            reveal=True
         )
 
-        self.psw_confirmar = ft.TextField(
+        self.psw_confirmar = InputTexto(
             label="Repetir contraseña",
-            hint_text="Repite tu contraseña",
+            hint="Repite tu contraseña",
+            icono=ft.Icons.LOCK_RESET,
             password=True,
-            can_reveal_password=True,
-            prefix_icon=ft.Icons.LOCK_RESET,
-            focused_border_color="#1A6AFE",
-            width=300,
-            border_radius=10
+            reveal=True
         )
         
         self.mensaje_error = ft.Text(value="", color="red", weight="bold")
 
-        self.btn_registrar = ft.ElevatedButton(
-            content=ft.Text("Registrarse"),
-            icon=ft.Icons.APP_REGISTRATION,
-            bgcolor="#1A6AFE",
-            color="white",
-            width=200,
-            on_click=self.controlador.registrar_usuario # llamamos a la funcion de registrar del controlador
+        self.btn_registrar = BotonPrincipal(
+            texto="Registrarse",
+            icono=ft.Icons.APP_REGISTRATION,
+            accion=self.controlador.registrar_usuario
         )
 
-    async def volver(self,e):
-        self.page.go("/")
+    async def volver(self, e):
+        await self.page.push_route("/")
 
     # función para crear la vista que se mostrará en la pantalla
     def vista(self):

@@ -27,7 +27,6 @@ class Wrapper:
 
             info_usuario = {
                 "nombre": nombre,
-                "apellidos": "",
                 "telefono": telefono,
                 "email": email,
                 "pais": "", # se podrá rellenar desde el perfil de usuario
@@ -42,12 +41,9 @@ class Wrapper:
             await self.page.shared_preferences.set("token", self.token)
             await self.page.shared_preferences.set("refresh_token", refresh_token)
             await self.page.shared_preferences.set("nombre", nombre)
-            await self.page.shared_preferences.set("apellidos", "")
             await self.page.shared_preferences.set("telefono", telefono)
             await self.page.shared_preferences.set("email", email)
-            await self.page.shared_preferences.set("pais", "")
-            await self.page.shared_preferences.set("localidad", "")
-            
+
             print("Usuario registrado correctamente")
             return True,"Usuario registrado correctamente"
         except Exception as e:
@@ -71,7 +67,6 @@ class Wrapper:
                 await self.page.shared_preferences.set("token", self.token)
                 await self.page.shared_preferences.set("refresh_token", refresh_token)
                 await self.page.shared_preferences.set("nombre", infor_usuario.get("nombre", ""))
-                await self.page.shared_preferences.set("apellidos", infor_usuario.get("apellidos", ""))
                 await self.page.shared_preferences.set("email", infor_usuario.get("email", ""))
                 await self.page.shared_preferences.set("telefono", infor_usuario.get("telefono", ""))
                 await self.page.shared_preferences.set("pais", infor_usuario.get("pais", ""))

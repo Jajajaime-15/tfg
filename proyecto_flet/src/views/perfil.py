@@ -1,6 +1,6 @@
 import flet as ft
 import asyncio
-
+from components.componentes import BotonPrincipal, InputTexto
 class VistaPerfil:
     def __init__(self, page, controlador):
         self.page = page
@@ -18,46 +18,37 @@ class VistaPerfil:
         self.usuario = ft.Text(size=20, weight="bold")
         self.email = ft.Text(size=14, color="grey")
         
-        self.nombre_input = ft.TextField(
-            label="Nombre",
-            border_radius=10, 
-            read_only=True, # usamos read_only porque es un campo que no se puede modificar
+        self.nombre_input = InputTexto(
+            label="Nombre Completo", 
+            read_only=True,
             expand=True
         )
 
-        self.apellidos_input = ft.TextField(
-            label="Apellidos",
-            border_radius=10, 
+        self.apellidos_input = InputTexto(
+            label="Apellidos", 
             expand=True
         )
 
-        self.telefono_input = ft.TextField(
-            label="Teléfono",
-            border_radius=10,
+        self.telefono_input = InputTexto(
+            label="Teléfono"
+        )
+
+        self.pais_input = InputTexto(
+            label="País", 
             expand=True
         )
 
-        self.pais_input = ft.TextField(
-            label="País",
-            border_radius=10,
-            expand=True # hacemos que el campo ocupe la mitad de la fila
-        )
-
-        self.localidad_input = ft.TextField(
-            label="Localidad",
-            border_radius=10,
-            expand=True # ocupa la otra mitad de la fila de país
+        self.localidad_input = InputTexto(
+            label="Localidad", 
+            expand=True
         )
 
         self.mensaje_error = ft.Text(value="", color="red", weight="bold")
         
-        self.btn_guardar = ft.ElevatedButton(
-            content=ft.Text("Guardar cambios"),
-            icon=ft.Icons.SAVE_AS,
-            bgcolor="#1A6AFE",
-            color="white",
-            width=200,
-            on_click=self.controlador.guardar_cambios
+        self.btn_guardar = BotonPrincipal(
+            texto="Guardar cambios",
+            icono=ft.Icons.SAVE_AS,
+            accion=self.controlador.guardar_cambios
         )
 
     def vista(self):

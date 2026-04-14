@@ -16,7 +16,6 @@ class UserController:
         pais = await self.page.shared_preferences.get("pais")
         localidad = await self.page.shared_preferences.get("localidad")
 
-
         # datos del formulario
         self.vista.nombre_input.value = nombre
         self.vista.nombre_input.read_only = True # no dejamos que el nombre se pueda cambiar
@@ -54,7 +53,7 @@ class UserController:
                 error_guardado = str(aviso).upper()
                 if "INVALID_ID_TOKEN" in error_guardado or "EXPIRED" in error_guardado:
                     self.vista.mensaje_error.value = "Sesión caducada, vuelve a iniciar"
-                elif "PERMISSION_DENIED" in error_guardado:
+                elif "PERMISION_DENIED" in error_guardado:
                     self.vista.mensaje_error.value = "No tienes permisos para modificar los datos"
                 elif "NETWORK" in error_guardado or "CONNECTION" in error_guardado:
                      self.vista.mensaje_error.value = "Sin conxión."
@@ -66,4 +65,5 @@ class UserController:
 
     # funcion para abrir los ajustes (PDTE. DE CONFIGURAR, A FALTA DE CREAR LOS AJUSTES)
     async def ajustes (self,e):
+         self.page.index_navegacion = 2
          await self.page.push_route("/settings")
