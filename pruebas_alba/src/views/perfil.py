@@ -1,6 +1,6 @@
 import flet as ft
 import asyncio
-
+from components.componentes import BotonPrincipal, InputTexto
 class VistaPerfil:
     def __init__(self, page, controlador):
         self.page = page
@@ -18,38 +18,37 @@ class VistaPerfil:
         self.usuario = ft.Text(size=20, weight="bold")
         self.email = ft.Text(size=14, color="grey")
         
-        self.nombre_input = ft.TextField(
-            label="Nombre Completo",
-            border_radius=10, 
-            read_only=True # usamos read_only porque es un campo que no se puede modificar
+        self.nombre_input = InputTexto(
+            label="Nombre Completo", 
+            read_only=True,
+            expand=True
         )
 
-        self.telefono_input = ft.TextField(
-            label="Teléfono",
-            border_radius=10
+        self.apellidos_input = InputTexto(
+            label="Apellidos", 
+            expand=True
         )
 
-        self.pais_input = ft.TextField(
-            label="País",
-            border_radius=10,
-            expand=True # hacemos que el campo ocupe la mitad de la fila
+        self.telefono_input = InputTexto(
+            label="Teléfono"
         )
 
-        self.localidad_input = ft.TextField(
-            label="Localidad",
-            border_radius=10,
-            expand=True # ocupa la otra mitad de la fila de país
+        self.pais_input = InputTexto(
+            label="País", 
+            expand=True
+        )
+
+        self.localidad_input = InputTexto(
+            label="Localidad", 
+            expand=True
         )
 
         self.mensaje_error = ft.Text(value="", color="red", weight="bold")
         
-        self.btn_guardar = ft.ElevatedButton(
-            content=ft.Text("Guardar cambios"),
-            icon=ft.Icons.SAVE_AS,
-            bgcolor="#1A6AFE",
-            color="white",
-            width=200,
-            on_click=self.controlador.guardar_cambios
+        self.btn_guardar = BotonPrincipal(
+            texto="Guardar cambios",
+            icono=ft.Icons.SAVE_AS,
+            accion=self.controlador.guardar_cambios
         )
 
     def vista(self):
@@ -58,6 +57,7 @@ class VistaPerfil:
 
         return ft.Container(
             padding=20,
+            expand=True, # para ajustar a cualquier dispositivo
             content=ft.Column([
                 ft.Row([
                     ft.Text("MI PERFIL", size=25, weight="bold"),
@@ -65,37 +65,44 @@ class VistaPerfil:
                 ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
             
                 ft.Divider(height=10, color="transparent"), # linea divisoria transparente para que no se muestre
-                
-                ft.Column([
-                    # dejo pendiente un hueco para el avatar (PDTE. DE VER COMO CONFIGURAR QUE SE PUEDA CAMBIAR)
-                    ft.CircleAvatar(
-                        content=ft.Icon(ft.Icons.PERSON_OUTLINE),
-                        radius=40,
-                    ),
-                    self.usuario,
-                    self.email,
-                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, width=400 
-                ),
+                ft.Row([
+                    ft.Column([
+                        # dejo pendiente un hueco para el avatar (PDTE. DE VER COMO CONFIGURAR QUE SE PUEDA CAMBIAR)
+                        ft.CircleAvatar(
+                            content=ft.Icon(ft.Icons.PERSON_OUTLINE),
+                            radius=40,
+                        ),
+                        self.usuario,
+                        self.email,
+                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER,) 
+                ], alignment=ft.MainAxisAlignment.CENTER),
 
                 ft.Divider(height=40, color="black"), # linea divisoria
 
                 # diseño de los campos de la información (formulario)
                 ft.Text("Datos Personales", size=16, weight="bold"),
-                self.nombre_input,
-                self.telefono_input,
+                # fila nombre y apellidos
+                ft.Row([
+                    self.nombre_input,
+                    self.apellidos_input,
+                ],spacing=10),
 
-                # fila para el pais y la localidad
+                # fila telefonos
+                self.telefono_input,
+             
+                # fila pais y localidad
                 ft.Row([
                     self.pais_input,
                     self.localidad_input,
                 ], spacing=10),
 
                 ft.Container(height=10),
-
-                ft.Column([
-                    self.btn_guardar,
-                    self.mensaje_error
-                    ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, width=400
-                )
-            ], scroll=ft.ScrollMode.AUTO) # barra para deslizar arriba o abajo
+                ft.Row([
+                    ft.Column([
+                        self.btn_guardar,
+                        self.mensaje_error
+                        ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+                ], alignment=ft.MainAxisAlignment.CENTER)
+            ], scroll=ft.ScrollMode.AUTO, 
+            horizontal_alignment=ft.CrossAxisAlignment.STRETCH) # para ensanchar los campos de texto
         )

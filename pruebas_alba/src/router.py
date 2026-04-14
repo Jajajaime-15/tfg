@@ -35,17 +35,24 @@ class Router:
         vista_clase = self.routes.get(self.page.route, VistaLogin)
         
         if vista_clase == MainLayout:
-        #Instanciamos la vista pasándole el page y el controlador
-        # Todas las vistas deben tener (page, controlador) en el __init__
             pantalla = MainLayout(self.page, self.controlador_auth.wrapper)
         elif vista_clase == VistaAjustes:
             pantalla = vista_clase(self.page, self.controlador_settings)
+            self.controlador_settings.vista = pantalla
         elif vista_clase == VistaPerfil:
-            pantalla = VistaPerfil(self.page,self.controlador_user)
-            await self.controlador_user.cargar_perfil()
-        else:
-            pantalla = vista_clase(self.page, self.controlador_auth)
-        
-        # 4. Agregamos la vista a la página y actualizamos
+            pantalla = VistaPerfil(self.page, self.controlador_user)
+            self.controlador_user.vista = pantalla   
+        elif vista_clase == VistaRegistro:
+            pantalla = VistaRegistro(self.page, self.controlador_auth)
+            self.controlador_auth.vista = pantalla     
+        else: 
+            pantalla = VistaLogin(self.page, self.controlador_auth)
+            self.controlador_auth.vista = pantalla
+
         self.page.add(pantalla.vista())
+        
+        # estando en perfil cargamos los datos
+        if vista_clase == VistaPerfil:
+            await self.controlador_user.cargar_perfil()
+
         self.page.update()

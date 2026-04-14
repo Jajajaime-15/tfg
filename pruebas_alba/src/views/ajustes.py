@@ -1,5 +1,6 @@
 import flet as ft
 from components.card_password import CardPassword
+from components.componentes import TituloSeccion
 
 class VistaAjustes:
     def __init__(self,page,controlador):
@@ -17,13 +18,13 @@ class VistaAjustes:
                 ft.Row([
                     ft.IconButton(
                         icon=ft.Icons.ARROW_BACK_IOS_NEW,
-                        on_click=lambda _: self.page.go("/")
+                        on_click=lambda _: self.page.go("/home")
                     ),
                     ft.Text("Ajustes",size=25, weight="bold")
                 ]),
                 ft.Divider(height=20),
 
-                ft.Text("Apariencia", size=16, weight="bold", color="#1A6AFE"),
+                TituloSeccion("Apariencia"),
                 ft.ListTile( # uso listtile para no tener que estar ajustando filas y columnas 
                     leading=ft.Icon(ft.Icons.PALETTE_OUTLINED),
                     title=ft.Text("Tema de la aplicación"),
@@ -34,7 +35,7 @@ class VistaAjustes:
                     ),
                 ),
 
-                ft.Text("Seguridad", size=16, weight="bold", color="#1A6AFE"),
+                TituloSeccion("Seguridad"),
                 ft.ListTile(
                     leading=ft.Icon(ft.Icons.LOCK_OUTLINED),
                     title=ft.Text("Cambiar contraseña"),
@@ -55,7 +56,7 @@ class VistaAjustes:
 
                 ft.Divider(height=20),
 
-                ft.Text("Cuenta", size=16, weight="bold", color="#1A6AFE"),
+                TituloSeccion("Cuenta"),
                 ft.ListTile(
                     leading=ft.Icon(ft.Icons.LOGOUT_ROUNDED),
                     title=ft.Text("Cerrar sesión"),

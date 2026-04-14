@@ -1,4 +1,5 @@
 import flet as ft
+from components.componentes import BotonPrincipal, InputTexto, BotonLink
 
 class VistaLogin:
     def __init__(self, page, controlador):
@@ -13,56 +14,38 @@ class VistaLogin:
              fit="contain"
         )
 
-        self.email_input = ft.TextField(
+        self.email_input = InputTexto(
             label="Correo Electrónico",
-            hint_text="Introduce tu email",
-            prefix_icon=ft.Icons.MAIL,
-            focused_border_color="#1A6AFE",
-            width=300,
-            border_radius=10
+            hint="Introduce tu email",
+            icono=ft.Icons.MAIL,
         )
         
-        self.psw_input = ft.TextField(
+        self.psw_input = InputTexto(
             label="Contraseña",
-            hint_text="Introduce tu contraseña",
+            hint="Introduce tu contraseña",
             password=True,
-            can_reveal_password=True,
-            prefix_icon=ft.Icons.LOCK,
-            focused_border_color="#1A6AFE",
-            width=300,
-            border_radius=10
+            reveal=True,
+            icono=ft.Icons.LOCK,
         )
         
         self.mensaje_error = ft.Text(value="", color="red", weight="bold")
 
-        self.btn_entrar = ft.ElevatedButton(
-            content=ft.Text("Iniciar Sesión"),
-            icon=ft.Icons.LOGIN_ROUNDED,
-            bgcolor="#1A6AFE",
-            color="white",
-            width=200,
-            on_click=self.controlador.conectarse
+        self.btn_entrar = BotonPrincipal(
+            texto="Iniciar Sesión",
+            icono=ft.Icons.LOGIN_ROUNDED,
+            accion=self.controlador.conectarse
         )
 
-        self.btn_recuperar = ft.TextButton(
-            content=ft.Text("¿Olvidaste la contraseña? Haz click aquí para recuperarla",
-                color="black",
-                italic=True
-            ),
-            on_click=self.controlador.recuperar_psw
+        self.btn_recuperar = BotonLink(
+            texto="¿Olvidaste la contraseña? Haz click aquí para recuperarla",
+            accion=self.controlador.recuperar_psw
         )
 
-        self.btn_registro = ft.TextButton(
-            content=ft.Text("¿No tienes cuenta? Haz click aquí para registrarte",
-                color="black",
-                italic=True
-            ),
-            on_click=self.registrarse
+        self.btn_registro = BotonLink(
+            texto="¿No tienes cuenta? Haz click aquí para registrarte",
+            accion=self.controlador.registrar_usuario
         )
 
-    async def registrarse(self,e):
-        self.page.go("/registro")
-        
     # función para crear la vista que se mostrará en la pantalla
     def vista(self):
         return ft.Container(
