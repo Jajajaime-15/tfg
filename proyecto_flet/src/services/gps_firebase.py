@@ -88,6 +88,9 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None): # recibe la pagi
         return # para salir del programa si no se han concedido los permisos de ubicacion
     
     lat, lon = await posicion_inicial(geo) # obtenemos la posicion actual del usuario
+    
+    if actualizar_marcador_usuario: 
+        actualizar_marcador_usuario(lat, lon) # llamamos a la funcion del mapa para pintar el marcador propio con la posicion inicial
 
     hilo_listener = Thread(target=listener) # el listener va en un hilo para que pueda estar escuchando y no bloquee el programa
     hilo_listener.start()
