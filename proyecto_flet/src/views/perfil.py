@@ -20,7 +20,7 @@ class VistaPerfil:
         
         self.nombre_input = InputTexto(
             label="Nombre Completo", 
-            read_only=True,
+            read_only=True, # EN EL USER CONTROLLER TMB ESTA ESTO, SOBRA EN ALGUNA DE LAS DOS?
             expand=True
         )
 
@@ -53,7 +53,7 @@ class VistaPerfil:
 
     def vista(self):
         # cargamos los datos del usuario que está iniciado
-        asyncio.create_task(self.controlador.cargar_perfil())
+        asyncio.create_task(self.controlador.cargar_perfil()) # SE LLAMA A LO MISMO QUE EN EL ROUTER, SE PODRIA QUITAR DE AQUI?
 
         return ft.Container(
             padding=20,

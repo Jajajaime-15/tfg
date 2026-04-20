@@ -67,6 +67,6 @@ class VistaAjustes:
         )
 
     # funcion que muetra la tarjeta
-    def mostrar_cambio_psw(self):
+    def mostrar_cambio_psw(self): # ESTO ES RARO, QUIZAS DEBERIA ESTAR EN EL CONTROLADOR Y NO EN LA VISTA. TMB HA CAMBIADO MUCHO EL DISEÑO DE ESTA VIEW CON RESPECTO A LAS DEMAS
         self.tarjeta.visible = True
         self.tarjeta.update()

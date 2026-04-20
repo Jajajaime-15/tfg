@@ -3,7 +3,7 @@ import flet as ft
 from views.login import VistaLogin
 from views.registro import VistaRegistro
 from views.perfil import VistaPerfil
-from  views.home_prueba import MainLayout
+from views.home_prueba import MainLayout # POR QUE NO SE USA EL USER CONTROLLER DESDE AQUI Y SI DESDE EL MAINLAYOUT? 
 from views.ajustes import VistaAjustes
 # Aquí importamos las nuevas vistas que se creen 
 
@@ -33,7 +33,7 @@ class Router:
         vista_clase = self.routes.get(self.page.route, VistaLogin)
         
         if vista_clase == MainLayout:
-            pantalla = MainLayout(self.page, self.controlador_auth.wrapper)
+            pantalla = MainLayout(self.page, self.controlador_auth.wrapper) # SI EL RESTO LLAMAN A UN CONTROLADOR PROPIO, ESTE DEBERIA TMB, NO AL WRAPPER
         elif vista_clase == VistaAjustes:
             pantalla = vista_clase(self.page, self.controlador_settings)
             self.controlador_settings.vista = pantalla
@@ -48,13 +48,14 @@ class Router:
             self.controlador_auth.vista = pantalla
 
         # indicamos al controlador de auth la vista que tiene que usar
-        if vista_clase in [VistaLogin, VistaRegistro]:
+        if vista_clase in [VistaLogin, VistaRegistro]: # ESTO NO ES CODIGO REPETIDO? ES LO MISMO QUE SE HACE EN EL IF ANTERIOR, NO?
                 self.controlador_auth.vista = pantalla
                 
         self.page.add(pantalla.vista())
         
         # estando en perfil cargamos los datos
         if vista_clase == VistaPerfil:
+            # ESTE MISMO CODIGO SE REPITE EN LA VIEW DEL PERFIL, LO DEJO ANOTADO PARA QUE SE QUITE DE ALLI SI RESULTA SER LO ADECUADO
             await self.controlador_user.cargar_perfil()
 
         self.page.update()

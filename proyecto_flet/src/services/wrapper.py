@@ -4,6 +4,11 @@ import pyrebase
 from database.config import config
 from datetime import datetime
 
+# YO CREO QUE EL WRAPPER ES DEMASIADO GRANDE Y MEZCLA DEMASIADAS COSAS. LO SUYO SERIA SEPARARLO LO ANTES POSIBLE EN DISTINTOS SCRIPTS
+# LO QUE QUEREMOS DEL "WRAPPER" COMO TAL ES QUE NOS "ENVUELVA" LA CONEXION CON FIREBASE, SERIA MAS O MENOS SOLO LAS LINEAS 16-18, SE PODRIA LLAMAR FIREBASE_SERVICE
+# LO DEMAS SE PUEDE DIVIDIR EN OTROS SERVICIOS SEGUN CREAIS CONVENIENTE, QUIZAS UNO DE USUARIO, OTRO DE LO RELACIONADO CON AUTH O CON LA SESION, COMO VEAIS
+# Y TMB HAY QUE MODIFICAR EL MAIN CON SUS RESPECTIVAS LLAMADAS NUEVAS. TENED EN CUENTA QUE SINO HABRIA QUE METER CADA SERVICE EN ESTE WRAPPER PRACTICAMENTE
+# LO QUE HARIA QUE TUVIERA QUE METER EL SERVICE DEL MAPA AQUI POR EJEMPLO, EN VEZ DE TENER SU PROPIO ARCHIVO
 class Wrapper:
     def __init__(self,page):
         self.page = page
@@ -31,7 +36,7 @@ class Wrapper:
                 "email": email,
                 "pais": "", # se podrá rellenar desde el perfil de usuario
                 "localidad": "", # ''
-                "id_grupo":"", # se rellena cuando se tenga una familia
+                "id_grupo":"", # se rellena cuando se tenga una familia # REVISAR ESTO POR LA FORMA EN LA QUE GUARDAMOS LOS GRUPOS, DE LA FORMA ACTUAL SOLO SE PODRIA GUARDAR UNO
                 "fecha_registro": datetime.now().strftime("%Y-%m-%d %H:%M:%S") # se usa strtime porque firebase no lee fechas, tiene que ser texto o numeros
             }
             self.db.child("usuarios").child(self.id_usuario).set(info_usuario,self.token) # guardamos la informacion del usuario y el token en la base de datos
@@ -71,6 +76,8 @@ class Wrapper:
                 await self.page.shared_preferences.set("telefono", infor_usuario.get("telefono", ""))
                 await self.page.shared_preferences.set("pais", infor_usuario.get("pais", ""))
                 await self.page.shared_preferences.set("localidad", infor_usuario.get("localidad", ""))
+                # REVISA ESTO DE LA FORMA DE GUARDAR LOS GRUPOS, EN REALTIME DEBERA ESTAR COMO: "GRUPOS" : {"GRUPO_01" : TRUE, ....}
+                # SI LO GUARDAMOS DE LA FORMA QUE VIENE AQUI SERIA COMO "ID_GRUPO": "ID", Y ASI REPETIDO VARIAS VECES
                 if "id_grupo" in infor_usuario:
                     await self.page.shared_preferences.set("id_grupo",infor_usuario["id_grupo"])
                 
@@ -92,6 +99,7 @@ class Wrapper:
     # función para cerrar la sesión de un usuario
     async def cerrar_sesion(self):
         try:
+            # ESTA BIEN PERO HAY QUE VALORAR SI QUEREMOS QUE SE BORRE TODO TODO, IMAGINATE QUE DESPUES QUIERO INICIAR SESION DE NUEVO Y TENGO QUE CONFIGURAR ALGUNAS COSAS QUE QUIZAS DEBERIAN QUEDARSE SIEMPRE, DALE UNA VUELTA Y ME DICES
             await self.page.shared_preferences.clear() # borramos toda la información que hay guardada en el dispositivo
             self.id_usuario = None
             self.token = None

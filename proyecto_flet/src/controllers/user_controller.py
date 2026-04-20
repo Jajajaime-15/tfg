@@ -65,5 +65,5 @@ class UserController:
 
     # funcion para abrir los ajustes (PDTE. DE CONFIGURAR, A FALTA DE CREAR LOS AJUSTES)
     async def ajustes (self,e):
-         self.page.index_navegacion = 2
+         self.page.index_navegacion = 2 # POR QUE NO GUARDAR EN SHARED_PREFERENCES AQUI TMB?
          await self.page.push_route("/settings")

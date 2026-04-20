@@ -11,8 +11,9 @@ class AuthController:
         self.vista.mensaje_error.value = ""
         self.page.update()
 
+        # EN GENERAL ECHO EN FALTA COMENTARIOS EN EL CÓDIGO, PERO SOBRE TODO EN ESTE SCRIPT, Y ESTA LINEA POR EJEMPLO SE PUEDE PONER EN VARIAS PARA QUE SEA MAS LEGIBLE VISUALMENTE 
         datos = [self.vista.nombre_input.value,self.vista.email_input.value,self.vista.psw_input.value,self.vista.psw_confirmar.value,self.vista.telefono_input.value]
-
+        # POR EJEMPLO ESTE ALL QUE HACE? NO LO VI NUNCA Y NO ES ALGO COMUN, VENDRIA BIEN COMENTARLO (SE LO QUE HACE LEYENDO EL TOOLTIP PERO QUEDA MAS VISUAL ASI)
         if not all (datos):
             self.vista.mensaje_error.value = "Todos los campos son obligatorios"
         elif self.vista.psw_input.value != self.vista.psw_confirmar.value:
@@ -30,9 +31,9 @@ class AuthController:
                 self.vista.mensaje_error.value = "Usuario registrado correctamente, puedes iniciar sesión"
                 self.vista.mensaje_error.color = "green"
                 self.page.update()
-                await asyncio.sleep(2)
+                await asyncio.sleep(2) # DE NUEVO COMENTARIO, PERO AQUI PARA EXPLICAR LA RAZON DE ESTE SLEEP
                 await self.page.push_route("/")
-                return
+                return # RETURN SIN NADA?
             else:
                 error_registro = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
                 if "EMAIL_EXISTS" in error_registro:

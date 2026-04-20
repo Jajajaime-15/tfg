@@ -2,15 +2,17 @@ import flet as ft
 from views.perfil import VistaPerfil
 from controllers.user_controller import UserController
 
-class MainLayout:
+class MainLayout: # EL NOMBRE DEL SCRIPT Y LA CLASE NO SE PARECEN EN NADA, HAY QUE ENCONTRAR UN PUNTO COMUN Y CAMBIAR UNO U OTRO
     def __init__(self, page, wrapper):
         self.page = page
         self.wrapper = wrapper
-        self.controlador_u = UserController(self.page, self.wrapper)
+        self.controlador_u = UserController(self.page, self.wrapper) # POR QUE ESTE CONTROLADOR AQUI EN VEZ DE EN ROUTER? DEBERIA RECIBIRLO COMO PARAMETRO, NO? MIRA EN ROUTER.PY
+        # SOBRE LA LINEA DE ARRIBA CREO QUE ACABO DE VER QUE EL PROBLEMA ES QUE EN ROUTER PASAS EL WRAPPER CUANDO YA TIENES ALLI EL USER Y PODRIAS PASARLO DIRECTAMENTE, NO?
+        # Y ASI TE AHORRAS EL WRAPPER AQUI ADEMAS DEL USERCONTROLLER IMPORTADO
         self.centro = ft.Container(expand=True)
         # self.cargar_pestana_grupos()
         # guardamos el indice (en el caso de volver para atras desde ajustes voolvemos a home pero recordamos que estabamos en perfil)
-        self.index_inicio = getattr(self.page,"index_navegacion",0)
+        self.index_inicio = getattr(self.page,"index_navegacion",0) # NO SERIA MEJOR EN SHARED_PREFERENCES ESTO TMB?
         # barra de los botones de abajo con grupos,mapa y perfil
         self.inferior = ft.NavigationBar(
             selected_index=self.index_inicio, # recuperamos el indice
@@ -40,7 +42,7 @@ class MainLayout:
         
         self.page.update()
 
-    async def cambiar_pestana(self, e):
+    async def cambiar_pestana(self, e): # POR QUE ASYNC SI NO ES ASINCRONO? ES ALGO DE CARA AL FUTURO?
         indice = e.control.selected_index # guardamos el indice del botón que se selecciona
         
         if indice == 0:
