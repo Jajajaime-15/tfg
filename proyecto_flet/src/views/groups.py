@@ -2,7 +2,7 @@ import flet as ft
 from flet import TextField
 from components.components import tarjeta_grupos
 from views.perfil import VistaPerfil
-from controllers.user_controller import UserController
+from controllers.user_controller import UserController # NO DEBERIA LLEGAR DESDE ROUTER EN VEZ DE CREARSE AQUI?
 from controllers.group_controller import GroupController # llamas al controlador de grupos
 
 
@@ -54,14 +54,14 @@ class VistaGrupos:
         
         self.btn_anyadir_integrante = ft.ElevatedButton(
             content=ft.Text("Añadir integrante"),
-            icon=ft.Icons.DELETE,
+            icon=ft.Icons.DELETE, # DELETE PARA AÑADIR?
             bgcolor="#FF4136",
             color="white",
             width=200,
             on_click=self.anyadir_integrante
         )
 
-        self.inferior = ft.NavigationBar(
+        self.inferior = ft.NavigationBar( # POR QUE ESTA LA BARRA AQUI? NO SE SUPONE QUE LA TENEMOS SOLO EN HOME?
             selected_index=0,
             destinations=[
                 ft.NavigationBarDestination(icon=ft.Icons.GROUP_OUTLINED, label="Grupos"),
@@ -161,7 +161,7 @@ class VistaGrupos:
             print ("MAPA JAIME")
         elif indice == 2:
             wrapper = self.controlador.wrapper 
-            controlador_u = UserController(self.page, wrapper)
+            controlador_u = UserController(self.page, wrapper) # MIRA MI COMENTARIO EN EL IMPORT
             self.centro.content = VistaPerfil(self.page, controlador_u).vista()
 
         self.page.update()     
