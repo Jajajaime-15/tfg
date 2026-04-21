@@ -1,5 +1,6 @@
 import flet as ft # type: ignore
-from components.componentes import BotonPrincipal, InputTexto
+from components.boton_principal import BotonPrincipal
+from components.campos_texto import InputTexto
 
 class VistaRegistro:
     def __init__(self, page, controlador):
