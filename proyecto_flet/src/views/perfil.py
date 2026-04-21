@@ -1,6 +1,7 @@
-import flet as ft
+import flet as ft # type: ignore
 import asyncio
 from components.componentes import BotonPrincipal, InputTexto
+
 class VistaPerfil:
     def __init__(self, page, controlador):
         self.page = page
@@ -19,8 +20,7 @@ class VistaPerfil:
         self.email = ft.Text(size=14, color="grey")
         
         self.nombre_input = InputTexto(
-            label="Nombre Completo", 
-            read_only=True, # EN EL USER CONTROLLER TMB ESTA ESTO, SOBRA EN ALGUNA DE LAS DOS?
+            label="Nombre Completo",
             expand=True
         )
 
@@ -52,9 +52,7 @@ class VistaPerfil:
         )
 
     def vista(self):
-        # cargamos los datos del usuario que está iniciado
-        asyncio.create_task(self.controlador.cargar_perfil()) # SE LLAMA A LO MISMO QUE EN EL ROUTER, SE PODRIA QUITAR DE AQUI?
-
+        
         return ft.Container(
             padding=20,
             expand=True, # para ajustar a cualquier dispositivo
@@ -89,7 +87,7 @@ class VistaPerfil:
 
                 # fila telefonos
                 self.telefono_input,
-             
+
                 # fila pais y localidad
                 ft.Row([
                     self.pais_input,

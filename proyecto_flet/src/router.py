@@ -1,9 +1,8 @@
-import flet as ft
-
+import flet as ft# type: ignore
 from views.login import VistaLogin
 from views.registro import VistaRegistro
 from views.perfil import VistaPerfil
-from views.home_prueba import MainLayout # POR QUE NO SE USA EL USER CONTROLLER DESDE AQUI Y SI DESDE EL MAINLAYOUT? 
+from views.pricipal import VistaPrincipal
 from views.ajustes import VistaAjustes
 # Aquí importamos las nuevas vistas que se creen 
 
@@ -13,6 +12,7 @@ class Router:
         self.controlador_auth = controlador_auth
         self.controlador_settings = controlador_settings
         self.controlador_user = controlador_user
+        # se añadel los controladores de grupos y mapa
         
         # Diccionario de rutas
         self.routes = {
@@ -20,7 +20,7 @@ class Router:
             "/registro": VistaRegistro, # vista registrarse (Alba)
             "/perfil": VistaPerfil, # vista perfil (Alba)
             "/settings": VistaAjustes, # vista ajustes (Alba)
-            "/home": MainLayout, # vista principal con grupos (Julio)
+            "/home": VistaPrincipal, # vista principal después de hacer login con grupos (Julio)
         }
 
     async def route_change(self, e):
@@ -29,13 +29,13 @@ class Router:
         # Limpiamos los controles actuales de la página
         self.page.controls.clear()
         
-        # Buscamos la vista en nuestro diccionario y la ruta no existe, por defecto cargamos el login
+        # Buscamos la vista en nuestro diccionario y si la ruta no existe, por defecto cargamos el login
         vista_clase = self.routes.get(self.page.route, VistaLogin)
         
-        if vista_clase == MainLayout:
-            pantalla = MainLayout(self.page, self.controlador_auth.wrapper) # SI EL RESTO LLAMAN A UN CONTROLADOR PROPIO, ESTE DEBERIA TMB, NO AL WRAPPER
+        if vista_clase == VistaPrincipal:
+            pantalla = VistaPrincipal(self.page, self.controlador_user) # aqui hay que usar el controlador de grupos cuando lo unamos
         elif vista_clase == VistaAjustes:
-            pantalla = vista_clase(self.page, self.controlador_settings)
+            pantalla = VistaAjustes(self.page, self.controlador_settings)
             self.controlador_settings.vista = pantalla
         elif vista_clase == VistaPerfil:
             pantalla = VistaPerfil(self.page, self.controlador_user)
@@ -47,15 +47,10 @@ class Router:
             pantalla = VistaLogin(self.page, self.controlador_auth)
             self.controlador_auth.vista = pantalla
 
-        # indicamos al controlador de auth la vista que tiene que usar
-        if vista_clase in [VistaLogin, VistaRegistro]: # ESTO NO ES CODIGO REPETIDO? ES LO MISMO QUE SE HACE EN EL IF ANTERIOR, NO?
-                self.controlador_auth.vista = pantalla
-                
         self.page.add(pantalla.vista())
         
         # estando en perfil cargamos los datos
         if vista_clase == VistaPerfil:
-            # ESTE MISMO CODIGO SE REPITE EN LA VIEW DEL PERFIL, LO DEJO ANOTADO PARA QUE SE QUITE DE ALLI SI RESULTA SER LO ADECUADO
             await self.controlador_user.cargar_perfil()
 
         self.page.update()

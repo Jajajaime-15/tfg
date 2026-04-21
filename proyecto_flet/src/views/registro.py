@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 from components.componentes import BotonPrincipal, InputTexto
 
 class VistaRegistro:
@@ -66,16 +66,16 @@ class VistaRegistro:
             content=ft.Column(
                 [
                     ft.Row(
-                         [self.btn_volver],
-                         alignment=ft.MainAxisAlignment.START
+                        [self.btn_volver],
+                        alignment=ft.MainAxisAlignment.START
                     ),
                     ft.Container(
-                         content=ft.Text("REGISTRO", size=30, weight="bold"),
-                         margin=ft.margin.only(
-                              top=20, # espacio desde arriba
-                              bottom=40 # espacio hacia abajo, hacia los campos
-                         ),
-                         alignment=ft.Alignment(0, 0)
+                        content=ft.Text("REGISTRO", size=30, weight="bold"),
+                        margin=ft.margin.only(
+                            top=20, # espacio desde arriba
+                            bottom=40 # espacio hacia abajo, hacia los campos
+                        ),
+                        alignment=ft.Alignment(0, 0)
                     ),
                     self.nombre_input,
                     self.telefono_input,

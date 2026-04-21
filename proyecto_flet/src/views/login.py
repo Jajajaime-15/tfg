@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 from components.componentes import BotonPrincipal, InputTexto, BotonLink
 
 class VistaLogin:
@@ -8,10 +8,10 @@ class VistaLogin:
         self.controlador.vista = self
 
         self.logo = ft.Image(
-             src="logo2.png",
-             width=200,
-             height=120,
-             fit="contain"
+            src="logo2.png",
+            width=200,
+            height=120,
+            fit="contain"
         )
 
         self.email_input = InputTexto(

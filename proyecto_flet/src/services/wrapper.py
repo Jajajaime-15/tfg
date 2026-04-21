@@ -72,6 +72,7 @@ class Wrapper:
                 await self.page.shared_preferences.set("token", self.token)
                 await self.page.shared_preferences.set("refresh_token", refresh_token)
                 await self.page.shared_preferences.set("nombre", infor_usuario.get("nombre", ""))
+                await self.page.shared_preferences.set("apellidos", infor_usuario.get("apellidos", ""))
                 await self.page.shared_preferences.set("email", infor_usuario.get("email", ""))
                 await self.page.shared_preferences.set("telefono", infor_usuario.get("telefono", ""))
                 await self.page.shared_preferences.set("pais", infor_usuario.get("pais", ""))

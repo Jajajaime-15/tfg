@@ -31,7 +31,7 @@ class InputTexto(ft.TextField):
 class BotonLink(ft.TextButton):
     def __init__(self, texto, accion):
         super().__init__()
-        self.content = ft.Text(texto, color="black", italic=True)
+        self.content = ft.Text(texto, color=ft.Colors.ON_SURFACE)
         self.on_click = accion
 
 # titulos que se uisa por ejemplo en ajustes

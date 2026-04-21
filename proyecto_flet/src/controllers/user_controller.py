@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 
 class UserController:
     def __init__ (self,page,wrapper,vista=None):
@@ -10,7 +10,6 @@ class UserController:
         # cogemos los datos que estan guardados en el dispositivo
         nombre = await self.page.shared_preferences.get("nombre")
         apellidos = await self.page.shared_preferences.get("apellidos")
-        apellidos_comprobado = apellidos if apellidos else "" # con esta linea hacemos que si no rellena el apellido en la cabecera no aparezca None
         email = await self.page.shared_preferences.get("email")
         telefono = await self.page.shared_preferences.get("telefono")
         pais = await self.page.shared_preferences.get("pais")
@@ -19,12 +18,12 @@ class UserController:
         # datos del formulario
         self.vista.nombre_input.value = nombre
         self.vista.nombre_input.read_only = True # no dejamos que el nombre se pueda cambiar
-        self.vista.apellidos_input.value = apellidos_comprobado
+        self.vista.apellidos_input.value = apellidos if apellidos else ""
         self.vista.telefono_input.value = telefono if telefono else ""
         self.vista.pais_input.value = pais if pais else ""
         self.vista.localidad_input.value = localidad if localidad else ""
         # datos en la parte de arriba (cabecera)
-        self.vista.usuario.value = f"{nombre} {apellidos_comprobado}".strip()
+        self.vista.usuario.value = f"{nombre} {apellidos if apellidos else ""}".strip()
         self.vista.email.value = email
         
         self.page.update()
@@ -56,14 +55,15 @@ class UserController:
                 elif "PERMISION_DENIED" in error_guardado:
                     self.vista.mensaje_error.value = "No tienes permisos para modificar los datos"
                 elif "NETWORK" in error_guardado or "CONNECTION" in error_guardado:
-                     self.vista.mensaje_error.value = "Sin conxión."
+                    self.vista.mensaje_error.value = "Sin conxión."
                 else:
                     self.vista.mensaje_error.value = "Error al guardar los datos"
         
         self.vista.btn_guardar.disabled = False # activamos el botón de nuevo
         self.page.update()
 
-    # funcion para abrir los ajustes (PDTE. DE CONFIGURAR, A FALTA DE CREAR LOS AJUSTES)
+    # funcion para abrir los ajustes
     async def ajustes (self,e):
-         self.page.index_navegacion = 2 # POR QUE NO GUARDAR EN SHARED_PREFERENCES AQUI TMB?
-         await self.page.push_route("/settings")
+        # guardamos en memoria 2 que es la posición de Perfil en nuestra vista principal para así cuando demos a volver nos vuelva a perfil
+        self.page.index_navegacion = 2 # POR QUE NO GUARDAR EN SHARED_PREFERENCES AQUI TMB? no lo uso porque solo se recuerda mientras que la sesion este activa, si cerramos la aplicacion desde la vista que sea siempre al abrirla vuelve a aparecer la principal con grupos
+        await self.page.push_route("/settings")

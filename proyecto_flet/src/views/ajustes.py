@@ -1,72 +1,84 @@
-import flet as ft
+import flet as ft # type: ignore
 from components.card_password import CardPassword
 from components.componentes import TituloSeccion
+from components.componentes import BotonLink
 
 class VistaAjustes:
-    def __init__(self,page,controlador):
+    def __init__(self, page, controlador):
         self.page = page
         self.controlador = controlador
         self.controlador.vista = self
+        self.tarjeta_psw = CardPassword(self.controlador)
 
-        # instanciamos la tarjeta para el cambio de contraseña
-        self.tarjeta = CardPassword(self.controlador)
-    
+        self.btn_volver = ft.IconButton(
+            icon=ft.Icons.ARROW_BACK_IOS_NEW,
+            on_click=lambda _: self.page.go("/home")
+        )
+        self.titulo = ft.Text("Ajustes", size=25, weight="bold")
+
+        self.btn_tema = ft.IconButton(
+            icon=ft.Icons.DARK_MODE,
+            on_click=self.controlador.tema,
+            tooltip="Cambiar tema"
+        )
+
+        self.btn_mostrar_psw = BotonLink(
+            texto="Cambiar mi contraseña",
+            accion=self.controlador.mostrar_tarjeta_psw
+        )
+
+        self.btn_cerrar_sesion = BotonLink(
+            texto="Cerrar sesión activa",
+            accion=self.controlador.cerrar_sesion
+        )
+
+        self.btn_eliminar_cuenta = ft.TextButton(
+            content=ft.Text("Eliminar mi cuenta permanentemente", color="red"),
+            on_click=self.controlador.dialogo
+        )
+
     def vista(self):
         return ft.Container(
             padding=20,
-            content=ft.Column([
-                ft.Row([
-                    ft.IconButton(
-                        icon=ft.Icons.ARROW_BACK_IOS_NEW,
-                        on_click=lambda _: self.page.go("/home")
-                    ),
-                    ft.Text("Ajustes",size=25, weight="bold")
-                ]),
-                ft.Divider(height=20),
+            content=ft.Column(
+                [
+                    ft.Row([self.btn_volver, self.titulo]),
+                    ft.Divider(height=10),
 
-                TituloSeccion("Apariencia"),
-                ft.ListTile( # uso listtile para no tener que estar ajustando filas y columnas 
-                    leading=ft.Icon(ft.Icons.PALETTE_OUTLINED),
-                    title=ft.Text("Tema de la aplicación"),
-                    subtitle=ft.Text("Cambiar entre modo claro y oscuro"),
-                    trailing=ft.IconButton(
-                        icon=ft.Icons.DARK_MODE,
-                        on_click=self.controlador.tema
-                    ),
-                ),
+                    TituloSeccion("Apariencia"),
+                    ft.Row([
+                        ft.Icon(ft.Icons.PALETTE_OUTLINED, color="#1A6AFE"),
+                        ft.Text("Tema de la aplicación", size=16),
+                        ft.Container(expand=True),
+                        self.btn_tema
+                    ]),
+                    
+                    ft.Divider(height=20, color="transparent"),
 
-                TituloSeccion("Seguridad"),
-                ft.ListTile(
-                    leading=ft.Icon(ft.Icons.LOCK_OUTLINED),
-                    title=ft.Text("Cambiar contraseña"),
-                    subtitle=ft.Text("Actualiza tu clave de acceso"),
-                    on_click=lambda _: self.mostrar_cambio_psw(), # llamamos a la funcion que muestra la tarjeta
-                    trailing=ft.Icon(ft.Icons.ARROW_FORWARD_IOS, size=15),
-                ),
+                    TituloSeccion("Seguridad"),
+                    ft.Row([
+                        ft.Icon(ft.Icons.LOCK_OUTLINED, color="#1A6AFE"),
+                        self.btn_mostrar_psw
+                    ]),
 
-                # insertamos nuestro componente tarjeta
-                self.tarjeta,
+                    self.tarjeta_psw, # mostrar/ocultar según el controlador
 
-                ft.ListTile(
-                    leading=ft.Icon(ft.Icons.PERSON_REMOVE_OUTLINED, color="red"),
-                    title=ft.Text("Eliminar cuenta", color="red"),
-                    subtitle=ft.Text("Borrar todos tus datos permanentemente"),
-                    on_click=self.controlador.dialogo,
-                ),
+                    ft.Divider(height=20, color="transparent"),
 
-                ft.Divider(height=20),
-
-                TituloSeccion("Cuenta"),
-                ft.ListTile(
-                    leading=ft.Icon(ft.Icons.LOGOUT_ROUNDED),
-                    title=ft.Text("Cerrar sesión"),
-                    on_click=self.controlador.cerrar_sesion,
-                ),
-
-            ], scroll=ft.ScrollMode.AUTO)
+                    TituloSeccion("Cuenta"),
+                    ft.Row([
+                        ft.Icon(ft.Icons.LOGOUT_ROUNDED, color="#1A6AFE"),
+                        self.btn_cerrar_sesion
+                    ]),
+                    
+                    ft.Row([
+                        ft.Icon(ft.Icons.PERSON_REMOVE_OUTLINED, color="red"),
+                        self.btn_eliminar_cuenta
+                    ]),
+                ],
+                scroll=ft.ScrollMode.AUTO,
+                spacing=10
+            ),
+            expand=True,
+            alignment=ft.Alignment(0, -1), # para que se quede alineado en la parte de arriba
         )
-
-    # funcion que muetra la tarjeta
-    def mostrar_cambio_psw(self): # ESTO ES RARO, QUIZAS DEBERIA ESTAR EN EL CONTROLADOR Y NO EN LA VISTA. TMB HA CAMBIADO MUCHO EL DISEÑO DE ESTA VIEW CON RESPECTO A LAS DEMAS
-        self.tarjeta.visible = True
-        self.tarjeta.update()

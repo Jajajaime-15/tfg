@@ -1,21 +1,19 @@
-import flet as ft
+import flet as ft # type: ignore
+import asyncio
 from views.perfil import VistaPerfil
 from controllers.user_controller import UserController
 
-class MainLayout: # EL NOMBRE DEL SCRIPT Y LA CLASE NO SE PARECEN EN NADA, HAY QUE ENCONTRAR UN PUNTO COMUN Y CAMBIAR UNO U OTRO
-    def __init__(self, page, wrapper):
+class VistaPrincipal: 
+    def __init__(self, page, user_controller):  # Recibe user_controller directamente en lugar de wrapper
         self.page = page
-        self.wrapper = wrapper
-        self.controlador_u = UserController(self.page, self.wrapper) # POR QUE ESTE CONTROLADOR AQUI EN VEZ DE EN ROUTER? DEBERIA RECIBIRLO COMO PARAMETRO, NO? MIRA EN ROUTER.PY
-        # SOBRE LA LINEA DE ARRIBA CREO QUE ACABO DE VER QUE EL PROBLEMA ES QUE EN ROUTER PASAS EL WRAPPER CUANDO YA TIENES ALLI EL USER Y PODRIAS PASARLO DIRECTAMENTE, NO?
-        # Y ASI TE AHORRAS EL WRAPPER AQUI ADEMAS DEL USERCONTROLLER IMPORTADO
+        self.controlador_u = user_controller  # Ahora se recibe como parámetro
         self.centro = ft.Container(expand=True)
         # self.cargar_pestana_grupos()
         # guardamos el indice (en el caso de volver para atras desde ajustes voolvemos a home pero recordamos que estabamos en perfil)
-        self.index_inicio = getattr(self.page,"index_navegacion",0) # NO SERIA MEJOR EN SHARED_PREFERENCES ESTO TMB?
+        self.index_inicio = getattr(self.page, "index_navegacion", 0)  # Considera usar shared_preferences para persistencia
         # barra de los botones de abajo con grupos,mapa y perfil
         self.inferior = ft.NavigationBar(
-            selected_index=self.index_inicio, # recuperamos el indice
+            selected_index=self.index_inicio,  # recuperamos el indice
             destinations=[
                 ft.NavigationBarDestination(icon=ft.Icons.GROUP_OUTLINED, label="Grupos"),
                 ft.NavigationBarDestination(icon=ft.Icons.MAP_OUTLINED, label="Mapa"),
@@ -32,27 +30,28 @@ class MainLayout: # EL NOMBRE DEL SCRIPT Y LA CLASE NO SE PARECEN EN NADA, HAY Q
             pass
             # Vista de Grupos (Julio)
         elif indice == 1:
-            # Vista de Mapa (Jaime) - Placeholder temporal
+            # Vista de Mapa (Jaime)
             self.centro.content = ft.Column([
                 ft.Icon(ft.Icons.MAP_ROUNDED, size=50, color="grey"),
                 ft.Text("MAPA EN DESARROLLO", size=20, weight="bold", color="grey")
             ], alignment=ft.MainAxisAlignment.CENTER, horizontal_alignment=ft.CrossAxisAlignment.CENTER)
         elif indice == 2:
-            self.centro.content = VistaPerfil(self.page, self.controlador_u).vista()
-        
+            nueva_vista = VistaPerfil(self.page, self.controlador_u)
+            self.centro.content = nueva_vista.vista()
+            asyncio.create_task(self.controlador_u.cargar_perfil())
         self.page.update()
 
-    async def cambiar_pestana(self, e): # POR QUE ASYNC SI NO ES ASINCRONO? ES ALGO DE CARA AL FUTURO?
-        indice = e.control.selected_index # guardamos el indice del botón que se selecciona
+    def cambiar_pestana(self, e):
+        indice = e.control.selected_index  # guardamos el indice del botón que se selecciona
         
         if indice == 0:
-            print ("GRUPOS JULIO")
+            print("GRUPOS JULIO")
         elif indice == 1:
-            # aqui el controlador de mapay agregamos al centro la vista del mapa
-            print ("MAPA JAIME")
+            print("MAPA JAIME")
         elif indice == 2:
-            self.centro.content = VistaPerfil(self.page, self.controlador_u).vista()
-        
+            nueva_vista = VistaPerfil(self.page, self.controlador_u)
+            self.centro.content = nueva_vista.vista()
+            asyncio.create_task(self.controlador_u.cargar_perfil())
         self.page.update()
 
     def vista(self):

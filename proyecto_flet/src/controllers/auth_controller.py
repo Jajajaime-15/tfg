@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 import asyncio
 
 class AuthController:
@@ -11,10 +11,14 @@ class AuthController:
         self.vista.mensaje_error.value = ""
         self.page.update()
 
-        # EN GENERAL ECHO EN FALTA COMENTARIOS EN EL CÓDIGO, PERO SOBRE TODO EN ESTE SCRIPT, Y ESTA LINEA POR EJEMPLO SE PUEDE PONER EN VARIAS PARA QUE SEA MAS LEGIBLE VISUALMENTE 
-        datos = [self.vista.nombre_input.value,self.vista.email_input.value,self.vista.psw_input.value,self.vista.psw_confirmar.value,self.vista.telefono_input.value]
-        # POR EJEMPLO ESTE ALL QUE HACE? NO LO VI NUNCA Y NO ES ALGO COMUN, VENDRIA BIEN COMENTARLO (SE LO QUE HACE LEYENDO EL TOOLTIP PERO QUEDA MAS VISUAL ASI)
-        if not all (datos):
+        # almacenamos todos los datos en una lista para despues poder comprobar
+        datos = [self.vista.nombre_input.value,
+                self.vista.email_input.value,
+                self.vista.psw_input.value,
+                self.vista.psw_confirmar.value,
+                self.vista.telefono_input.value]
+        # comprobamos que estén todos los campos rellenos 
+        if not all (datos): # el all nos ayuda a comprobar todos los campos en vez de ir uno a uno
             self.vista.mensaje_error.value = "Todos los campos son obligatorios"
         elif self.vista.psw_input.value != self.vista.psw_confirmar.value:
             self.vista.mensaje_error.value = "Las contraseñas no coinciden"
@@ -31,9 +35,8 @@ class AuthController:
                 self.vista.mensaje_error.value = "Usuario registrado correctamente, puedes iniciar sesión"
                 self.vista.mensaje_error.color = "green"
                 self.page.update()
-                await asyncio.sleep(2) # DE NUEVO COMENTARIO, PERO AQUI PARA EXPLICAR LA RAZON DE ESTE SLEEP
-                await self.page.push_route("/")
-                return # RETURN SIN NADA?
+                await asyncio.sleep(2) # damos un tiempo para que el usuario lea el mensaje andes de redireccionar al login
+                await self.page.go("/")
             else:
                 error_registro = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
                 if "EMAIL_EXISTS" in error_registro:
@@ -43,9 +46,9 @@ class AuthController:
                 else:
                     self.vista.mensaje_error.value = "Error al registrar"
 
-        # limpiamos el campo de la contraseña tras saltar un error
-        self.vista.psw_input.value = ""
-        self.vista.psw_confirmar.value = ""
+                # limpiamos el campo de la contraseña tras saltar un error
+                self.vista.psw_input.value = ""
+                self.vista.psw_confirmar.value = ""
 
         self.page.update()
 
@@ -63,7 +66,7 @@ class AuthController:
                 self.vista.mensaje_error.color = "green"
                 self.page.update()
                 await asyncio.sleep(2)                
-                await self.page.push_route("/home") # ruta a la pantalla principal/perfil/grupos
+                self.page.go("/home") # ruta a la pantalla principal/perfil/grupos
             else:
                 error_log = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
                 if "INVALID_LOGIN_CREDENTIALS" in error_log or "INVALID_PASSWORD" in error_log:
@@ -95,7 +98,7 @@ class AuthController:
                 self.vista.mensaje_error.color = "green"
                 self.page.update()
                 await asyncio.sleep(2)    
-                await self.page.push_route("/")
+                self.page.go("/")
             else:
                 error_recu = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
                 if "NOT_FOUND" in error_recu:

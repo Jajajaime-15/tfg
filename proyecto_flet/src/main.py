@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 from services.wrapper import Wrapper
 from controllers.auth_controller import AuthController
 from controllers.user_controller import UserController
@@ -10,6 +10,13 @@ async def main(page: ft.Page):
     page.window_width = 400
     page.window_height = 700
     
+    # cargamos el tema que está guardado
+    tema_guardado = await page.shared_preferences.get("tema")
+    if tema_guardado == "dark":
+        page.theme_mode = ft.ThemeMode.DARK
+    else:
+        page.theme_mode = ft.ThemeMode.LIGHT
+        
     # arrancamos Firebase
     wrapper = Wrapper(page)
     auth_controller = AuthController(page,wrapper)

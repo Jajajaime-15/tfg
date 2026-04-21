@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 import asyncio
 
 class SettingsController:
@@ -16,14 +16,21 @@ class SettingsController:
             e.control.icon = ft.Icons.DARK_MODE # el icono del boton es el del tema oscuro
             e.control.tooltip = "Cambiar tema a modo claro" # tooltip para indicar que si pulsamos sobre el icono se cambiara a tema claro
             await self.page.shared_preferences.set("tema","dark") # guardamos los cambios en el dispositivo
-        else:
+        elif self.page.theme_mode == ft.ThemeMode.DARK:
             self.page.theme_mode = ft.ThemeMode.LIGHT
-            e.control.icon = ft.Icons.LIGHT_MODE # el icono del botón es el del tema claro
+            e.control.icon = ft.Icons.DARK_MODE # el icono del botón es el del tema claro
             e.control.tooltip = "Cambiar tema a modo oscuro" # tooltip para indicar que si pulsamos sobre el icono se cambiara a tema oscuro
             await self.page.shared_preferences.set("tema","light") # guardamos los cambios en el dispositivo
         e.control.update()
         self.page.update()
         print(f"Tema cambiado a: {self.page.theme_mode}")
+
+        
+    # funcion que muetra la tarjeta
+    def mostrar_tarjeta_psw(self):
+        self.vista.tarjeta_psw.visible = True
+        self.page.update()
+
     # funcion que abre el componente CardPassword, valida los datos y llama al wrapper
     async def cambio_psw (self,componente):
         componente.mensaje_error.value = ""
@@ -112,6 +119,7 @@ class SettingsController:
 
     async def cerrar_sesion(self, e):
         await self.wrapper.cerrar_sesion()
+        self.page.index_navegacion = 0 # reseteamos para que al volver a iniciar sesion aparezca grupos
         self.page.go("/") # abre el login una vez cerrada la sesión
 
     def cerrar_dialogo(self):
