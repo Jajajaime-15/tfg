@@ -3,20 +3,35 @@ import flet_map as ftm
 from services.gps_firebase import gps
 
 async def map(page: ft.Page):
-    marker_layer_user = ftm.MarkerLayer(markers=[]) # capa para poder dibujar marcadores en el mapa
+    marker_layer_user = ftm.MarkerLayer(markers=[]) # capa para poder dibujar marcadores propios en el mapa
+    marker_layer_miembros = ftm.MarkerLayer(markers=[]) # capa para poder dibujar marcadores de los miembros en el mapa
+    marcadores_miembros = {}
 
     # funcion para dibujar el marcador del usuario con cada cambio de posicion
     def actualizar_marcador_usuario(lat, lon):
         marker_layer_user.markers=[
-                ftm.Marker(
-                    content=ft.Icon(ft.Icons.LOCATION_PIN),
-                    coordinates=ftm.MapLatitudeLongitude(lat, lon) # las coordenadas obtenidas de la posicion del usuario
-                )
-            ]
+            ftm.Marker(
+                content=ft.Icon(ft.Icons.LOCATION_PIN),
+                coordinates=ftm.MapLatitudeLongitude(lat, lon) # las coordenadas obtenidas de la posicion del usuario
+            )
+        ]
+        page.update()
+
+    # funcion para dibujar el marcador del resto de miembros con cada cambio de posicion
+    def actualizar_marcador_miembros(miembro, lat, lon):
+        marcadores_miembros[miembro]=ftm.Marker(
+            content=ft.Icon(ft.Icons.LOCATION_ON_ROUNDED),
+            coordinates=ftm.MapLatitudeLongitude(lat, lon) # las coordenadas obtenidas de la posicion de cada miembro
+        )
+        marker_layer_miembros.markers = list(marcadores_miembros.values())
         page.update()
 
     # llamamos al geolocator
-    lat, lon, geo = await gps(page, actualizar_marcador_usuario= actualizar_marcador_usuario) # le pasamos la pagina y la funcion para dibujar el marcador
+    lat, lon, geo = await gps(
+            page, 
+            actualizar_marcador_usuario= actualizar_marcador_usuario, 
+            actualizar_marcador_miembros= actualizar_marcador_miembros
+        ) # le pasamos la pagina y las funciones para dibujar los marcadores
 
     mapa = ftm.Map( # creacion del mapa
         expand=True, # para que ocupe toda la pantalla
@@ -35,7 +50,8 @@ async def map(page: ft.Page):
                 url_template="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png", # el mapa que usamos, en este caso el de CartoDB
                 on_image_error=lambda e: print("TileLayer Error") # en caso de que salte error avisamos por la consola
             ),
-            marker_layer_user
+            marker_layer_user,
+            marker_layer_miembros
         ]
     )
 
