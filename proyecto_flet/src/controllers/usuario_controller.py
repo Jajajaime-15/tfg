@@ -1,9 +1,9 @@
 import flet as ft # type: ignore
 
 class UserController:
-    def __init__ (self,page,wrapper,vista=None):
+    def __init__ (self,page,usuario_service,vista=None):
         self.page = page
-        self.wrapper = wrapper
+        self.service = usuario_service
         self.vista = vista
 
     async def cargar_perfil(self):
@@ -39,7 +39,7 @@ class UserController:
             "pais":self.vista.pais_input.value,
             "localidad":self.vista.localidad_input.value
         }
-        guardado, aviso = await self.wrapper.actualizar_datos(datos)
+        guardado, aviso = await self.service.actualizar_datos(datos)
         if guardado:
                 self.vista.mensaje_error.value = "Datos actualizados"
                 self.vista.mensaje_error.color = "green"

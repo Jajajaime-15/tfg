@@ -1,8 +1,11 @@
 import flet as ft # type: ignore
-from services.wrapper import Wrapper
+from services.ajustes_service import AjustesService
+from services.auth_service import AuthService
+from services.firebase_service import FirebaseService
+from services.usuario_service import UsuarioService
 from controllers.auth_controller import AuthController
-from controllers.user_controller import UserController
-from controllers.settings_controller import SettingsController
+from controllers.usuario_controller import UserController
+from controllers.ajustes_controller import SettingsController
 from router import Router
 
 async def main(page: ft.Page):
@@ -18,10 +21,13 @@ async def main(page: ft.Page):
         page.theme_mode = ft.ThemeMode.LIGHT
         
     # arrancamos Firebase
-    wrapper = Wrapper(page)
-    auth_controller = AuthController(page,wrapper)
-    settings_controller = SettingsController(page,wrapper)
-    user_controller = UserController(page,wrapper)
+    fb_service = FirebaseService(page)
+    auth_service = AuthService(page, fb_service)
+    usuario_service = UsuarioService(page, fb_service, auth_service)
+    ajustes_service = AjustesService(page, fb_service, auth_service)
+    auth_controller = AuthController(page,auth_service)
+    ajustes_controller = SettingsController(page,ajustes_service)
+    usuario_controller = UserController(page,usuario_service)
 
     # Cerramos la sesión al arrancar para que siempre aparezca el login SOLO PARA PRUEBAS
     # await wrapper.cerrar_sesion() 
@@ -29,12 +35,12 @@ async def main(page: ft.Page):
     # await page.shared_preferences.clear()
     
     # arrancamos el archivo de las rutas
-    router = Router(page,auth_controller,settings_controller,user_controller)
+    router = Router(page,auth_controller,ajustes_controller,usuario_controller)
     # conectamos con la funcion de cambio de ruta del router (route_change)
     page.on_route_change = router.route_change
 
     # comprobamos si hay un usuario logueado ya
-    id_usuario = await wrapper.usuario_conectado()
+    id_usuario = await auth_service.usuario_conectado()
     if id_usuario:
         print("USUARIO INICIADO") # PRINT PARA PROBAR QUE SE QUEDA INICIADA LA SESION
         page.route = "/home" # esta ruta será la de grupos

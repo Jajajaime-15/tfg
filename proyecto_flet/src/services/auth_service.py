@@ -1,26 +1,9 @@
-# inicializar Firebase + funciones necesarias
-
-import pyrebase
-from database.config import config
 from datetime import datetime
 
-# YO CREO QUE EL WRAPPER ES DEMASIADO GRANDE Y MEZCLA DEMASIADAS COSAS. LO SUYO SERIA SEPARARLO LO ANTES POSIBLE EN DISTINTOS SCRIPTS
-# LO QUE QUEREMOS DEL "WRAPPER" COMO TAL ES QUE NOS "ENVUELVA" LA CONEXION CON FIREBASE, SERIA MAS O MENOS SOLO LAS LINEAS 16-18, SE PODRIA LLAMAR FIREBASE_SERVICE
-# LO DEMAS SE PUEDE DIVIDIR EN OTROS SERVICIOS SEGUN CREAIS CONVENIENTE, QUIZAS UNO DE USUARIO, OTRO DE LO RELACIONADO CON AUTH O CON LA SESION, COMO VEAIS
-# Y TMB HAY QUE MODIFICAR EL MAIN CON SUS RESPECTIVAS LLAMADAS NUEVAS. TENED EN CUENTA QUE SINO HABRIA QUE METER CADA SERVICE EN ESTE WRAPPER PRACTICAMENTE
-# LO QUE HARIA QUE TUVIERA QUE METER EL SERVICE DEL MAPA AQUI POR EJEMPLO, EN VEZ DE TENER SU PROPIO ARCHIVO
-class Wrapper:
-    def __init__(self,page):
+class AuthService:
+    def __init__(self, page, firebase_service):
         self.page = page
-        try:
-            self.firebase = pyrebase.initialize_app(config)
-            self.auth = self.firebase.auth()
-            self.db = self.firebase.database()
-            self.id_usuario = None
-            self.token = None
-            print("Conectado a firebase") # print para comprobar que no hay problema a la hora de conectarse
-        except Exception as e:
-            print("Error al conectarse a firebase")
+        self.fb = firebase_service
 
     # función para registrar usuarios nuevos
     async def registrarse (self, nombre, telefono, email, psw):
@@ -135,85 +118,3 @@ class Wrapper:
         except Exception as e:
             print(f"No se pudo actualizar la sesion:{e}")
             return False
-        
-    # funcion para actualizar los datos del usuario
-    async def actualizar_datos(self,datos_actualizados):
-        try:
-            # recuperamos el id del usuario y el token
-            if not self.id_usuario:
-                self.id_usuario = await self.page.shared_preferences.get("id_usuario")
-            if not self.token:
-                self.token = await self.page.shared_preferences.get("token")
-            # intentamos actualizar los datos
-            try:
-                self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, self.token)
-            except Exception as e:
-                print ("Token caducado")
-                # llamamos a la funcion para actualizar el token
-                if await self.actualizar_sesion():
-                    try:
-                        # volvemos a intentar actualizar los datos
-                        self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados,self.token)
-                    except Exception as x:
-                        print("Error después de actualizar el token")
-                        return False, f"Error después de actualizar el token{x}"
-                else:
-                    print ("Sesion caducada")
-                    return False, "Sesion caducada, inicia sesión de nuevo"
-            # guardamos los datos en el dispositivo
-            for clave, valor in datos_actualizados.items():
-                await self.page.shared_preferences.set(clave,valor)
-            print ("Datos actualizados")
-            return True, "Datos actualizados"
-        except Exception as e:
-            print(f"Error: {e}")
-            return False, str(e)
-
-    # funcion para cambiar la contraseña estando conectado    
-    async def cambiar_psw(self,nueva_psw):
-        try:
-            self.token = await self.page.shared_preferences.get("token")
-            # obtenemos el token si no está en memoria
-            if not self.token:
-                return False, "TOKEN_EXPIRED"            
-            # actualizamos la contraseña
-            self.auth.change_password(self.token,nueva_psw)
-            print("Contraseña actualizada")
-            return True, "Contraseña actualizada"
-        except Exception as e:
-            mensaje = str(e).upper()
-            print(f"DEBUG: Error detectado en Firebase: {mensaje}")
-            if "CREDENTIAL_TOO_OLD" in mensaje or "SENSITIVE_OPERATION" in mensaje:
-                return False, "REQUIRES_RECENT_LOGIN" 
-            # si el token está caducado, refrescamos el token
-            if await self.actualizar_sesion():
-                try:
-                    self.token = await self.page.shared_preferences.get("token")
-                    self.auth.change_password(self.token,nueva_psw)
-                    return True, "Contraseña actualizada"
-                except:
-                    return False, "REQUIRES_RECENT_LOGIN"
-            return False, "Error desconocido"
-        
-    # funcion para eliminar la cuenta y los datos de dicha cuenta
-    async def borrar_cuenta(self):
-        try:
-            if not self.id_usuario:
-                self.id_usuario = await self.page.shared_preferences.get("id_usuario")
-            if not self.token:
-                self.token = await self.page.shared_preferences.get("token")
-
-            # borramos toda la informacion de la base de datos (de Realtime)
-            self.db.child("usuarios").child(self.id_usuario).remove(self.token)
-            # borramos el usuario de Authentication
-            self.auth.delete_user_account(self.token)
-            # una vez eliminado cerramos sesión
-            await self.cerrar_sesion()
-
-            print("Cuenta eliminada")
-            return True, "La cuenta ha sido eliminada"
-        except Exception as e:
-            print(f"Error al borrar la cuenta: {e}")
-            return False, "Error al eliminar cuenta, inténtalo de nuevo iniciando sesión"
-        
-        

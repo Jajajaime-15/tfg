@@ -2,9 +2,9 @@ import flet as ft # type: ignore
 import asyncio
 
 class AuthController:
-    def __init__(self,page,wrapper, vista = None):
+    def __init__(self,page,auth_service, vista = None):
         self.page = page
-        self.wrapper = wrapper
+        self.service = auth_service
         self.vista = vista
 
     async def registrar_usuario (self,e):
@@ -29,7 +29,7 @@ class AuthController:
         elif len(self.vista.psw_input.value) < 8:
                 self.vista.mensaje_error.value = "La contraseña debe de tener mínimo 8 caracteres"
         else:
-            registrado, aviso = await self.wrapper.registrarse(self.vista.nombre_input.value,self.vista.telefono_input.value,self.vista.email_input.value,self.vista.psw_input.value)
+            registrado, aviso = await self.service.registrarse(self.vista.nombre_input.value,self.vista.telefono_input.value,self.vista.email_input.value,self.vista.psw_input.value)
             if registrado:
                 # provisional para confirmar en pantalla el registro
                 self.vista.mensaje_error.value = "Usuario registrado correctamente, puedes iniciar sesión"
@@ -59,7 +59,7 @@ class AuthController:
         if not self.vista.email_input.value or not self.vista.psw_input.value:
             self.vista.mensaje_error.value = "Introduce email y contraseña"
         else:
-            conectado, aviso = await self.wrapper.iniciar_sesion(self.vista.email_input.value,self.vista.psw_input.value)
+            conectado, aviso = await self.service.iniciar_sesion(self.vista.email_input.value,self.vista.psw_input.value)
             if conectado:
                 # provisional para confirmar en pantalla el inicio de sesion
                 self.vista.mensaje_error.value = "Sesión iniciada"
@@ -91,7 +91,7 @@ class AuthController:
         if not self.vista.email_input.value:
             self.vista.mensaje_error.value = "Introduce el email de tu cuenta para recuperarla"
         else:
-            enviado, aviso = await self.wrapper.recu_psw(self.vista.email_input.value)
+            enviado, aviso = await self.service.recu_psw(self.vista.email_input.value)
             if enviado:
                 # provisional para confirmar en pantalla correo enviado para recuperar contraseña
                 self.vista.mensaje_error.value = "Correo enviado"

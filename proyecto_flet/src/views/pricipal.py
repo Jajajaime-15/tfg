@@ -1,7 +1,7 @@
 import flet as ft # type: ignore
 import asyncio
 from views.perfil import VistaPerfil
-from controllers.user_controller import UserController
+from controllers.usuario_controller import UserController
 
 class VistaPrincipal: 
     def __init__(self, page, user_controller):  # Recibe user_controller directamente en lugar de wrapper

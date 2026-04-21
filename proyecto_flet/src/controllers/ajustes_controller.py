@@ -2,9 +2,9 @@ import flet as ft # type: ignore
 import asyncio
 
 class SettingsController:
-    def __init__(self, page, wrapper, vista = None):
+    def __init__(self, page, ajustes_service, vista = None):
         self.page = page
-        self.wrapper = wrapper
+        self.service = ajustes_service
         self.vista = vista
 
     # funcion para cambiar el tema de la aplicacion (claro/oscuro)
@@ -18,7 +18,7 @@ class SettingsController:
             await self.page.shared_preferences.set("tema","dark") # guardamos los cambios en el dispositivo
         elif self.page.theme_mode == ft.ThemeMode.DARK:
             self.page.theme_mode = ft.ThemeMode.LIGHT
-            e.control.icon = ft.Icons.DARK_MODE # el icono del botón es el del tema claro
+            e.control.icon = ft.Icons.LIGHT_MODE # el icono del botón es el del tema claro
             e.control.tooltip = "Cambiar tema a modo oscuro" # tooltip para indicar que si pulsamos sobre el icono se cambiara a tema oscuro
             await self.page.shared_preferences.set("tema","light") # guardamos los cambios en el dispositivo
         e.control.update()
@@ -45,13 +45,13 @@ class SettingsController:
         elif len(componente.psw_nueva.value) < 8:
             componente.mensaje_error.value = "La contraseña debe tener mínimo 8 caracteres"
         else:
-            exito, aviso = await self.wrapper.cambiar_psw(componente.psw_nueva.value)
+            exito, aviso = await self.service.cambiar_psw(componente.psw_nueva.value)
             if exito:
                 componente.mensaje_error.value = "Contraseña actualizada correctamente"
                 componente.mensaje_error.color = "green"
                 self.page.update()
                 await asyncio.sleep(2)
-                await self.wrapper.cerrar_sesion() # si se ha cambiado la contraseña se cierra la sesion y pide que vuelvas a iniciar
+                await self.service.auth_s.cerrar_sesion() # si se ha cambiado la contraseña se cierra la sesion y pide que vuelvas a iniciar
                 self.page.go("/")            
             else:
                 error_psw = str(aviso).upper()
@@ -89,7 +89,7 @@ class SettingsController:
         self.page.update()
     # funcion para borrar la cuenta
     async def borrar_cuenta(self, e):
-        exito, aviso = await self.wrapper.borrar_cuenta()
+        exito, aviso = await self.service.borrar_cuenta()
         if exito:
             # recorremos el overlay para cerrar CUALQUIER diálogo abierto
             for control in self.page.overlay:
@@ -118,7 +118,7 @@ class SettingsController:
             print(f"Error al borrar: {aviso}")
 
     async def cerrar_sesion(self, e):
-        await self.wrapper.cerrar_sesion()
+        await self.service.auth_s.cerrar_sesion()
         self.page.index_navegacion = 0 # reseteamos para que al volver a iniciar sesion aparezca grupos
         self.page.go("/") # abre el login una vez cerrada la sesión
 
