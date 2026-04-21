@@ -3,7 +3,8 @@ class AjustesService:
         self.page = page
         self.fb = firebase_service
         self.auth_s = auth_service
-
+        self.auth = firebase_service.auth
+        self.db = firebase_service.db
     # funcion para cambiar la contraseña estando conectado    
     async def cambiar_psw(self,nueva_psw):
         try:

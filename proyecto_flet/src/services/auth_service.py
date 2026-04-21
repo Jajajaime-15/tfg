@@ -4,6 +4,8 @@ class AuthService:
     def __init__(self, page, firebase_service):
         self.page = page
         self.fb = firebase_service
+        self.auth = firebase_service.auth 
+        self.db = firebase_service.db
 
     # función para registrar usuarios nuevos
     async def registrarse (self, nombre, telefono, email, psw):
@@ -83,8 +85,15 @@ class AuthService:
     # función para cerrar la sesión de un usuario
     async def cerrar_sesion(self):
         try:
-            # ESTA BIEN PERO HAY QUE VALORAR SI QUEREMOS QUE SE BORRE TODO TODO, IMAGINATE QUE DESPUES QUIERO INICIAR SESION DE NUEVO Y TENGO QUE CONFIGURAR ALGUNAS COSAS QUE QUIZAS DEBERIAN QUEDARSE SIEMPRE, DALE UNA VUELTA Y ME DICES
-            await self.page.shared_preferences.clear() # borramos toda la información que hay guardada en el dispositivo
+            datos_usuario = [
+                "id_usuario", "token", "refresh_token", "nombre", 
+                "apellidos", "email", "telefono", "pais", 
+                "localidad", "id_grupo"
+            ]
+            # borramos los datos de la sesión pero el tema se mantiene
+            for dato in datos_usuario:
+                await self.page.shared_preferences.remove(dato)
+                
             self.id_usuario = None
             self.token = None
             print("Sesión cerrada")
