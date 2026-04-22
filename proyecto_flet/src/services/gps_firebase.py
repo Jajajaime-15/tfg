@@ -17,11 +17,12 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcad
     grupos = db.child("usuarios").child(yo).child("grupos").get().val() 
 
     # recorremos los grupos a los que pertenece el usuario y cada miembro para guardarlos en la lista de miembros y poder evitar repetidos
-    for grupo in grupos.keys():
-        miembros = db.child("grupos").child(grupo).child("miembros").get().val()
-        for miembro in miembros.keys():
-            if miembro not in miembros_grupos: # QUIZAS TENEMOS QUE HACER EL NOMBRE DE LOS USUARIOS UNICO O QUE ESTO SE HAGA POR UN ID
-                miembros_grupos.append(miembro)
+    if grupos: # por si el usuario no esta todavia en ningun grupo
+        for grupo in grupos.keys():
+            miembros = db.child("grupos").child(grupo).child("miembros").get().val()
+            for miembro in miembros.keys():
+                if miembro not in miembros_grupos: # QUIZAS TENEMOS QUE HACER QUE ESTO SE HAGA POR UN ID POR SI ACASO HAY DOS PERSONAS EN GRUPOS DISTINTOS CON EL MISMO NOMBRE
+                    miembros_grupos.append(miembro)
 
     # funcion para gestionar el cambio de ubicacion del geolocator tanto en firebase como en el mapa
     def cambio_ubicacion(cambio: ftg.GeolocatorPositionChangeEvent): # para el on position change del geolocator
@@ -34,8 +35,9 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcad
             "timestamp" : str(timestamp)
         }
 
-        for grupo in grupos.keys(): # para escribir el cambio de posicion en todos los grupos a los que se pertenezca
-            db.child("ubicaciones").child(grupo).child(yo).set(loc) # si se cambia la posicion la escribimos en la base de datos
+        if grupos:
+            for grupo in grupos.keys(): # para escribir el cambio de posicion en todos los grupos a los que se pertenezca
+                db.child("ubicaciones").child(grupo).child(yo).set(loc) # si se cambia la posicion la escribimos en la base de datos
         
         if actualizar_marcador_usuario: # solo en caso de que exista
             actualizar_marcador_usuario(latitud, longitud) # llamamos a la funcion del mapa para pintar el marcador propio cada vez que se actualice la posicion
@@ -71,8 +73,9 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcad
         }
 
         try:
-            for grupo in grupos.keys(): # para escribir la posicion inicial en todos los grupos a los que se pertenezca
-                db.child("ubicaciones").child(grupo).child(yo).set(loc) # para escribir los valores debemos marcar el nivel dentro de los json con los 'child' y 'set'
+            if grupos:
+                for grupo in grupos.keys(): # para escribir la posicion inicial en todos los grupos a los que se pertenezca
+                    db.child("ubicaciones").child(grupo).child(yo).set(loc) # para escribir los valores debemos marcar el nivel dentro de los json con los 'child' y 'set'
             #page.add(ft.Text(f"Escritura OK"))
         except Exception as e:
             page.add(ft.Text(f"Error escritura Firebase: {e}"))
@@ -91,9 +94,10 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcad
 
     # listener para recibir cada vez que haya un cambio en la ubicacion de un miembro de los grupos a los que pertenece el usuario
     def listener(miembro):
-        for grupo in grupos.keys():
-            # el stream hace que escuchemos constantemente esta parte de realtime por si hay cambios y llamamos al callback
-            db.child("ubicaciones").child(grupo).child(miembro).stream(callback_miembro(miembro)) 
+        if grupos:
+            for grupo in grupos.keys():
+                # el stream hace que escuchemos constantemente esta parte de realtime por si hay cambios y llamamos al callback
+                db.child("ubicaciones").child(grupo).child(miembro).stream(callback_miembro(miembro)) 
 
 
     geo = ftg.Geolocator( # declaramos el geolocator configurando su precision de localizacion como la mejor posible
