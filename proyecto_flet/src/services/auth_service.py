@@ -22,6 +22,7 @@ class AuthService:
                 "email": email,
                 "pais": "", # se podrá rellenar desde el perfil de usuario
                 "localidad": "", # ''
+                "color_avatar": "#1A6AFE",
                 "grupos":{}, # se rellena cuando se tenga una familia # REVISAR ESTO POR LA FORMA EN LA QUE GUARDAMOS LOS GRUPOS, DE LA FORMA ACTUAL SOLO SE PODRIA GUARDAR UNO
                 "fecha_registro": datetime.now().strftime("%Y-%m-%d %H:%M:%S") # se usa strtime porque firebase no lee fechas, tiene que ser texto o numeros
             }
@@ -63,6 +64,8 @@ class AuthService:
                 await self.page.shared_preferences.set("telefono", infor_usuario.get("telefono", ""))
                 await self.page.shared_preferences.set("pais", infor_usuario.get("pais", ""))
                 await self.page.shared_preferences.set("localidad", infor_usuario.get("localidad", ""))
+                await self.page.shared_preferences.set("color_avatar", infor_usuario.get("color_avatar", "#1A6AFE"))
+                grupos_json = "{}"
                 if "grupos" in infor_usuario:
                     dict_grupos = infor_usuario.get("grupos",{}) # obtenemos el diccionario con todos los grupos (si no hay ninguno devuelve un diccionario vacio)
                     grupos_json = json.dumps(dict_grupos) # lo convertimos a texto para poder guardarlo con shared_preferences en la bd

@@ -31,6 +31,7 @@ class AuthController:
         else:
             registrado, aviso = await self.service.registrarse(self.vista.nombre_input.value,self.vista.telefono_input.value,self.vista.email_input.value,self.vista.psw_input.value)
             if registrado:
+                await self.page.shared_preferences.set("color_avatar", "#1A6AFE") # asignamos el color por defecto al avatar
                 # provisional para confirmar en pantalla el registro
                 self.vista.mensaje_error.value = "Usuario registrado correctamente, puedes iniciar sesión"
                 self.vista.mensaje_error.color = "green"
@@ -80,7 +81,7 @@ class AuthController:
                     
                 # limpiamos el campo de la contraseña y dejamos el focus ahí tras saltar un error    
                 self.vista.psw_input.value = ""
-                self.vista.psw_input.focus()
+                await self.vista.psw_input.focus()
 
         self.page.update()
 

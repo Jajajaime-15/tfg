@@ -35,7 +35,32 @@ class VistaPerfil:
             content=self.avatar,
             alignment=ft.Alignment(0, 0),
             padding=20,
+            on_click=self.controlador.mostrar_colores,
         )
+
+        self.lista_colores = ft.BottomSheet(
+            ft.Container(
+                padding=20,
+                content=ft.Column([
+                    ft.Text("Personalizar avatar",
+                            size=20,
+                            weight="bold"),
+                    ft.Divider(),
+                    ft.Row([
+                        self.crear_boton_color("Azul", "#1A6AFE"),
+                        self.crear_boton_color("Rojo", "red"),
+                        self.crear_boton_color("Verde", "green"),
+                        self.crear_boton_color("Naranja", "orange"),
+                        self.crear_boton_color("Morado", "purple"),
+                        self.crear_boton_color("Rosa", "pink"),
+                    ], 
+                    wrap=True,
+                    alignment=ft.MainAxisAlignment.CENTER),
+                ],
+                tight=True),
+            )
+        )
+
         # cabecera del perfil con nombre y correo del usuario
         self.usuario = ft.Text(size=20, weight="bold")
         self.email = ft.Text(size=14, color="grey")
@@ -72,6 +97,16 @@ class VistaPerfil:
             accion=self.controlador.guardar_cambios
         )
 
+    # funcion que crea el boton para el color creando un icono para elegirlo
+    def crear_boton_color(self,nombre,color_valor):
+        return ft.IconButton(
+            icon=ft.Icons.CIRCLE,
+            icon_color=color_valor,
+            icon_size=40,
+            tooltip=nombre,
+            on_click= self.controlador.seleccionar_color,
+            data=color_valor # usamos data para aceptar el color y que se modifique el avatar
+        )
     def vista(self):
         
         return ft.Container(

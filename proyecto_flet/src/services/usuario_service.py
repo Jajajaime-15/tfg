@@ -4,6 +4,8 @@ class UsuarioService:
             self.fb = firebase_service
             self.auth_s = auth_service
             self.db = firebase_service.db
+            self.id_usuario = None
+            self.token = None
 
     # funcion para actualizar los datos del usuario
     async def actualizar_datos(self,datos_actualizados):

@@ -6,6 +6,7 @@ class UsuarioController:
         self.service = usuario_service
         self.vista = vista
 
+
     async def cargar_perfil(self):
         # cogemos los datos que estan guardados en el dispositivo
         nombre = await self.page.shared_preferences.get("nombre")
@@ -30,7 +31,13 @@ class UsuarioController:
         # datos en la parte de arriba (cabecera)
         self.vista.usuario.value = f"{nombre} {apellidos if apellidos else ""}".strip()
         self.vista.email.value = email
-        
+        # obtenemos el color de avatar que tiene elegido el usuario en la anterior sesion
+        color_guardado = await self.page.shared_preferences.get("color_avatar")
+        if color_guardado:
+            self.vista.avatar.bgcolor=color_guardado
+        else:
+            self.vista.avatar.bgcolor="#1A6AFE"
+
         self.page.update()
     
     async def guardar_cambios(self,e):
