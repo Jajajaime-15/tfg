@@ -5,6 +5,9 @@ class AjustesService:
         self.auth_s = auth_service
         self.auth = firebase_service.auth
         self.db = firebase_service.db
+        self.id_usuario = None
+        self.token = None
+
     # funcion para cambiar la contraseña estando conectado    
     async def cambiar_psw(self,nueva_psw):
         try:
@@ -13,7 +16,7 @@ class AjustesService:
             if not self.token:
                 return False, "TOKEN_EXPIRED"            
             # actualizamos la contraseña
-            self.auth.change_password(self.token,nueva_psw)
+            self.auth.change_password(self.token, nueva_psw)
             print("Contraseña actualizada")
             return True, "Contraseña actualizada"
         except Exception as e:
@@ -22,7 +25,7 @@ class AjustesService:
             if "CREDENTIAL_TOO_OLD" in mensaje or "SENSITIVE_OPERATION" in mensaje:
                 return False, "REQUIRES_RECENT_LOGIN" 
             # si el token está caducado, refrescamos el token
-            if await self.actualizar_sesion():
+            if await self.auth_s.actualizar_sesion():
                 try:
                     self.token = await self.page.shared_preferences.get("token")
                     self.auth.change_password(self.token,nueva_psw)
@@ -44,7 +47,7 @@ class AjustesService:
             # borramos el usuario de Authentication
             self.auth.delete_user_account(self.token)
             # una vez eliminado cerramos sesión
-            await self.cerrar_sesion()
+            await self.auth_s.cerrar_sesion()
 
             print("Cuenta eliminada")
             return True, "La cuenta ha sido eliminada"

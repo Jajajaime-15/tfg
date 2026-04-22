@@ -9,22 +9,19 @@ class AjustesController:
 
     # funcion para cambiar el tema de la aplicacion (claro/oscuro)
     async def tema (self,e):
-        if self.page.theme_mode is None:
-            self.page.theme_mode = ft.ThemeMode.LIGHT
-        if self.page.theme_mode == ft.ThemeMode.LIGHT:
+        if self.page.theme_mode == ft.ThemeMode.LIGHT or self.page.theme_mode is None:
             self.page.theme_mode = ft.ThemeMode.DARK
             e.control.icon = ft.Icons.DARK_MODE # el icono del boton es el del tema oscuro
             e.control.tooltip = "Cambiar tema a modo claro" # tooltip para indicar que si pulsamos sobre el icono se cambiara a tema claro
             await self.page.shared_preferences.set("tema","dark") # guardamos los cambios en el dispositivo
-        elif self.page.theme_mode == ft.ThemeMode.DARK:
+        else:
             self.page.theme_mode = ft.ThemeMode.LIGHT
             e.control.icon = ft.Icons.LIGHT_MODE # el icono del botón es el del tema claro
             e.control.tooltip = "Cambiar tema a modo oscuro" # tooltip para indicar que si pulsamos sobre el icono se cambiara a tema oscuro
             await self.page.shared_preferences.set("tema","light") # guardamos los cambios en el dispositivo
-        e.control.update()
+        e.control.update() # se actualiza el boton
         self.page.update()
         print(f"Tema cambiado a: {self.page.theme_mode}")
-
         
     # funcion que muetra la tarjeta
     def mostrar_tarjeta_psw(self):
@@ -118,7 +115,7 @@ class AjustesController:
             print(f"Error al borrar: {aviso}")
 
     async def cerrar_sesion(self, e):
-        await self.service.auth_s.cerrar_sesion()
+        await self.service.auth_s.cerrar_sesion() # cerramos la sesion con firebase
         self.page.index_navegacion = 0 # reseteamos para que al volver a iniciar sesion aparezca grupos
         self.page.go("/") # abre el login una vez cerrada la sesión
 
@@ -127,3 +124,34 @@ class AjustesController:
             if isinstance(control, ft.AlertDialog):
                 control.open = False
         self.page.update()
+
+    # funcion para activar o desactivar la ubicacion del usuario
+    async def compartir_ubicacion(self,e):
+        # vemos lo que está seleccionado en el switch (activo/inactivo) y lo guardamos
+        nuevo_estado = self.vista.ubicacion.value
+        estado = str(nuevo_estado).lower() # el estado hay que convertirlo a texto para guardarlo en shared preferences que no admite booleanos
+        await self.page.shared_preferences.set("compartir_ubicacion",estado)
+        print("Estado comparticion:", estado) # print para comprobar que funciona
+        if nuevo_estado is False:
+            # hay que ver si dejamos la ultima posicion marcada o lo borramos e iría aquí
+            print("Ubicacion desactivada")
+        self.page.update()
+
+    # funcion para que al cerrar sesion el switch de la ubicación no se reinicie y se mantenga lo seleccionado, tambien carga el tema
+    async def cargar_ajustes(self):
+        if self.vista: # comprobacion de que la vista existe para evitar errores
+            # comprobamos el tema que tiene y lo cargamos
+            if self.page.theme_mode == ft.ThemeMode.DARK:
+                self.vista.btn_tema.icon = ft.Icons.DARK_MODE
+                self.vista.btn_tema.tooltip = "Cambiar tema a modo claro"
+            else:
+                self.vista.btn_tema.icon = ft.Icons.LIGHT_MODE
+                self.vista.btn_tema.tooltip = "Cambiar tema a modo oscuro"
+            # comprobamos el estado de la ubicacion y lo cargamos
+            estado_guardado = await self.page.shared_preferences.get("compartir_ubicacion")
+            # volvemos a convertir el estado a un booleano para el switch
+            if estado_guardado == "true":
+                self.vista.ubicacion.value = True
+            else:
+                self.vista.ubicacion.value = False
+            self.page.update()

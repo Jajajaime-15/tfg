@@ -35,6 +35,7 @@ class AuthService:
             await self.page.shared_preferences.set("nombre", nombre)
             await self.page.shared_preferences.set("telefono", telefono)
             await self.page.shared_preferences.set("email", email)
+            await self.page.shared_preferences.set("color_avatar", "#1A6AFE")
 
             print("Usuario registrado correctamente")
             return True,"Usuario registrado correctamente"
@@ -65,6 +66,8 @@ class AuthService:
                 await self.page.shared_preferences.set("pais", infor_usuario.get("pais", ""))
                 await self.page.shared_preferences.set("localidad", infor_usuario.get("localidad", ""))
                 await self.page.shared_preferences.set("color_avatar", infor_usuario.get("color_avatar", "#1A6AFE"))
+                estado_ubi = infor_usuario.get("compartir_ubicacion", "false")
+                await self.page.shared_preferences.set("compartir_ubicacion", estado_ubi)
                 grupos_json = "{}"
                 if "grupos" in infor_usuario:
                     dict_grupos = infor_usuario.get("grupos",{}) # obtenemos el diccionario con todos los grupos (si no hay ninguno devuelve un diccionario vacio)
@@ -91,7 +94,7 @@ class AuthService:
             datos_usuario = [
                 "id_usuario", "token", "refresh_token", "nombre", 
                 "apellidos", "email", "telefono", "pais", 
-                "localidad", "id_grupo"
+                "localidad", "grupos","color_avatar"
             ]
             # borramos los datos de la sesión pero el tema se mantiene
             for dato in datos_usuario:

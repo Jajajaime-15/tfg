@@ -37,7 +37,7 @@ class AuthController:
                 self.vista.mensaje_error.color = "green"
                 self.page.update()
                 await asyncio.sleep(2) # damos un tiempo para que el usuario lea el mensaje andes de redireccionar al login
-                await self.page.go("/")
+                self.page.go("/")
             else:
                 error_registro = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
                 if "EMAIL_EXISTS" in error_registro:
@@ -55,6 +55,7 @@ class AuthController:
 
     async def conectarse (self,e):
         self.vista.mensaje_error.value = ""
+        self.vista.mensaje_error.color = "red"
         self.page.update()
 
         if not self.vista.email_input.value or not self.vista.psw_input.value:

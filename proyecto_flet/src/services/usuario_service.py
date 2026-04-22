@@ -21,8 +21,9 @@ class UsuarioService:
             except Exception as e:
                 print ("Token caducado")
                 # llamamos a la funcion para actualizar el token
-                if await self.actualizar_sesion():
+                if await self.auth_s.actualizar_sesion():
                     try:
+                        self.token = await self.page.shared_preferences.get("token")
                         # volvemos a intentar actualizar los datos
                         self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados,self.token)
                     except Exception as x:

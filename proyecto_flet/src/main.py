@@ -27,7 +27,7 @@ async def main(page: ft.Page):
     ajustes_service = AjustesService(page, fb_service, auth_service)
     auth_controller = AuthController(page,auth_service)
     ajustes_controller = AjustesController(page,ajustes_service)
-    usuario_controller = UsuarioController(page,usuario_service)
+    usuario_controller = UsuarioController(page,usuario_service,ajustes_controller=ajustes_controller)
 
     # Cerramos la sesión al arrancar para que siempre aparezca el login SOLO PARA PRUEBAS
     # await wrapper.cerrar_sesion() 

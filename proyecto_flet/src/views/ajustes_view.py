@@ -41,6 +41,7 @@ class VistaAjustes:
         self.ubicacion = ft.Switch(
             value=False,
             active_color="#1A6AFE",
+            on_change = self.controlador.compartir_ubicacion
         )
 
     def vista(self):

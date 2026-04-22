@@ -1,11 +1,12 @@
 import flet as ft # type: ignore
+import asyncio
 
 class UsuarioController:
-    def __init__ (self,page,usuario_service,vista=None):
+    def __init__ (self,page,usuario_service,vista=None,ajustes_controller=None):
         self.page = page
         self.service = usuario_service
         self.vista = vista
-
+        self.ajustes_controller = ajustes_controller
 
     async def cargar_perfil(self):
         # cogemos los datos que estan guardados en el dispositivo
@@ -60,6 +61,9 @@ class UsuarioController:
                 apellidos = self.vista.apellidos_input.value
                 self.vista.usuario.value = f"{nombre} {apellidos}".strip()
                 self.page.update()
+                await asyncio.sleep(3) # Esperamos 3 segundos
+                self.vista.mensaje_error.value = ""
+                self.page.update()
         else:
                 error_guardado = str(aviso).upper()
                 if "INVALID_ID_TOKEN" in error_guardado or "EXPIRED" in error_guardado:
@@ -79,3 +83,22 @@ class UsuarioController:
         # guardamos en memoria 2 que es la posición de Perfil en nuestra vista principal para así cuando demos a volver nos vuelva a perfil
         self.page.index_navegacion = 2 # no usamos shared_preferences porque solo se recuerda mientras que la sesion este activa, si cerramos la aplicacion desde la vista que sea siempre al abrirla vuelve a aparecer la principal con grupos
         await self.page.push_route("/settings")
+        # se llama a la carga de los ajustes para que el switch tenga la ultima configuracion seleccionada
+        if self.ajustes_controller:
+            await self.ajustes_controller.cargar_ajustes()
+
+    # funcion para abrir el menu
+    async def mostrar_colores(self, e):
+        self.page.overlay.append(self.vista.lista_colores)
+        self.vista.lista_colores.open = True # mostramos el menu
+        self.page.update()
+
+    # funcion para seleccionar el color y guardarlo
+    async def seleccionar_color(self, e):
+        color_elegido = e.control.data
+        self.vista.lista_colores.open = False # cerramos el menu
+        datos = {"color_avatar":color_elegido} 
+        exito,mensaje = await self.service.actualizar_datos(datos) # usamos la funcion de actualizar datos para guardarlo en firebase y Shared preferences
+        if exito:
+            self.vista.avatar.bgcolor = color_elegido # actualizamos el color del avatar
+        self.page.update()

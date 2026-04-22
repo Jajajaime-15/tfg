@@ -2,7 +2,7 @@ import flet as ft# type: ignore
 from views.login_view import VistaLogin
 from views.registro_view import VistaRegistro
 from views.perfil_view import VistaPerfil
-from views.pricipal_view import VistaPrincipal
+from views.principal_view import VistaPrincipal
 from views.ajustes_view import VistaAjustes
 # Aquí importamos las nuevas vistas que se creen 
 
