@@ -87,8 +87,9 @@ class GroupController:
     async def anyadir_participante(self, nombre_grupo, nuevo_integrante, mensaje):
         mensaje.value = ""
         self.page.update()
-
-        datos = [nombre_grupo.value, nuevo_integrante.value]
+        
+        print(f"Intentando añadir participante en el controller '{nombre_grupo}'")  
+        datos = [nombre_grupo, nuevo_integrante.value]
 
         if not all (datos):
             mensaje.value = "Todos los campos son obligatorios"

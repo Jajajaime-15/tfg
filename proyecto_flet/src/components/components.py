@@ -127,7 +127,7 @@ def SecondaryButton(text, on_click=None, width=150, disabled=False, loading=Fals
     
     return boton
 
-def tarjeta_grupos(nombre_grupo, miembros=None, on_click=None, width=400, height=500):
+def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None, on_click_boton=None, width=400):
     """
     Crea una tarjeta para mostrar información de un grupo.
     
@@ -157,12 +157,20 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click=None, width=400, height
     
     content = ft.Column(
         controls=[
-            ft.Text(nombre_grupo, size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+            ft.Row(
+                ft.Text(nombre_grupo, size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                alignment=ft.MainAxisAlignment.CENTER
+                ),  # Espacio superior,
             ft.Text(f"Miembros: {len(miembros)}", size=14, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK), # Botón para agregar miembros
+            ft.TextField(label="Nuevo integrante", width=200, color=ft.Colors.BLACK),
             ft.Divider(height=10, thickness=1),
-
             ft.Column(miembros_controls, spacing=5, scroll=ft.ScrollMode.AUTO),
-            plus_Button(on_click=on_click, width=30),
+            ft.Container(expand=True),
+            ft.Divider(height=10, thickness=1),
+            ft.Row(
+            [plus_Button(on_click=on_click_boton, width=30)],
+            alignment=ft.MainAxisAlignment.END, 
+        ),
         ],
         spacing=10,
         horizontal_alignment=ft.CrossAxisAlignment.START,
@@ -171,11 +179,11 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click=None, width=400, height
     tarjeta = ft.Container(
         content=content,
         width=width,
-        height=height,
-        bgcolor=ft.Colors.CYAN_200,
+        height=400,
+        bgcolor=ft.Colors.GREY_200,
         padding=15,
         border_radius=8,
-        on_click=on_click,
+        on_click=on_click_tarjeta,
         ink=True, 
     )
     
@@ -242,6 +250,3 @@ def IconButton(
     )
     
     return boton
-
-
-    
