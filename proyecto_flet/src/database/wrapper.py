@@ -174,17 +174,30 @@ class Wrapper:
             return False, str(e)
 
 
-    
+    # TIENES QUE CAMBIAR ESTO A LO QUE DIJIMOS, Y CAMBIAR LOS METODOS SIGUIENTES PORQUE EN ANYADIR PARTICIPANTE ESTAS TENIENDO QUE ESCRIBIR MAS VECES DE LAS NECESARIAS
+    # Y TAMBIEN HAY QUE SEPARAR ESTO EN OTRO SERVICE DISTINTO, NO TODO EN EL WRAPPER, QUIZAS LLAMARLO GROUP SERVICE
     async def mostrar_grupos(self):
         
         nombres_grupos = []  
         integrantes = []  
         try:
             if not self.token or not self.id_usuario:
-                return [], "Debes iniciar sesión para ver los grupos", False  # ✅ 3 valores
+                return [], "Debes iniciar sesión para ver los grupos", False  # ✅ 3 valores  # SI VAIS A HACER ESTO Y DECIR QUE NO AL MENOS OCULTADLO BIEN, ES MUY OBVIO CUANDO HAY COMENTARIOS DE IA
             
+            # ESTO AQUI SERIA ALGO ASI: grupos = self.db.child("usuarios").child(self.id_usuario).child("grupos").get(self.token).val()
+            # ASI TENDRAS LOS GRUPOS A LOS QUE PERTENECE EL USUARIO, POR EJEMPLO: {"Grupo_01" : true, "Grupo_02" : true} (el true es por rellenar el dict, aqui sigues las keys y ya)
             datos_grupo = self.db.child("usuarios").child(self.id_usuario).child("id_grupo").get(self.token)
-            
+            # LUEGO AQUI RECORRES ALGO COMO for grupo_id in grupos.keys():
+            # grupo = self.db.child("grupos").child(grupo_id).get(self.token).val()
+            # Y LUEGO SERIA RECORRER CON ESO DE GRUPOS QUE HAS SACADO PARA ENCONTRAR SUS MIEMBROS PORQUE TENEMOS UN APARTADO PARA ELLO:
+            # for u in grupo["miembros"].keys(): (aqui tmb por keys porque lo tenemos como "usuario":true)
+            # usuario = self.db.child("usuarios").child(u).get(self.token).val()
+            # Y AQUI YA LO CONTINUAS, LA IDEA ESTA AHI PERO TENDRA SUS FALLOS COMO LO HE HECHO, ASIQ REVISALO BIEN
+            # SE QUE SUENA TEDIOSO PERO LA IDEA ES: 
+            # 1. SACAR TODOS LOS GRUPOS A LOS QUE PERTENECE EL USUARIO 
+            # 2. SACAR CADA GRUPO INDIVIDUALMENTE PARA RECORRERLO
+            # 3. DE CADA GRUPO SACAR TODOS SUS MIEMBROS Y GUARDARLOS
+            # NO SE SI SERIA NECESARIO MOSTRAR LOS MIEMBROS EN LA PANTALLA DE HOME, PERO SI AL VER LA INFO DE LOS GRUPOS, ASI COMO APUNTE
             if datos_grupo.val() is not None:
                 print("Hay grupos asociados a este usuario")
                 nombres_grupos = [grupo.val().get("nombre") for grupo in datos_grupo.each()]
