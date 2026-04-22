@@ -4,9 +4,9 @@ from views.perfil import VistaPerfil
 from controllers.usuario_controller import UserController
 
 class VistaPrincipal: 
-    def __init__(self, page, user_controller):  # Recibe user_controller directamente en lugar de wrapper
+    def __init__(self, page, user_controller):
         self.page = page
-        self.controlador_u = user_controller  # Ahora se recibe como parámetro
+        self.controlador_u = user_controller
         self.centro = ft.Container(expand=True)
         # self.cargar_pestana_grupos()
         # guardamos el indice (en el caso de volver para atras desde ajustes voolvemos a home pero recordamos que estabamos en perfil)
@@ -14,6 +14,8 @@ class VistaPrincipal:
         # barra de los botones de abajo con grupos,mapa y perfil
         self.inferior = ft.NavigationBar(
             selected_index=self.index_inicio,  # recuperamos el indice
+            bgcolor=ft.Colors.TRANSPARENT, # fondo transparente
+            elevation=0, # quitamos la elevacion para que no haya sombras ni lineas
             destinations=[
                 ft.NavigationBarDestination(icon=ft.Icons.GROUP_OUTLINED, label="Grupos"),
                 ft.NavigationBarDestination(icon=ft.Icons.MAP_OUTLINED, label="Mapa"),
@@ -43,7 +45,6 @@ class VistaPrincipal:
 
     def cambiar_pestana(self, e):
         indice = e.control.selected_index  # guardamos el indice del botón que se selecciona
-        
         if indice == 0:
             print("GRUPOS JULIO")
         elif indice == 1:

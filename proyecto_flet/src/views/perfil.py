@@ -16,6 +16,26 @@ class VistaPerfil:
             icon_color="#1A6AFE",
             on_click=self.controlador.ajustes
         )
+
+        # avatar
+        self.inicial_texto = ft.Text(
+            value="", 
+            size=30, 
+            weight="bold", 
+            color="white"
+        )
+
+        self.avatar = ft.CircleAvatar(
+            content=self.inicial_texto,
+            radius=40,
+            bgcolor="#1A6AFE",
+        )
+
+        self.contenedor_avatar = ft.Container(
+            content=self.avatar,
+            alignment=ft.Alignment(0, 0),
+            padding=20,
+        )
         # cabecera del perfil con nombre y correo del usuario
         self.usuario = ft.Text(size=20, weight="bold")
         self.email = ft.Text(size=14, color="grey")
@@ -67,10 +87,7 @@ class VistaPerfil:
                 ft.Row([
                     ft.Column([
                         # dejo pendiente un hueco para el avatar (PDTE. DE VER COMO CONFIGURAR QUE SE PUEDA CAMBIAR)
-                        ft.CircleAvatar(
-                            content=ft.Icon(ft.Icons.PERSON_OUTLINE),
-                            radius=40,
-                        ),
+                        self.contenedor_avatar,
                         self.usuario,
                         self.email,
                     ], horizontal_alignment=ft.CrossAxisAlignment.CENTER,) 

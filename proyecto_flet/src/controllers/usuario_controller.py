@@ -22,6 +22,11 @@ class UserController:
         self.vista.telefono_input.value = telefono if telefono else ""
         self.vista.pais_input.value = pais if pais else ""
         self.vista.localidad_input.value = localidad if localidad else ""
+        # extraemos la primera letra del nombre y la ponemos en mayusculas para el avatar
+        if nombre:
+            self.vista.inicial_texto.value = nombre[0].upper()
+        else:
+            self.vista.inicial_texto.value = "?"
         # datos en la parte de arriba (cabecera)
         self.vista.usuario.value = f"{nombre} {apellidos if apellidos else ""}".strip()
         self.vista.email.value = email
@@ -65,5 +70,5 @@ class UserController:
     # funcion para abrir los ajustes
     async def ajustes (self,e):
         # guardamos en memoria 2 que es la posición de Perfil en nuestra vista principal para así cuando demos a volver nos vuelva a perfil
-        self.page.index_navegacion = 2 # POR QUE NO GUARDAR EN SHARED_PREFERENCES AQUI TMB? no lo uso porque solo se recuerda mientras que la sesion este activa, si cerramos la aplicacion desde la vista que sea siempre al abrirla vuelve a aparecer la principal con grupos
+        self.page.index_navegacion = 2 # no usamos shared_preferences porque solo se recuerda mientras que la sesion este activa, si cerramos la aplicacion desde la vista que sea siempre al abrirla vuelve a aparecer la principal con grupos
         await self.page.push_route("/settings")
