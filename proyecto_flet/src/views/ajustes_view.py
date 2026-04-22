@@ -37,6 +37,12 @@ class VistaAjustes:
             on_click=self.controlador.dialogo
         )
 
+        # activar/desactivar ubicacion (por defecto aparece desactivada)
+        self.ubicacion = ft.Switch(
+            value=False,
+            active_color="#1A6AFE",
+        )
+
     def vista(self):
         return ft.Container(
             padding=20,
@@ -51,6 +57,16 @@ class VistaAjustes:
                         ft.Text("Tema de la aplicación", size=16),
                         ft.Container(expand=True),
                         self.btn_tema
+                    ]),
+                    
+                    ft.Divider(height=20, color="transparent"),
+
+                    TituloSeccion("Privacidad"),
+                    ft.Row([
+                        ft.Icon(ft.Icons.EDIT_LOCATION_ALT_OUTLINED, color="#1A6AFE"),
+                        ft.Text("Compartir ubicación", size=16),
+                        ft.Container(expand=True),
+                        self.ubicacion
                     ]),
                     
                     ft.Divider(height=20, color="transparent"),
