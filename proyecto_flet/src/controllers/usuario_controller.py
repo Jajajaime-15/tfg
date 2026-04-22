@@ -1,6 +1,6 @@
 import flet as ft # type: ignore
 
-class UserController:
+class UsuarioController:
     def __init__ (self,page,usuario_service,vista=None):
         self.page = page
         self.service = usuario_service

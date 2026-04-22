@@ -4,8 +4,8 @@ from services.auth_service import AuthService
 from services.firebase_service import FirebaseService
 from services.usuario_service import UsuarioService
 from controllers.auth_controller import AuthController
-from controllers.usuario_controller import UserController
-from controllers.ajustes_controller import SettingsController
+from controllers.usuario_controller import UsuarioController
+from controllers.ajustes_controller import AjustesController
 from router import Router
 
 async def main(page: ft.Page):
@@ -26,8 +26,8 @@ async def main(page: ft.Page):
     usuario_service = UsuarioService(page, fb_service, auth_service)
     ajustes_service = AjustesService(page, fb_service, auth_service)
     auth_controller = AuthController(page,auth_service)
-    ajustes_controller = SettingsController(page,ajustes_service)
-    usuario_controller = UserController(page,usuario_service)
+    ajustes_controller = AjustesController(page,ajustes_service)
+    usuario_controller = UsuarioController(page,usuario_service)
 
     # Cerramos la sesión al arrancar para que siempre aparezca el login SOLO PARA PRUEBAS
     # await wrapper.cerrar_sesion() 

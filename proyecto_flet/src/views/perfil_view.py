@@ -1,7 +1,7 @@
 import flet as ft # type: ignore
 import asyncio
 from components.boton_principal import BotonPrincipal
-from components.campos_texto import InputTexto
+from components.input_texto import InputTexto
 
 class VistaPerfil:
     def __init__(self, page, controlador):

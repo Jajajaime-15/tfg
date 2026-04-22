@@ -1,7 +1,7 @@
 import flet as ft # type: ignore
 from components.card_password import CardPassword
 from components.titulos import TituloSeccion
-from components.enlaces import BotonLink
+from components.boton_link import BotonLink
 
 class VistaAjustes:
     def __init__(self, page, controlador):

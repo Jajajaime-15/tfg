@@ -1,7 +1,7 @@
 import flet as ft # type: ignore
 import asyncio
 
-class SettingsController:
+class AjustesController:
     def __init__(self, page, ajustes_service, vista = None):
         self.page = page
         self.service = ajustes_service

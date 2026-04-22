@@ -1,7 +1,7 @@
 import flet as ft # type: ignore
 from components.boton_principal import BotonPrincipal
-from components.campos_texto import InputTexto
-from components.enlaces import BotonLink
+from components.input_texto import InputTexto
+from components.boton_link import BotonLink
 
 class VistaLogin:
     def __init__(self, page, controlador):

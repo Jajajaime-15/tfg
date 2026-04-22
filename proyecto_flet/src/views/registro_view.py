@@ -1,13 +1,12 @@
 import flet as ft # type: ignore
 from components.boton_principal import BotonPrincipal
-from components.campos_texto import InputTexto
+from components.input_texto import InputTexto
 
 class VistaRegistro:
     def __init__(self, page, controlador):
         self.page = page
         self.controlador = controlador
         self.controlador.vista = self # indicamos al controlador la vista
-
 
         self.btn_volver = ft.IconButton(
             visible=True, 
