@@ -1,6 +1,16 @@
 import flet as ft
 import flet_map as ftm # para el mapa
-from services.gps_firebase import gps
+from proyecto_flet.src.services.gps_service import gps
+
+
+class MapaVista:
+    def __init__(self, page, controlador):
+        self.page = page
+        self.controlador = controlador
+        self.controlador.vista = self
+
+    def vista(self):
+        pass
 
 async def map(page: ft.Page):
     page.padding = 0 # para evitar bordes blancos a los lados
