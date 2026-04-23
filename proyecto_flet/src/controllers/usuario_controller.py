@@ -65,13 +65,18 @@ class UsuarioController:
                 self.vista.mensaje_error.value = ""
                 self.page.update()
         else:
+                self.vista.mensaje_error.color = "red"
                 error_guardado = str(aviso).upper()
-                if "INVALID_ID_TOKEN" in error_guardado or "EXPIRED" in error_guardado:
-                    self.vista.mensaje_error.value = "Sesión caducada, vuelve a iniciar"
-                elif "PERMISION_DENIED" in error_guardado:
+                if "SESION_EXPIRADA" in error_guardado:
+                    self.vista.mensaje_error.value = "Sesión caducada, vuelve a iniciar sesión"
+                    self.page.update()
+                    await asyncio.sleep(2)
+                    await self.service.auth_s.cerrar_sesion()
+                    self.page.go("/")
+                elif "PERMISSION_DENIED" in error_guardado: # Corregido el typo "PERMISION"
                     self.vista.mensaje_error.value = "No tienes permisos para modificar los datos"
                 elif "NETWORK" in error_guardado or "CONNECTION" in error_guardado:
-                    self.vista.mensaje_error.value = "Sin conxión."
+                    self.vista.mensaje_error.value = "Sin conexión."
                 else:
                     self.vista.mensaje_error.value = "Error al guardar los datos"
         

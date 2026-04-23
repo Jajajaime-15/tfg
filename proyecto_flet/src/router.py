@@ -49,8 +49,14 @@ class Router:
 
         self.page.add(pantalla.vista())
         
-        # estando en perfil cargamos los datos
-        if vista_clase == VistaPerfil:
+        # sincronizamos los datos y los cargamos
+        if vista_clase == VistaPrincipal:
+            await self.controlador_user.service.sincronizar() # sincronizamos si se ha cambiado algo en otro dispositivo
+        elif vista_clase == VistaPerfil:
+            await self.controlador_user.service.sincronizar()
             await self.controlador_user.cargar_perfil()
+        elif vista_clase == VistaAjustes:
+            await self.controlador_user.service.sincronizar()
+            await self.controlador_settings.cargar_ajustes()
 
         self.page.update()

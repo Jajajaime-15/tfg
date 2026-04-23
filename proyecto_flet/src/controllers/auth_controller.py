@@ -9,6 +9,7 @@ class AuthController:
 
     async def registrar_usuario (self,e):
         self.vista.mensaje_error.value = ""
+        self.vista.mensaje_error.color = "red"
         self.page.update()
 
         # almacenamos todos los datos en una lista para despues poder comprobar
@@ -22,16 +23,16 @@ class AuthController:
             self.vista.mensaje_error.value = "Todos los campos son obligatorios"
         elif self.vista.psw_input.value != self.vista.psw_confirmar.value:
             self.vista.mensaje_error.value = "Las contraseñas no coinciden"
-            self.vista.psw_input.value = ""
             self.vista.psw_confirmar.value = ""
+            await self.vista.psw_confirmar.focus()
         elif "@" not in self.vista.email_input.value or "." not in self.vista.email_input.value:
             self.vista.mensaje_error.value = "Introduce un email válido"
         elif len(self.vista.psw_input.value) < 8:
                 self.vista.mensaje_error.value = "La contraseña debe de tener mínimo 8 caracteres"
         else:
-            registrado, aviso = await self.service.registrarse(self.vista.nombre_input.value,self.vista.telefono_input.value,self.vista.email_input.value,self.vista.psw_input.value)
+            registrado, aviso = await self.service.registrarse(self.vista.nombre_input.value,self.vista.telefono_input.value,
+                                                            self.vista.email_input.value,self.vista.psw_input.value)
             if registrado:
-                await self.page.shared_preferences.set("color_avatar", "#1A6AFE") # asignamos el color por defecto al avatar
                 # provisional para confirmar en pantalla el registro
                 self.vista.mensaje_error.value = "Usuario registrado correctamente, puedes iniciar sesión"
                 self.vista.mensaje_error.color = "green"

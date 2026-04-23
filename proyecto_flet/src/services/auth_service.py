@@ -7,6 +7,8 @@ class AuthService:
         self.fb = firebase_service
         self.auth = firebase_service.auth 
         self.db = firebase_service.db
+        self.id_usuario = None
+        self.token = None
 
     # función para registrar usuarios nuevos
     async def registrarse (self, nombre, telefono, email, psw):
@@ -23,6 +25,7 @@ class AuthService:
                 "pais": "", # se podrá rellenar desde el perfil de usuario
                 "localidad": "", # ''
                 "color_avatar": "#1A6AFE",
+                "compartir_ubicacion": "false",
                 "grupos":{}, # se rellena cuando se tenga una familia # REVISAR ESTO POR LA FORMA EN LA QUE GUARDAMOS LOS GRUPOS, DE LA FORMA ACTUAL SOLO SE PODRIA GUARDAR UNO
                 "fecha_registro": datetime.now().strftime("%Y-%m-%d %H:%M:%S") # se usa strtime porque firebase no lee fechas, tiene que ser texto o numeros
             }
@@ -36,6 +39,7 @@ class AuthService:
             await self.page.shared_preferences.set("telefono", telefono)
             await self.page.shared_preferences.set("email", email)
             await self.page.shared_preferences.set("color_avatar", "#1A6AFE")
+            await self.page.shared_preferences.set("compartir_ubicacion", "false")
 
             print("Usuario registrado correctamente")
             return True,"Usuario registrado correctamente"
@@ -51,29 +55,12 @@ class AuthService:
             self.token = usuario["idToken"]
             refresh_token = usuario["refreshToken"]
 
-            # obtenemos la infor del usuario de Realtime
-            infor_usuario = self.db.child("usuarios").child(self.id_usuario).get(self.token).val() 
+            # se guarda lo que se necesita para arrancar la aplicacion y sincronizar 
+            # (el resto se sincroniza al entrar en home con la funcion sincronizar)
+            await self.page.shared_preferences.set("id_usuario", self.id_usuario)
+            await self.page.shared_preferences.set("token", self.token)
+            await self.page.shared_preferences.set("refresh_token", refresh_token)
 
-            # guardamos la infor en el dispositivo para que se puedan leer
-            if infor_usuario:
-                await self.page.shared_preferences.set("id_usuario", self.id_usuario)
-                await self.page.shared_preferences.set("token", self.token)
-                await self.page.shared_preferences.set("refresh_token", refresh_token)
-                await self.page.shared_preferences.set("nombre", infor_usuario.get("nombre", ""))
-                await self.page.shared_preferences.set("apellidos", infor_usuario.get("apellidos", ""))
-                await self.page.shared_preferences.set("email", infor_usuario.get("email", ""))
-                await self.page.shared_preferences.set("telefono", infor_usuario.get("telefono", ""))
-                await self.page.shared_preferences.set("pais", infor_usuario.get("pais", ""))
-                await self.page.shared_preferences.set("localidad", infor_usuario.get("localidad", ""))
-                await self.page.shared_preferences.set("color_avatar", infor_usuario.get("color_avatar", "#1A6AFE"))
-                estado_ubi = infor_usuario.get("compartir_ubicacion", "false")
-                await self.page.shared_preferences.set("compartir_ubicacion", estado_ubi)
-                grupos_json = "{}"
-                if "grupos" in infor_usuario:
-                    dict_grupos = infor_usuario.get("grupos",{}) # obtenemos el diccionario con todos los grupos (si no hay ninguno devuelve un diccionario vacio)
-                    grupos_json = json.dumps(dict_grupos) # lo convertimos a texto para poder guardarlo con shared_preferences en la bd
-                    await self.page.shared_preferences.set("grupos",grupos_json)
-                print(f"Grupos: {grupos_json}")
             print("Sesión iniciada")
             return True, "Sesión iniciada correctamente"
         except Exception as e:
@@ -83,7 +70,9 @@ class AuthService:
     # funcion para no pedir iniciar sesion cada vez que se abra la aplicacion
     async def usuario_conectado(self):
         try:
-            return await self.page.shared_preferences.get("id_usuario")
+            self.id_usuario = await self.page.shared_preferences.get("id_usuario")
+            self.token = await self.page.shared_preferences.get("token")
+            return self.id_usuario 
         except:
             print("Error al recuperar usuario")
             return None
@@ -94,7 +83,7 @@ class AuthService:
             datos_usuario = [
                 "id_usuario", "token", "refresh_token", "nombre", 
                 "apellidos", "email", "telefono", "pais", 
-                "localidad", "grupos","color_avatar"
+                "localidad", "grupos","color_avatar","compartir_ubicacion"
             ]
             # borramos los datos de la sesión pero el tema se mantiene
             for dato in datos_usuario:
@@ -133,3 +122,4 @@ class AuthService:
         except Exception as e:
             print(f"No se pudo actualizar la sesion:{e}")
             return False
+        

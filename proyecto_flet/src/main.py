@@ -26,8 +26,8 @@ async def main(page: ft.Page):
     usuario_service = UsuarioService(page, fb_service, auth_service)
     ajustes_service = AjustesService(page, fb_service, auth_service)
     auth_controller = AuthController(page,auth_service)
-    ajustes_controller = AjustesController(page,ajustes_service)
-    usuario_controller = UsuarioController(page,usuario_service,ajustes_controller=ajustes_controller)
+    ajustes_controller = AjustesController(page,ajustes_service,usuario_service)
+    usuario_controller = UsuarioController(page,usuario_service,ajustes_controller)
 
     # Cerramos la sesión al arrancar para que siempre aparezca el login SOLO PARA PRUEBAS
     # await wrapper.cerrar_sesion() 
@@ -42,7 +42,10 @@ async def main(page: ft.Page):
     # comprobamos si hay un usuario logueado ya
     id_usuario = await auth_service.usuario_conectado()
     if id_usuario:
+        usuario_service.id_usuario = id_usuario
+        usuario_service.token = auth_service.token
         print("USUARIO INICIADO") # PRINT PARA PROBAR QUE SE QUEDA INICIADA LA SESION
+        await usuario_service.sincronizar() # sincronizamos con firebase
         page.route = "/home" # esta ruta será la de grupos
     else:
         page.route = "/" # ruta de login (principal)

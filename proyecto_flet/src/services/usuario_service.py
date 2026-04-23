@@ -1,3 +1,5 @@
+import json
+
 class UsuarioService:
     def __init__(self, page, firebase_service, auth_service):
             self.page = page
@@ -10,33 +12,79 @@ class UsuarioService:
     # funcion para actualizar los datos del usuario
     async def actualizar_datos(self,datos_actualizados):
         try:
-            # recuperamos el id del usuario y el token
             if not self.id_usuario:
                 self.id_usuario = await self.page.shared_preferences.get("id_usuario")
             if not self.token:
                 self.token = await self.page.shared_preferences.get("token")
-            # intentamos actualizar los datos
             try:
                 self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, self.token)
             except Exception as e:
-                print ("Token caducado")
-                # llamamos a la funcion para actualizar el token
-                if await self.auth_s.actualizar_sesion():
-                    try:
+                error_str = str(e).upper()
+                if "ID_TOKEN" in error_str or "EXPIRED" in error_str or "INVALID" in error_str:
+                    print("Token caducado.")
+                    if await self.auth_s.actualizar_sesion(): # llamamos a la funcion para actualizar el token
                         self.token = await self.page.shared_preferences.get("token")
-                        # volvemos a intentar actualizar los datos
-                        self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados,self.token)
-                    except Exception as x:
-                        print("Error después de actualizar el token")
-                        return False, f"Error después de actualizar el token{x}"
+                        self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, self.token)
+                        print("Datos actualizados.")
+                    else:
+                        print("Sesion expirada, vuelve a iniciar sesión")
+                        return False, "SESION_EXPIRADA"
                 else:
-                    print ("Sesion caducada")
-                    return False, "Sesion caducada, inicia sesión de nuevo"
-            # guardamos los datos en el dispositivo
+                    print("Error en firebase")
+                    raise e
+            # guardamos los datos en el dispositivo    
             for clave, valor in datos_actualizados.items():
-                await self.page.shared_preferences.set(clave,valor)
-            print ("Datos actualizados")
+                val_str = str(valor).lower() if isinstance(valor, bool) else str(valor) # convertimos todo a str porque shared preferences no adminte booleanos ni diccionarios
+                await self.page.shared_preferences.set(clave, val_str)
+                print("Datos actualizados en el dispositivo")
             return True, "Datos actualizados"
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Error al actualizar: {e}")
             return False, str(e)
+        
+    # funcion para que se sincronice con los datos que hay firebase 
+    async def sincronizar (self):
+        try:
+            if not self.id_usuario:
+                self.id_usuario = await self.page.shared_preferences.get("id_usuario")
+            if not self.token:
+                self.token = await self.page.shared_preferences.get("token")
+            if self.id_usuario and self.token:
+                try:
+                    infor = self.db.child("usuarios").child(self.id_usuario).get(self.token).val()   
+                except Exception as e:
+                    error_str = str(e).upper()
+                    if "401" in error_str or "PERMISSION DENIED" in error_str:
+                        print("Intentando refrescar token...")
+                        if await self.auth_s.actualizar_sesion():
+                            self.token = await self.page.shared_preferences.get("token")
+                            # Segundo intento con el nuevo token
+                            infor = self.db.child("usuarios").child(self.id_usuario).get(self.token).val()
+                        else:
+                            print("No se pudo recuperar la sesión activa.")
+                            return
+                if infor:
+                    # diccionario de las cosas que queremos guardar en el dispositivo
+                    datos_a_guardar = {
+                        "nombre": infor.get("nombre", ""),
+                        "apellidos": infor.get("apellidos", ""),
+                        "email": infor.get("email", ""),
+                        "telefono": infor.get("telefono", ""),
+                        "pais": infor.get("pais", ""),
+                        "localidad": infor.get("localidad", ""),
+                        "color_avatar": infor.get("color_avatar", "#1A6AFE"),
+                        "compartir_ubicacion": infor.get("compartir_ubicacion", "false")
+                    }
+                    # sincronizamos los grupos en el caso de que tenga
+                    if "grupos" in infor:
+                        datos_a_guardar["grupos"] = json.dumps(infor.get("grupos", {}))
+                    # guardamos todo a la vez
+                    for clave, valor in datos_a_guardar.items():
+                        await self.page.shared_preferences.set(clave, str(valor))
+                    print("Sincronizado con firebase")
+                else:
+                    print("No hay informacion de este usuario en la base de datos")
+            else:
+                print("No hay una sesion activa")
+        except Exception as e:
+            print(f"Error al sincronizar: {e}")

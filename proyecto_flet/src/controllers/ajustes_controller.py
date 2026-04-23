@@ -2,9 +2,10 @@ import flet as ft # type: ignore
 import asyncio
 
 class AjustesController:
-    def __init__(self, page, ajustes_service, vista = None):
+    def __init__(self, page, ajustes_service, usuario_service,vista = None):
         self.page = page
         self.service = ajustes_service
+        self.usuario_s = usuario_service
         self.vista = vista
 
     # funcion para cambiar el tema de la aplicacion (claro/oscuro)
@@ -129,12 +130,13 @@ class AjustesController:
     async def compartir_ubicacion(self,e):
         # vemos lo que está seleccionado en el switch (activo/inactivo) y lo guardamos
         nuevo_estado = self.vista.ubicacion.value
-        estado = str(nuevo_estado).lower() # el estado hay que convertirlo a texto para guardarlo en shared preferences que no admite booleanos
-        await self.page.shared_preferences.set("compartir_ubicacion",estado)
-        print("Estado comparticion:", estado) # print para comprobar que funciona
-        if nuevo_estado is False:
-            # hay que ver si dejamos la ultima posicion marcada o lo borramos e iría aquí
-            print("Ubicacion desactivada")
+        estado = "true" if nuevo_estado else "false"# el estado hay que convertirlo a texto para guardarlo en shared preferences que no admite booleanos
+        datos = {"compartir_ubicacion":estado}
+        exito, aviso = await self.usuario_s.actualizar_datos(datos)
+        if exito:
+            print(f"Actualizada la ubicacion en firebase: {estado}")
+        else:
+            print(f"Error al sincronizar con firebase: {estado}")
         self.page.update()
 
     # funcion para que al cerrar sesion el switch de la ubicación no se reinicie y se mantenga lo seleccionado, tambien carga el tema
@@ -147,11 +149,15 @@ class AjustesController:
             else:
                 self.vista.btn_tema.icon = ft.Icons.LIGHT_MODE
                 self.vista.btn_tema.tooltip = "Cambiar tema a modo oscuro"
+            
             # comprobamos el estado de la ubicacion y lo cargamos
-            estado_guardado = await self.page.shared_preferences.get("compartir_ubicacion")
+            estado = await self.page.shared_preferences.get("compartir_ubicacion")
+            estado_guardado = str(estado).lower().strip()
+            print(f"Estado cargado:{estado_guardado}")
             # volvemos a convertir el estado a un booleano para el switch
             if estado_guardado == "true":
                 self.vista.ubicacion.value = True
             else:
                 self.vista.ubicacion.value = False
+            self.vista.ubicacion.update()
             self.page.update()
