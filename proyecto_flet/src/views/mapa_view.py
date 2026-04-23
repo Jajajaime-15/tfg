@@ -1,26 +1,48 @@
 import flet as ft
-import flet_map as ftm
+import flet_map as ftm # para el mapa
 from services.gps_firebase import gps
 
 async def map(page: ft.Page):
+    page.padding = 0 # para evitar bordes blancos a los lados
+
     marker_layer_user = ftm.MarkerLayer(markers=[]) # capa para poder dibujar marcadores propios en el mapa
     marker_layer_miembros = ftm.MarkerLayer(markers=[]) # capa para poder dibujar marcadores de los miembros en el mapa
     marcadores_miembros = {}
 
     # funcion para dibujar el marcador del usuario con cada cambio de posicion
-    def actualizar_marcador_usuario(lat, lon):
+    def actualizar_marcador_usuario(datos_usuario, lat, lon):
+        color_marcador = datos_usuario["color"]
+        nombre_marcador = datos_usuario["nombre"]
+        inicial = nombre_marcador[0].upper()
+
+        marcador = ft.CircleAvatar(
+            content=ft.Text(inicial, size=14, weight="bold", color="white"),
+            bgcolor=color_marcador,
+            radius=15
+        )
+
         marker_layer_user.markers=[
             ftm.Marker(
-                content=ft.Icon(ft.Icons.LOCATION_PIN),
+                content=marcador,
                 coordinates=ftm.MapLatitudeLongitude(lat, lon) # las coordenadas obtenidas de la posicion del usuario
             )
         ]
         page.update()
 
     # funcion para dibujar el marcador del resto de miembros con cada cambio de posicion
-    def actualizar_marcador_miembros(miembro, lat, lon):
+    def actualizar_marcador_miembros(miembro, datos_miembro, lat, lon):
+        color_marcador = datos_miembro["color"]
+        nombre_marcador = datos_miembro["nombre"]
+        inicial = nombre_marcador[0].upper()
+
+        marcador = ft.CircleAvatar(
+            content=ft.Text(inicial, size=14, weight="bold", color="white"),
+            bgcolor=color_marcador,
+            radius=15
+        )
+
         marcadores_miembros[miembro]=ftm.Marker(
-            content=ft.Icon(ft.Icons.LOCATION_ON_ROUNDED),
+            content=marcador,
             coordinates=ftm.MapLatitudeLongitude(lat, lon) # las coordenadas obtenidas de la posicion de cada miembro
         )
         marker_layer_miembros.markers = list(marcadores_miembros.values())

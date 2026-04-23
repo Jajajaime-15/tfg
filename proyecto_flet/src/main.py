@@ -1,4 +1,4 @@
 import flet as ft
-from views.mapa import map
+from proyecto_flet.src.views.mapa_view import map
 
 ft.run(map)
