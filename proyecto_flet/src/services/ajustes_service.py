@@ -39,18 +39,22 @@ class AjustesService:
     # funcion para eliminar la cuenta y los datos de dicha cuenta
     async def borrar_cuenta(self):
         try:
-            if not self.id_usuario:
-                self.id_usuario = await self.page.shared_preferences.get("id_usuario")
-            if not self.token:
-                self.token = await self.page.shared_preferences.get("token")
-            # borramos toda la informacion de la base de datos (de Realtime)
-            self.db.child("usuarios").child(self.id_usuario).remove(self.token)
-            # borramos el usuario de Authentication
-            self.auth.delete_user_account(self.token)
-            # una vez eliminado cerramos sesión
-            await self.auth_s.cerrar_sesion()
-            print("Cuenta eliminada")
-            return True, "La cuenta ha sido eliminada"
+            self.id_usuario = await self.page.shared_preferences.get("id_usuario")
+            self.token = await self.page.shared_preferences.get("token")
+
+            if self.id_usuario and self.token:
+                # borramos toda la informacion de la base de datos (de Realtime)
+                self.db.child("usuarios").child(self.id_usuario).remove(self.token)
+                # borramos la última posición guardada del usuario para que no se quede marcada al eliminar la cuenta
+                self.db.child("ubicaciones").child(self.id_usuario).remove(self.token)
+                # borramos el usuario de Authentication
+                self.auth.delete_user_account(self.token)
+                # una vez eliminado cerramos sesión
+                await self.auth_s.cerrar_sesion()
+                print("Cuenta eliminada")
+                return True, "La cuenta ha sido eliminada"
+            print ("No hay una sesión activa")
+            return False, "No hay una sesión activa"
         except Exception as e:
             mensaje = str(e).upper()
             if "CREDENTIAL_TOO_OLD" in mensaje or "SENSITIVE_OPERATION" in mensaje:
@@ -60,6 +64,7 @@ class AjustesService:
                 try:
                     self.token = await self.page.shared_preferences.get("token")
                     self.db.child("usuarios").child(self.id_usuario).remove(self.token)
+                    self.db.child("ubicaciones").child(self.id_usuario).remove(self.token)
                     self.auth.delete_user_account(self.token)
                     await self.auth_s.cerrar_sesion()
                     return True, "La cuenta ha sido eliminada"

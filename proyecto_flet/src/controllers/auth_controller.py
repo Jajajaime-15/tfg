@@ -18,6 +18,7 @@ class AuthController:
                 self.vista.psw_input.value,
                 self.vista.psw_confirmar.value,
                 self.vista.telefono_input.value]
+        
         # comprobamos que estén todos los campos rellenos 
         if not all (datos): # el all nos ayuda a comprobar todos los campos en vez de ir uno a uno
             self.vista.mensaje_error.value = "Todos los campos son obligatorios"
@@ -48,7 +49,7 @@ class AuthController:
                 else:
                     self.vista.mensaje_error.value = "Error al registrar"
 
-                # limpiamos el campo de la contraseña tras saltar un error
+                # limpiamos los campos de la contraseña tras saltar un error
                 self.vista.psw_input.value = ""
                 self.vista.psw_confirmar.value = ""
 
@@ -110,5 +111,5 @@ class AuthController:
                     self.vista.mensaje_error.value = "No es un email valido"
                 else:
                     self.vista.mensaje_error.value = "Error al procesar la solicitud"
-                
+
         self.page.update()

@@ -12,10 +12,9 @@ class UsuarioService:
     # funcion para actualizar los datos del usuario
     async def actualizar_datos(self,datos_actualizados):
         try:
-            if not self.id_usuario:
-                self.id_usuario = await self.page.shared_preferences.get("id_usuario")
-            if not self.token:
-                self.token = await self.page.shared_preferences.get("token")
+            self.id_usuario = await self.page.shared_preferences.get("id_usuario")
+            self.token = await self.page.shared_preferences.get("token")
+
             try:
                 self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, self.token)
             except Exception as e:
@@ -32,6 +31,7 @@ class UsuarioService:
                 else:
                     print("Error en firebase")
                     raise e
+                
             # guardamos los datos en el dispositivo    
             for clave, valor in datos_actualizados.items():
                 val_str = str(valor).lower() if isinstance(valor, bool) else str(valor) # convertimos todo a str porque shared preferences no adminte booleanos ni diccionarios
@@ -45,10 +45,9 @@ class UsuarioService:
     # funcion para que se sincronice con los datos que hay firebase 
     async def sincronizar (self):
         try:
-            if not self.id_usuario:
-                self.id_usuario = await self.page.shared_preferences.get("id_usuario")
-            if not self.token:
-                self.token = await self.page.shared_preferences.get("token")
+            self.id_usuario = await self.page.shared_preferences.get("id_usuario")
+            self.token = await self.page.shared_preferences.get("token")
+
             if self.id_usuario and self.token:
                 try:
                     infor = self.db.child("usuarios").child(self.id_usuario).get(self.token).val()   
@@ -75,14 +74,18 @@ class UsuarioService:
                         "color_avatar": infor.get("color_avatar", "#1A6AFE"),
                         "compartir_ubicacion": infor.get("compartir_ubicacion", "false")
                     }
+
                     # sincronizamos los grupos en el caso de que tenga
                     if "grupos" in infor:
                         datos_a_guardar["grupos"] = json.dumps(infor.get("grupos", {}))
+                        
                     # guardamos todo a la vez
                     for clave, valor in datos_a_guardar.items():
                         await self.page.shared_preferences.set(clave, str(valor))
                     print("Sincronizado con firebase")
                 else:
+                    for datos in ["nombre", "apellidos", "email", "telefono", "pais", "localidad"]:
+                        await self.page.shared_preferences.remove(datos)
                     print("No hay informacion de este usuario en la base de datos")
             else:
                 print("No hay una sesion activa")

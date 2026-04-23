@@ -30,7 +30,7 @@ class AuthService:
                 "fecha_registro": datetime.now().strftime("%Y-%m-%d %H:%M:%S") # se usa strtime porque firebase no lee fechas, tiene que ser texto o numeros
             }
             self.db.child("usuarios").child(self.id_usuario).set(info_usuario,self.token) # guardamos la informacion del usuario y el token en la base de datos
-            
+
             # guardamos los datos en el dispositivo para que al arrancar ya estén si inicia sesión con esa cuenta
             await self.page.shared_preferences.set("id_usuario", self.id_usuario)
             await self.page.shared_preferences.set("token", self.token)
@@ -72,7 +72,10 @@ class AuthService:
         try:
             self.id_usuario = await self.page.shared_preferences.get("id_usuario")
             self.token = await self.page.shared_preferences.get("token")
-            return self.id_usuario 
+            # comprobamos que el id de usuario es None o una cadena vacía
+            if not self.id_usuario or str(self.id_usuario).strip() in ["", "None", "null"]: 
+                    return None
+            return self.id_usuario
         except:
             print("Error al recuperar usuario")
             return None
@@ -85,12 +88,14 @@ class AuthService:
                 "apellidos", "email", "telefono", "pais", 
                 "localidad", "grupos","color_avatar","compartir_ubicacion"
             ]
+
             # borramos los datos de la sesión pero el tema se mantiene
             for dato in datos_usuario:
                 await self.page.shared_preferences.remove(dato)
-                
+
             self.id_usuario = None
             self.token = None
+            self.page.index_navegacion = 0 # al cerrar sesión y volver a iniciar arranca desde grupos
             print("Sesión cerrada")
         except Exception as e:
             print(f"Error al cerrar sesión: {e}")

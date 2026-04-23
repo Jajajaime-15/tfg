@@ -10,6 +10,7 @@ class AjustesController:
 
     # funcion para cambiar el tema de la aplicacion (claro/oscuro)
     async def tema (self,e):
+
         if self.page.theme_mode == ft.ThemeMode.LIGHT or self.page.theme_mode is None:
             self.page.theme_mode = ft.ThemeMode.DARK
             e.control.icon = ft.Icons.DARK_MODE # el icono del boton es el del tema oscuro
@@ -20,6 +21,7 @@ class AjustesController:
             e.control.icon = ft.Icons.LIGHT_MODE # el icono del botón es el del tema claro
             e.control.tooltip = "Cambiar tema a modo oscuro" # tooltip para indicar que si pulsamos sobre el icono se cambiara a tema oscuro
             await self.page.shared_preferences.set("tema","light") # guardamos los cambios en el dispositivo
+        
         e.control.update() # se actualiza el boton
         self.page.update()
         print(f"Tema cambiado a: {self.page.theme_mode}")
@@ -81,15 +83,19 @@ class AjustesController:
                 )
             ]
         )
+
         self.page.overlay.append(self.dialogo_confirmacion)
         # abrimos el dialogo
         self.dialogo_confirmacion.open=True
         self.page.update()
+
     # funcion para borrar la cuenta
     async def borrar_cuenta(self, e):
         exito, aviso = await self.service.borrar_cuenta()
         if exito:
-            # recorremos el overlay para cerrar CUALQUIER diálogo abierto
+            self.usuario_s.id_usuario = None
+            self.usuario_s.token = None
+            # recorremos el overlay para cerrar cualquier diálogo abierto
             for control in self.page.overlay:
                 if isinstance(control,ft.AlertDialog):
                     control.open=False
@@ -106,17 +112,20 @@ class AjustesController:
                         control.content = ft.Text("Por seguridad, debes cerrar sesión y volver a entrar antes de eliminar tu cuenta.")
                     else:
                         control.content = ft.Text("No se pudo eliminar la cuenta. Inténtalo más tarde.")
-                    
                     # Cambiamos el botón a ACEPTAR
                     control.actions = [
-                        ft.TextButton("ACEPTAR", on_click=lambda _: self.cerrar_dialogo())
+                        ft.TextButton("ACEPTAR", 
+                                    on_click=lambda _: self.cerrar_dialogo())
                     ]
-            
             self.page.update()
             print(f"Error al borrar: {aviso}")
 
     async def cerrar_sesion(self, e):
         await self.service.auth_s.cerrar_sesion() # cerramos la sesion con firebase
+        self.usuario_s.id_usuario = None
+        self.usuario_s.token = None
+        self.service.id_usuario = None
+        self.service.token = None
         self.page.index_navegacion = 0 # reseteamos para que al volver a iniciar sesion aparezca grupos
         self.page.go("/") # abre el login una vez cerrada la sesión
 
@@ -129,12 +138,21 @@ class AjustesController:
     # funcion para activar o desactivar la ubicacion del usuario
     async def compartir_ubicacion(self,e):
         # vemos lo que está seleccionado en el switch (activo/inactivo) y lo guardamos
-        nuevo_estado = self.vista.ubicacion.value
-        estado = "true" if nuevo_estado else "false"# el estado hay que convertirlo a texto para guardarlo en shared preferences que no admite booleanos
+        nuevo_estado = self.vista.ubicacion.value # aqui nos indica True o False
+        estado = "true" if nuevo_estado else "false" # el estado hay que convertirlo a texto para guardarlo en shared preferences que no admite booleanos
         datos = {"compartir_ubicacion":estado}
         exito, aviso = await self.usuario_s.actualizar_datos(datos)
         if exito:
-            print(f"Actualizada la ubicacion en firebase: {estado}")
+            id_user = await self.page.shared_preferences.get("id_usuario")
+            token = await self.page.shared_preferences.get("token")
+            if nuevo_estado:
+                print(f"Ubicación activada")
+            else:
+                try:
+                    self.usuario_s.db.child("ubicaciones").child(id_user).remove(token) # eliminamos también la ultima posicion del usuario en el mapa
+                    print("Ubicación desactivada")
+                except Exception as ex:
+                    print(f"Error al eliminar la ubicación: {ex}")
         else:
             print(f"Error al sincronizar con firebase: {estado}")
         self.page.update()
@@ -154,10 +172,12 @@ class AjustesController:
             estado = await self.page.shared_preferences.get("compartir_ubicacion")
             estado_guardado = str(estado).lower().strip()
             print(f"Estado cargado:{estado_guardado}")
+            
             # volvemos a convertir el estado a un booleano para el switch
             if estado_guardado == "true":
                 self.vista.ubicacion.value = True
             else:
                 self.vista.ubicacion.value = False
-            self.vista.ubicacion.update()
+
+            self.vista.ubicacion.update() # obligamos a que se active/desactive el switch según la configuración guardada en la última sesión
             self.page.update()

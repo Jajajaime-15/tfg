@@ -53,8 +53,9 @@ class Router:
         if vista_clase == VistaPrincipal:
             await self.controlador_user.service.sincronizar() # sincronizamos si se ha cambiado algo en otro dispositivo
         elif vista_clase == VistaPerfil:
-            await self.controlador_user.service.sincronizar()
-            await self.controlador_user.cargar_perfil()
+            self.controlador_user.limpiar_vista() # primero limpiamos la vista de los datos anteriores
+            await self.controlador_user.service.sincronizar() # después sincronizamos los datos
+            await self.controlador_user.cargar_perfil() # y los cargamos
         elif vista_clase == VistaAjustes:
             await self.controlador_user.service.sincronizar()
             await self.controlador_settings.cargar_ajustes()
