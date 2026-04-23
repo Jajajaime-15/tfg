@@ -9,8 +9,8 @@ db = firebase.database() # instanciamos la base de datos y la autenticacion
 auth = firebase.auth()
 
 class GPSService:
-    def __init__(self):
-        pass
+    def __init__(self, page):
+        self.page = page
 
 async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcador_miembros=None): # recibe la pagina y para actualizar el marcador en tiempo real
     yo = "jaime" # el propio usuario
