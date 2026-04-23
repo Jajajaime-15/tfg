@@ -1,7 +1,6 @@
 import flet as ft # para flet
 import pyrebase # para firebase
 import flet_geolocator as ftg # para la geolocalizacion
-import flet_map as ftm # para el mapa
 from threading import Thread # para los hilos
 from db.config import config_keys # las claves que tenemos en el .env
 
@@ -15,13 +14,18 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcad
     #yo = db.child("").child("")
     miembros_grupos = [] # una lista de los miembros de todos los grupos a los que pertenece el usuario
     grupos = db.child("usuarios").child(yo).child("grupos").get().val() 
+    datos_miembros_cache = {}
+    datos_usuario = {
+        "nombre" : db.child("usuarios").child(yo).child("nombre").get().val(), 
+        "color" : db.child("usuarios").child(yo).child("color_avatar").get().val()
+    }
 
     # recorremos los grupos a los que pertenece el usuario y cada miembro para guardarlos en la lista de miembros y poder evitar repetidos
     if grupos: # por si el usuario no esta todavia en ningun grupo
         for grupo in grupos.keys():
             miembros = db.child("grupos").child(grupo).child("miembros").get().val()
             for miembro in miembros.keys():
-                if miembro not in miembros_grupos: # QUIZAS TENEMOS QUE HACER QUE ESTO SE HAGA POR UN ID POR SI ACASO HAY DOS PERSONAS EN GRUPOS DISTINTOS CON EL MISMO NOMBRE
+                if miembro not in miembros_grupos and miembro != yo: # QUIZAS TENEMOS QUE HACER QUE ESTO SE HAGA POR UN ID POR SI ACASO HAY DOS PERSONAS EN GRUPOS DISTINTOS CON EL MISMO NOMBRE
                     miembros_grupos.append(miembro)
 
     # funcion para gestionar el cambio de ubicacion del geolocator tanto en firebase como en el mapa
@@ -40,7 +44,7 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcad
                 db.child("ubicaciones").child(grupo).child(yo).set(loc) # si se cambia la posicion la escribimos en la base de datos
         
         if actualizar_marcador_usuario: # solo en caso de que exista
-            actualizar_marcador_usuario(latitud, longitud) # llamamos a la funcion del mapa para pintar el marcador propio cada vez que se actualice la posicion
+            actualizar_marcador_usuario(datos_usuario, lat, lon) # llamamos a la funcion del mapa para pintar el marcador propio cada vez que se actualice la posicion
         
         #page.add(ft.Text(f"Cambio ubicacion OK: {latitud} {longitud} {timestamp}"))
 
@@ -88,8 +92,15 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcad
             if actualizar_marcador_miembros and ubicacion_miembro["data"]: # 'data' es la forma en la que llega la info de la ubicacion en el stream del listener
                 lat = ubicacion_miembro["data"].get("latitud")
                 lon = ubicacion_miembro["data"].get("longitud")
+
+                if miembro not in datos_miembros_cache:
+                    nombre_miembro = db.child("usuarios").child(miembro).child("nombre").get().val()
+                    color_miembro = db.child("usuarios").child(miembro).child("color_avatar").get().val()
+                    datos_miembros_cache[miembro] = {"nombre" : nombre_miembro, "color": color_miembro}
+                datos_miembro = datos_miembros_cache[miembro]
+
                 if lat and lon:
-                    actualizar_marcador_miembros(miembro, lat, lon) # indicamos el miembro y su localizacion para que el mapa lo pueda pintar
+                    actualizar_marcador_miembros(miembro, datos_miembro, lat, lon) # indicamos el miembro, con su nombre y color y su localizacion para que el mapa lo pueda pintar
         return cambio_ubicacion_miembro
 
     # listener para recibir cada vez que haya un cambio en la ubicacion de un miembro de los grupos a los que pertenece el usuario
@@ -114,7 +125,7 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcad
     lat, lon = await posicion_inicial(geo) # obtenemos la posicion actual del usuario
     
     if actualizar_marcador_usuario: 
-        actualizar_marcador_usuario(lat, lon) # llamamos a la funcion del mapa para pintar el marcador propio con la posicion inicial
+        actualizar_marcador_usuario(datos_usuario, lat, lon) # llamamos a la funcion del mapa para pintar el marcador propio con la posicion inicial
 
     for miembro in miembros_grupos:
         hilo_listener = Thread(target=listener, args=(miembro,)) # el listener va en un hilo para que pueda estar escuchando y no bloquee el programa
