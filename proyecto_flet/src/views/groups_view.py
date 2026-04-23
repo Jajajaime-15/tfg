@@ -1,15 +1,14 @@
 import flet as ft
 from flet import TextField
 from components.components import tarjeta_grupos
-from views.perfil import VistaPerfil
-from controllers.user_controller import UserController # NO DEBERIA LLEGAR DESDE ROUTER EN VEZ DE CREARSE AQUI?
-from controllers.group_controller import GroupController # llamas al controlador de grupos
+from views.perfil_view import VistaPerfil
 
 
 class VistaGrupos:
-    def __init__(self, page, controlador):
+    def __init__(self, page, group_controller, user_controller):
         self.page = page
-        self.controlador = controlador
+        self.group_controller = group_controller # guardamos el controlador de grupos para usar sus funciones
+        self.user_controller = user_controller # guardamos el controlador de user para usar sus funciones
         self.datos_grupo = None
         self.integrantes = None
         self.centro = ft.Container(expand=True)
@@ -93,7 +92,7 @@ class VistaGrupos:
         self.page.update()
 
         # llamamos a la función para crear un grupo
-        await self.controlador.crear_grupo(
+        await self.group_controller.crear_grupo(
             self.nombre_grupo_input,
             self.integrante_input,
             self.mensaje_error
@@ -103,7 +102,7 @@ class VistaGrupos:
 
         # llamamos a la función para crear un grupo
         
-        self.datos_grupo, self.integrantes = await self.controlador.mostrar_grupos(
+        self.datos_grupo, self.integrantes = await self.group_controller.mostrar_grupos(
             self.mensaje_error
         )
         
@@ -124,7 +123,7 @@ class VistaGrupos:
         self.page.update()
 
         # llamamos a la función para eliminar un grupo
-        await self.controlador.eliminar_grupo(
+        await self.group_controller.eliminar_grupo(
             self.nombre_grupo_input,
             self.mensaje_error
         )
@@ -139,7 +138,7 @@ class VistaGrupos:
         self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
         self.page.update()
         # llamamos a la función para añadir un integrante a un grupo
-        await self.controlador.anyadir_participante(
+        await self.group_controller.anyadir_participante(
             grupo_seleccionado,
             self.integrante_input,
             self.mensaje_error
@@ -169,9 +168,7 @@ class VistaGrupos:
             # aqui el controlador de mapay agregamos al centro la vista del mapa
             print ("MAPA JAIME")
         elif indice == 2:
-            wrapper = self.controlador.wrapper 
-            controlador_u = UserController(self.page, wrapper) # MIRA MI COMENTARIO EN EL IMPORT
-            self.centro.content = VistaPerfil(self.page, controlador_u).vista()
+            self.centro.content = VistaPerfil(self.page, self.user_controller).vista() # aqui el controlador de perfil y agregamos al centro la vista del perfil
 
         self.page.update()     
     
