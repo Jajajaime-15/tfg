@@ -9,13 +9,12 @@ db = firebase.database() # instanciamos la base de datos y la autenticacion
 auth = firebase.auth()
 
 async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcador_miembros=None): # recibe la pagina y para actualizar el marcador en tiempo real
-    #page.add(ft.Text("Firebase conectado"))
     yo = "jaime" # el propio usuario
     #yo = db.child("").child("")
     miembros_grupos = [] # una lista de los miembros de todos los grupos a los que pertenece el usuario
     grupos = db.child("usuarios").child(yo).child("grupos").get().val() 
-    datos_miembros_cache = {}
-    datos_usuario = {
+    datos_miembros_cache = {} # diccionario para manejar los nombres y colores de los miembros para poder pintarlos en el mapa
+    datos_usuario = { # lo mismo pero con los datos del propio usuario
         "nombre" : db.child("usuarios").child(yo).child("nombre").get().val(), 
         "color" : db.child("usuarios").child(yo).child("color_avatar").get().val()
     }
@@ -44,9 +43,7 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcad
                 db.child("ubicaciones").child(grupo).child(yo).set(loc) # si se cambia la posicion la escribimos en la base de datos
         
         if actualizar_marcador_usuario: # solo en caso de que exista
-            actualizar_marcador_usuario(datos_usuario, lat, lon) # llamamos a la funcion del mapa para pintar el marcador propio cada vez que se actualice la posicion
-        
-        #page.add(ft.Text(f"Cambio ubicacion OK: {latitud} {longitud} {timestamp}"))
+            actualizar_marcador_usuario(datos_usuario, lat, lon) # llamamos a la funcion del mapa para pintar el marcador propio personalizado cada vez que se actualice la posicion
 
     # funcion para solicitar que se active el permiso de ubicacion si no esta activado en la aplicacion
     async def permitir_ubicacion(geo):
@@ -60,7 +57,7 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcad
                 page.add(ft.Text(f"Permisos de localización no habilitados"))
                 return False # avisamos de que no han sido habilitados y hacemos que no se siga ejecutando la funcion
         
-        return True
+        return True # en caso de SI estar habilitado
     
     # funcion para obtener la posicion inicial del usuario
     async def posicion_inicial(geo):
@@ -80,7 +77,6 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcad
             if grupos:
                 for grupo in grupos.keys(): # para escribir la posicion inicial en todos los grupos a los que se pertenezca
                     db.child("ubicaciones").child(grupo).child(yo).set(loc) # para escribir los valores debemos marcar el nivel dentro de los json con los 'child' y 'set'
-            #page.add(ft.Text(f"Escritura OK"))
         except Exception as e:
             page.add(ft.Text(f"Error escritura Firebase: {e}"))
         
@@ -93,11 +89,11 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcad
                 lat = ubicacion_miembro["data"].get("latitud")
                 lon = ubicacion_miembro["data"].get("longitud")
 
-                if miembro not in datos_miembros_cache:
+                if miembro not in datos_miembros_cache: # comprobamos si el miembro esta en la cache
                     nombre_miembro = db.child("usuarios").child(miembro).child("nombre").get().val()
                     color_miembro = db.child("usuarios").child(miembro).child("color_avatar").get().val()
-                    datos_miembros_cache[miembro] = {"nombre" : nombre_miembro, "color": color_miembro}
-                datos_miembro = datos_miembros_cache[miembro]
+                    datos_miembros_cache[miembro] = {"nombre" : nombre_miembro, "color": color_miembro} # si no esta obtenemos sus datos de firebase para dibujar el marcador
+                datos_miembro = datos_miembros_cache[miembro] # en cualquier caso obtenemos asi el nombre y el color que seran enviados al mapa
 
                 if lat and lon:
                     actualizar_marcador_miembros(miembro, datos_miembro, lat, lon) # indicamos el miembro, con su nombre y color y su localizacion para que el mapa lo pueda pintar
@@ -125,7 +121,7 @@ async def gps(page: ft.Page, actualizar_marcador_usuario=None, actualizar_marcad
     lat, lon = await posicion_inicial(geo) # obtenemos la posicion actual del usuario
     
     if actualizar_marcador_usuario: 
-        actualizar_marcador_usuario(datos_usuario, lat, lon) # llamamos a la funcion del mapa para pintar el marcador propio con la posicion inicial
+        actualizar_marcador_usuario(datos_usuario, lat, lon) # llamamos a la funcion del mapa para pintar el marcador propio personalizado con la posicion inicial
 
     for miembro in miembros_grupos:
         hilo_listener = Thread(target=listener, args=(miembro,)) # el listener va en un hilo para que pueda estar escuchando y no bloquee el programa

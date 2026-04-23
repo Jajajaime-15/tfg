@@ -7,15 +7,15 @@ async def map(page: ft.Page):
 
     marker_layer_user = ftm.MarkerLayer(markers=[]) # capa para poder dibujar marcadores propios en el mapa
     marker_layer_miembros = ftm.MarkerLayer(markers=[]) # capa para poder dibujar marcadores de los miembros en el mapa
-    marcadores_miembros = {}
+    marcadores_miembros = {} # para poder diferenciar cada marcador de cada miembro del grupo
 
     # funcion para dibujar el marcador del usuario con cada cambio de posicion
     def actualizar_marcador_usuario(datos_usuario, lat, lon):
-        color_marcador = datos_usuario["color"]
+        color_marcador = datos_usuario["color"] # extraemos el color y el nombre propios para poder usarlos
         nombre_marcador = datos_usuario["nombre"]
-        inicial = nombre_marcador[0].upper()
+        inicial = nombre_marcador[0].upper() 
 
-        marcador = ft.CircleAvatar(
+        marcador = ft.CircleAvatar( # creamos el marcador como un avatar circular
             content=ft.Text(inicial, size=14, weight="bold", color="white"),
             bgcolor=color_marcador,
             radius=15
@@ -31,6 +31,7 @@ async def map(page: ft.Page):
 
     # funcion para dibujar el marcador del resto de miembros con cada cambio de posicion
     def actualizar_marcador_miembros(miembro, datos_miembro, lat, lon):
+        # realizamos lo mismo que en el usuario pero con el resto de los miembros
         color_marcador = datos_miembro["color"]
         nombre_marcador = datos_miembro["nombre"]
         inicial = nombre_marcador[0].upper()
@@ -50,10 +51,10 @@ async def map(page: ft.Page):
 
     # llamamos al geolocator
     lat, lon, geo = await gps(
-            page, 
-            actualizar_marcador_usuario= actualizar_marcador_usuario, 
-            actualizar_marcador_miembros= actualizar_marcador_miembros
-        ) # le pasamos la pagina y las funciones para dibujar los marcadores
+        page, 
+        actualizar_marcador_usuario= actualizar_marcador_usuario, 
+        actualizar_marcador_miembros= actualizar_marcador_miembros
+    ) # le pasamos la pagina y las funciones para dibujar los marcadores
 
     mapa = ftm.Map( # creacion del mapa
         expand=True, # para que ocupe toda la pantalla
