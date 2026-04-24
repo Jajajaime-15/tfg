@@ -1,6 +1,4 @@
 import flet as ft
-import flet_map as ftm
-from proyecto_flet.src.services.gps_service import gps
 
 class MapaController:
     def __init__(self, page, gps_service, vista = None):
@@ -11,10 +9,9 @@ class MapaController:
         self.lon = None 
         self.geo = None
 
-    async def iniciar(self):
+    async def iniciar_gps(self):
         # llamamos al geolocator
-        self.lat, self.lon, self.geo = await gps(
-            self.page, 
+        self.lat, self.lon, self.geo = await self.service.gps(
             actualizar_marcador_usuario = self.actualizar_marcador_usuario, 
             actualizar_marcador_miembros = self.actualizar_marcador_miembros
         ) # le pasamos la pagina y las funciones para dibujar los marcadores
