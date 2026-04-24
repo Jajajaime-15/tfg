@@ -2,7 +2,7 @@ import flet as ft # para flet
 import pyrebase # para firebase
 import flet_geolocator as ftg # para la geolocalizacion
 from threading import Thread # para los hilos
-from db.config import config_keys # las claves que tenemos en el .env
+from database.config import config_keys # las claves que tenemos en el .env
 
 firebase = pyrebase.initialize_app(config_keys) # iniciamos firebase
 db = firebase.database() # instanciamos la base de datos y la autenticacion
