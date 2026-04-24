@@ -22,10 +22,14 @@ class MapaController:
         nombre_marcador = datos_usuario["nombre"]
         inicial = nombre_marcador[0].upper() 
 
-        marcador = ft.CircleAvatar( # creamos el marcador como un avatar circular
-            content=ft.Text(inicial, size=14, weight="bold", color="white"),
-            bgcolor=color_marcador,
-            radius=15
+        marcador = ft.Container( # envolvemos el avatar en un contenedor para pintar un borde y que destaque más en el mapa
+            content=ft.CircleAvatar( # creamos el marcador como un avatar circular
+                content=ft.Text(inicial, size=14, weight="bold", color="white"),
+                bgcolor=color_marcador,
+                radius=15
+            ),
+            border=ft.border.all(2, ft.Colors.BLACK),
+            border_radius=50
         )
 
         # con el marcador construido y la posicion obtenida llamamos a la vista para pintar el marcador del usuario
@@ -37,10 +41,14 @@ class MapaController:
         nombre_marcador = datos_miembro["nombre"]
         inicial = nombre_marcador[0].upper()
 
-        marcador = ft.CircleAvatar(
-            content=ft.Text(inicial, size=14, weight="bold", color="white"),
-            bgcolor=color_marcador,
-            radius=15
+        marcador = ft.Container(
+            content=ft.CircleAvatar( # creamos el marcador como un avatar circular
+                content=ft.Text(inicial, size=14, weight="bold", color="white"),
+                bgcolor=color_marcador,
+                radius=15
+            ),
+            border=ft.border.all(2, ft.Colors.BLACK),
+            border_radius=50
         )
 
         # con el marcador construido y la posicion obtenida llamamos a la vista para pintar el marcador de cada miembro
