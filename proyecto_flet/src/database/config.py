@@ -1,7 +1,7 @@
 # configuración de firebase cogiendo los datos de .env
 
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv # type: ignore
 
 load_dotenv() # carga el archivo .env
 

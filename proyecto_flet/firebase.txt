@@ -1,0 +1,14 @@
+REGLAS PARA CONFIGURAR EN FIREBASE EN REALTIME: (las iré modificando a raiz avancemos y veamos las posibilidades)
+
+{
+  "rules": {
+    "usuarios": {
+      "$uid": {
+        // Solo el usuario autenticado puede leer sus propios datos
+        ".read": "auth != null && auth.uid === $uid",
+        // Solo el usuario autenticado puede escribir en su propio nodo
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+} 

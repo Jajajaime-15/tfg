@@ -1,27 +1,57 @@
-import flet as ft
-from database.wrapper import Wrapper
+import flet as ft # type: ignore
+from services.ajustes_service import AjustesService
+from services.auth_service import AuthService
+from services.firebase_service import FirebaseService
+from services.usuario_service import UsuarioService
 from controllers.auth_controller import AuthController
+from controllers.usuario_controller import UsuarioController
+from controllers.ajustes_controller import AjustesController
 from router import Router
 
 async def main(page: ft.Page):
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.bgcolor = ft.Colors.with_opacity(0.95, ft.Colors.BLUE_GREY_100)
-    page.title = "Login"
+    page.title = "PROYECTO TFG"
     page.window_width = 400
     page.window_height = 700
     
-    # Inicializamos la base de datos y el controlador
-    wrapper = Wrapper(page)
-    controlador_auth = AuthController(page, wrapper)
-    
-    # Instanciamos el router pasándole el page y el controlador 
-    my_router = Router(page, controlador_auth)
-    
-    # Cuando la ruta cambie, se llamara a my_router.route_change
-    page.on_route_change = my_router.route_change
-    
-    # Arrancamos en la ruta actual
-    await my_router.route_change(None)
+    # cargamos el tema que está guardado
+    tema_guardado = await page.shared_preferences.get("tema")
+    if tema_guardado == "dark":
+        page.theme_mode = ft.ThemeMode.DARK
+    else:
+        page.theme_mode = ft.ThemeMode.LIGHT
+        
+    # arrancamos Firebase
+    fb_service = FirebaseService(page)
+    auth_service = AuthService(page, fb_service)
+    usuario_service = UsuarioService(page, fb_service, auth_service)
+    ajustes_service = AjustesService(page, fb_service, auth_service)
+    auth_controller = AuthController(page,auth_service)
+    ajustes_controller = AjustesController(page,ajustes_service,usuario_service)
+    usuario_controller = UsuarioController(page,usuario_service,ajustes_controller)
 
-ft.app(target=main)
+    # Cerramos la sesión al arrancar para que siempre aparezca el login SOLO PARA PRUEBAS
+    # await wrapper.cerrar_sesion() 
+    # o limpiamos los datos guardados en el dispositivo
+    # await page.shared_preferences.clear()
+    
+    # arrancamos el archivo de las rutas
+    router = Router(page,auth_controller,ajustes_controller,usuario_controller)
+    # conectamos con la funcion de cambio de ruta del router (route_change)
+    page.on_route_change = router.route_change
+
+    # comprobamos si hay un usuario logueado ya
+    id_usuario = await auth_service.usuario_conectado()
+    if id_usuario:
+        usuario_service.id_usuario = id_usuario
+        usuario_service.token = auth_service.token
+        print("USUARIO INICIADO") # PRINT PARA PROBAR QUE SE QUEDA INICIADA LA SESION
+        await usuario_service.sincronizar() # sincronizamos con firebase
+        page.route = "/home" # esta ruta será la de grupos
+    else:
+        page.route = "/" # ruta de login (principal)
+        
+    await router.route_change(None) # cargamos la primera vista
+    page.update()
+
+if __name__ == "__main__":
+    ft.run(main, view=ft.AppView.WEB_BROWSER,assets_dir="assets")
