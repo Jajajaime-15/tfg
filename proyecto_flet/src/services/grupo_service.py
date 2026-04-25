@@ -1,4 +1,3 @@
-# inicializar Firebase + funciones necesarias
 import pyrebase
 from database.config import config
 from datetime import datetime
@@ -19,6 +18,7 @@ class Wrapper:
 
     async def cargar_datos_usuario(self):
         self.id_usuario = await self.page.shared_preferences.get("id_usuario")
+        print(f"ID de usuario cargado: {self.id_usuario}")
         self.token = await self.page.shared_preferences.get("token")     
 
     # función para registrar grupos nuevos
@@ -27,54 +27,34 @@ class Wrapper:
             if not self.token or not self.id_usuario:
                 return False, "Debes iniciar sesión para crear un grupo"
             
-            id_grupo = None
-
-            # Los datos del grupo
             info_grupo = {
-                id_grupo: {}
+                "admin": self.id_usuario,
+                "nombre": nombre_grupo,
+                "miembros": integrante,
+                "fecha_creacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             
-            # Guarda el grupo en la base de datos
+            # Guardar en nodo "grupos"
             grupos_ref = self.db.child("grupos")
             resultado = grupos_ref.push(info_grupo, self.token)  
             id_grupo = resultado["name"]  
-
-            info_grupo.update({
-                id_grupo: {
-                    "admin": self.id_usuario,
-                    "nombre": nombre_grupo,
-                    "miembros" : integrante,
-                    "fecha_creacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    }
-                    })
             
-
-            # Leer el campo id_grupo del usuario
-            ruta_id_grupo = f"usuarios/{self.id_usuario}/id_grupo"
-            ruta_grupos = f"grupos"
+            # Obtener los grupos actuales del usuario
+            ruta_completa = f"usuarios/{self.id_usuario}/id_grupo"
+            grupos_actuales = self.db.child(ruta_completa).get(self.token).val()
             
-            # Leer diccionario de grupos
-            valor_actual = self.db.child(ruta_id_grupo).get(self.token).val()
-            
-            # Si es None o string, lo convertimos a diccionario vacío
-            if not isinstance(valor_actual, dict):
-                dic_grupos = {}
+            if grupos_actuales and isinstance(grupos_actuales, dict) and "grupos" in grupos_actuales:
+                grupos_usuario = grupos_actuales["grupos"]
             else:
-                dic_grupos = valor_actual
-
-            print(f"Diccionario de grupos antes de añadir el nuevo grupo: {dic_grupos}")
-
-            # Añadir el nuevo grupo al diccionario
-            dic_grupos = {
-                "grupos": {
-                    "nombre": nombre_grupo,
-                    }
-            }
+                grupos_usuario = {}
             
-            # Guardar usando la misma RUTA COMPLETA
-            print(f"Actualizando el usuario con el nuevo grupo: {dic_grupos}")
-            self.db.child(ruta_grupos).update(info_grupo, self.token)
-            self.db.child(ruta_id_grupo).update(dic_grupos, self.token)
+            print(f"Grupos actuales: {grupos_usuario}")
+            
+            # Añadir el nuevo grupo
+            grupos_usuario[id_grupo] = nombre_grupo
+            
+            # Guardarlo actualizado en la base de datos
+            self.db.child(ruta_completa).set({"grupos": grupos_usuario}, self.token)
             
             print(f"Grupo '{nombre_grupo}' creado correctamente con ID: {id_grupo}")
             return True, "Grupo creado correctamente"
@@ -125,52 +105,37 @@ class Wrapper:
 
 
     async def mostrar_grupos(self):
-        
+    
         nombres_grupos = []  
-        integrantes = []  
-        grupos = None 
-        grupo = None 
-        aviso = False
+        integrantes = []
 
         try:
             if not self.token or not self.id_usuario:
                 return [], "Debes iniciar sesión para ver los grupos", False  
             
-            print("funciona service grupos")
-            
-            grupos = self.db.child("usuarios").child(self.id_usuario).child("id_grupo").get(self.token).val()
-            grupos_prueba =self.db.child("grupos").get(self.token).val()
-
-            admins = []
-            if grupos_prueba:
-                for g in grupos_prueba:
-                    admin = grupos_prueba[g].get("admin") 
-                    admins.append(admin)
-                    print(f"Grupo ID: {g}, Datos: {admins}")
-
-            print(f"Grupos del usuario: {grupos_prueba}")
-
-            if grupos is None or not grupos:
-                print("No hay grupos asociados a este usuario")
-                return [], "No tienes grupos", True
-            
-            for grupo_id in grupos.keys():
-                grupo = self.db.child("grupos").child(grupo_id).get(self.token).val()
-                print(f"Datos del grupo: {grupo}")
-
-                if grupo:
-                    # Agregar nombre del grupo
-                    nombres_grupos.append(grupo.get("nombre", "Sin nombre"))
-                    miembros_grupo = self.db.child("grupos").child(grupo_id).child("integrante").get(self.token).val()
-                    print(f"Miembros del grupo: {miembros_grupo}")
-                    integrantes.append(miembros_grupo if miembros_grupo else [])
-     
+            # Obtener todos los grupos
+            grupos = self.db.child("grupos").get(self.token).val()
 
             
-
-                     
-
-
+            if not grupos:
+                print("No hay grupos en la base de datos")
+                return [], "No hay grupos", True
+            
+            for datos_grupo in grupos.values():
+                if datos_grupo.get("admin") == self.id_usuario:  # Solo los grupos donde el usuario es admin
+                    nombres_grupos.append(datos_grupo.get("nombre", "Sin nombre"))
+                    
+                    # Obtener integrantes
+                    miembros = datos_grupo.get("miembros", [])
+                    if isinstance(miembros, str):
+                        miembros = [miembros] if miembros else []
+                    
+                    integrantes.append(miembros)
+            
+            if not nombres_grupos:
+                print("No eres admin de ningún grupo")
+                return [], "No eres admin de ningún grupo", True
+            
             return nombres_grupos, integrantes, True
             
         except Exception as e:
