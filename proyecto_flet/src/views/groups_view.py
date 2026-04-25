@@ -210,6 +210,10 @@ class VistaGrupos:
                     alignment=ft.MainAxisAlignment.CENTER,
                     expand=True,),
                 ),
+                ft.Row(
+                    self.nombre_grupo_input,
+                    self.btn_crear_grupos,
+                ),
                 # Centro dinámico (expande para ocupar el espacio)
                 ft.Container(expand=True, content=self.centro),
                 # Barra de navegación inferior

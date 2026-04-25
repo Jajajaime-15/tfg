@@ -3,24 +3,24 @@ import flet as ft
 from views.login_view import VistaLogin
 from views.registro import VistaRegistro
 from views.groups_view import VistaGrupos
-from controllers.auth_controller import AuthController
+from controllers.user_controller import UserController
 from controllers.group_controller import GroupController
 from controllers.user_controller import UserController
 # Aquí importamos las nuevas vistas que se creen 
 
 class Router:
-    def __init__(self, page, wrapper):
+    def __init__(self, page, usuario_wrapper, grupo_wrapper):
         self.page = page
-        self.wrapper = wrapper
-        self.auth_controller = AuthController(page, wrapper)
-        self.group_controller = GroupController(page, wrapper)
-        self.user_controller = UserController(page, wrapper)  
+        self.usuario_wrapper = usuario_wrapper
+        self.grupo_wrapper = grupo_wrapper
+        self.group_controller = GroupController(page, grupo_wrapper)
+        self.user_controller = UserController(page, usuario_wrapper)  
           
         
         # Diccionario de rutas
         self.routes = {
-            "/": (VistaLogin, self.auth_controller),
-            "/registro": (VistaRegistro, self.auth_controller),
+            "/": (VistaLogin, self.user_controller),
+            "/registro": (VistaRegistro, self.user_controller),
             "/grupos": (VistaGrupos, self.group_controller, self.user_controller), # pasamos ambos controladores a la vista de grupos para poder usar las funciones de ambos
         }
 
@@ -32,10 +32,10 @@ class Router:
         self.page.controls.clear()
         
         if self.page.route == "/":
-            pantalla = VistaLogin(self.page, self.auth_controller)
+            pantalla = VistaLogin(self.page, self.user_controller)
             
         elif self.page.route == "/registro":
-            pantalla = VistaRegistro(self.page, self.auth_controller)
+            pantalla = VistaRegistro(self.page, self.user_controller)
             
         elif self.page.route == "/grupos":
             #Pasamos dos controladores a VistaGrupos
@@ -43,7 +43,7 @@ class Router:
             await pantalla.obtener_info_grupos()  # Cargar datos iniciales
         else:
             # Ruta no encontrada, redirigir a login
-            pantalla = VistaLogin(self.page, self.auth_controller)
+            pantalla = VistaLogin(self.page, self.user_controller)
         
         # Agregamos la vista a la página
         self.page.add(pantalla.vista())

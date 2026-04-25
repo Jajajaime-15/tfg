@@ -1,5 +1,4 @@
 import flet as ft
-from database.wrapper import Wrapper #type: ignore
 
 
 def PrimaryButton(text, on_click=None, width=150, disabled=False, loading=False):

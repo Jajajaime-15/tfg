@@ -1,6 +1,7 @@
 import flet as ft
-from database.wrapper import Wrapper
-from controllers.auth_controller import AuthController
+from services.grupo_service import Wrapper as WrapperGrupo
+from services.usuario_service import Wrapper as WrapperUsuario
+from controllers.user_controller import UserController
 from router import Router
 
 async def main(page: ft.Page):
@@ -10,8 +11,10 @@ async def main(page: ft.Page):
     page.bgcolor = "white"
 
     # arrancamos Firebase
-    wrapper = Wrapper(page)
-    auth_controller = AuthController(page,wrapper)
+    wrapper_grupos = WrapperGrupo(page)
+    await wrapper_grupos.cargar_datos_usuario()
+    wrapper_usuarios = WrapperUsuario(page)
+    user_controller = UserController(page,wrapper_usuarios)
 
     # Cerramos la sesión al arrancar para que siempre aparezca el login SOLO PARA PRUEBAS
     #await wrapper.cerrar_sesion() 
@@ -19,12 +22,12 @@ async def main(page: ft.Page):
     #await page.shared_preferences.clear()
     
     # arrancamos el archivo de las rutas
-    router = Router(page,wrapper)
+    router = Router(page,wrapper_usuarios, wrapper_grupos)
     # conectamos con la funcion de cambio de ruta del router (route_change)
     page.on_route_change = router.route_change
 
     # comprobamos si hay un usuario logueado ya
-    id_usuario = await wrapper.usuario_conectado()
+    id_usuario = await wrapper_usuarios.usuario_conectado()
     if id_usuario:
         print("USUARIO INICIADO") # PRINT PARA PROBAR QUE SE QUEDA INICIADA LA SESION
         page.route = "/" # esta ruta será la de grupos
