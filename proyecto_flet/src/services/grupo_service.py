@@ -70,37 +70,38 @@ class Wrapper:
             if not self.token or not self.id_usuario:
                 return False, "Debes iniciar sesión para eliminar un grupo"
 
-            # Obtener los grupos del usuario
-            ruta_usuario_grupos = f"usuarios/{self.id_usuario}/id_grupo"
-            grupos_usuario = self.db.child(ruta_usuario_grupos).get(self.token).val()
+            # Obtener todos los grupos
+            todos_los_grupos = self.db.child("grupos").get(self.token).val()
             
-            if not grupos_usuario:
-                return False, "No tienes grupos para eliminar"
+            if not todos_los_grupos:
+                return False, "No hay grupos en la base de datos"
             
-            # Buscar el ID del grupo por nombre
+            # Buscar el ID del grupo por nombre y verificar que sea admin
             id_grupo_encontrar = None
-            for id_grupo, info_grupo in grupos_usuario.items():
-                if info_grupo.get("nombre") == nombre_grupo:
+            for id_grupo, datos_grupo in todos_los_grupos.items():
+                if datos_grupo.get("nombre") == nombre_grupo and datos_grupo.get("admin") == self.id_usuario:
                     id_grupo_encontrar = id_grupo
                     break
             
             if not id_grupo_encontrar:
-                return False, f"No se encontró el grupo '{nombre_grupo}'"
+                return False, f"No se encontró el grupo '{nombre_grupo}' o no eres el administrador"
             
-            # Eliminar el grupo del nodo "grupos"
+            # Eliminar el grupo del nodo grupos
             self.db.child(f"grupos/{id_grupo_encontrar}").remove(self.token)
             
-            # Eliminar el grupo del diccionario del usuario
-            del grupos_usuario[id_grupo_encontrar]
+            # Eliminar el grupo del usuario
+            ruta_usuario = f"usuarios/{self.id_usuario}/id_grupo/grupos"
+            grupos_usuario = self.db.child(ruta_usuario).get(self.token).val()
             
-            # Guardar el diccionario actualizado del usuario
-            self.db.child(ruta_usuario_grupos).set(grupos_usuario, self.token)
+            if grupos_usuario and id_grupo_encontrar in grupos_usuario:
+                del grupos_usuario[id_grupo_encontrar]
+                self.db.child(ruta_usuario).set(grupos_usuario, self.token)
             
-            print(f" Grupo '{nombre_grupo}' eliminado correctamente")
+            print(f"Grupo '{nombre_grupo}' eliminado correctamente")
             return True, "Grupo eliminado correctamente"
             
         except Exception as e:
-            print(f" Error al eliminar grupo: {e}")
+            print(f"Error al eliminar grupo: {e}")
             return False, str(e)
 
 

@@ -215,6 +215,7 @@ class VistaGrupos:
                         self.nombre_grupo_input,
                         self.integrante_input,
                         self.btn_crear_grupos,
+                        self.btn_eliminar_grupo,
                     ],
                 ),
                 # Centro dinámico (expande para ocupar el espacio)
