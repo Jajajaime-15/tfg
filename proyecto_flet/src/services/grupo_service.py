@@ -27,25 +27,31 @@ class Wrapper:
             if not self.token or not self.id_usuario:
                 return False, "Debes iniciar sesión para crear un grupo"
             
+            id_grupo = None
+
+            # Los datos del grupo
+            info_grupo = {
+                id_grupo: {}
+            }
+            
             # Guarda el grupo en la base de datos
             grupos_ref = self.db.child("grupos")
             resultado = grupos_ref.push(info_grupo, self.token)  
             id_grupo = resultado["name"]  
 
-            # Los datos del grupo
-            info_grupo = {
+            info_grupo.update({
                 id_grupo: {
                     "admin": self.id_usuario,
                     "nombre": nombre_grupo,
                     "miembros" : integrante,
                     "fecha_creacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     }
-            }
-            
+                    })
             
 
             # Leer el campo id_grupo del usuario
             ruta_id_grupo = f"usuarios/{self.id_usuario}/id_grupo"
+            ruta_grupos = f"grupos"
             
             # Leer diccionario de grupos
             valor_actual = self.db.child(ruta_id_grupo).get(self.token).val()
@@ -67,6 +73,7 @@ class Wrapper:
             
             # Guardar usando la misma RUTA COMPLETA
             print(f"Actualizando el usuario con el nuevo grupo: {dic_grupos}")
+            self.db.child(ruta_grupos).update(info_grupo, self.token)
             self.db.child(ruta_id_grupo).update(dic_grupos, self.token)
             
             print(f"Grupo '{nombre_grupo}' creado correctamente con ID: {id_grupo}")
@@ -117,8 +124,6 @@ class Wrapper:
             return False, str(e)
 
 
-    # TIENES QUE CAMBIAR ESTO A LO QUE DIJIMOS, Y CAMBIAR LOS METODOS SIGUIENTES PORQUE EN ANYADIR PARTICIPANTE ESTAS TENIENDO QUE ESCRIBIR MAS VECES DE LAS NECESARIAS
-    # Y TAMBIEN HAY QUE SEPARAR ESTO EN OTRO SERVICE DISTINTO, NO TODO EN EL WRAPPER, QUIZAS LLAMARLO GROUP SERVICE
     async def mostrar_grupos(self):
         
         nombres_grupos = []  
@@ -134,7 +139,16 @@ class Wrapper:
             print("funciona service grupos")
             
             grupos = self.db.child("usuarios").child(self.id_usuario).child("id_grupo").get(self.token).val()
-            #datos_grupo = self.db.child("usuarios").child(self.id_usuario).child("id_grupo").get(self.token)
+            grupos_prueba =self.db.child("grupos").get(self.token).val()
+
+            admins = []
+            if grupos_prueba:
+                for g in grupos_prueba:
+                    admin = grupos_prueba[g].get("admin") 
+                    admins.append(admin)
+                    print(f"Grupo ID: {g}, Datos: {admins}")
+
+            print(f"Grupos del usuario: {grupos_prueba}")
 
             if grupos is None or not grupos:
                 print("No hay grupos asociados a este usuario")

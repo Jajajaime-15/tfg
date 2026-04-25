@@ -211,8 +211,11 @@ class VistaGrupos:
                     expand=True,),
                 ),
                 ft.Row(
-                    self.nombre_grupo_input,
-                    self.btn_crear_grupos,
+                    controls=[
+                        self.nombre_grupo_input,
+                        self.integrante_input,
+                        self.btn_crear_grupos,
+                    ],
                 ),
                 # Centro dinámico (expande para ocupar el espacio)
                 ft.Container(expand=True, content=self.centro),
