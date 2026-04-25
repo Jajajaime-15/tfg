@@ -108,11 +108,25 @@ class GPSService:
                     # el stream hace que escuchemos constantemente esta parte de realtime por si hay cambios y llamamos al callback
                     db.child("ubicaciones").child(grupo).child(miembro).stream(callback_miembro(miembro)) 
 
-
-        geo = ftg.Geolocator( # declaramos el geolocator configurando su precision de localizacion como la mejor posible
-            configuration=ftg.GeolocatorConfiguration(
+        if self.page.platform == ft.PagePlatform.ANDROID:
+            configuracion = ftg.GeolocatorAndroidConfiguration( # configuracion solo para dispositivos Android
+                accuracy=ftg.GeolocatorPositionAccuracy.BEST, # declaramos el geolocator configurando su precision de localizacion como la mejor posible
+                foreground_notification_config=ftg.ForegroundNotificationConfiguration( # para mostrar una notificacion de la ubicacion que persista con la app en segundo plano
+                    notification_title="Ubika",
+                    notification_text="Compartiendo la ubicación en tiempo real...",
+                    notification_enable_wake_lock=True, # para que no se apague en ningun momento ni se pierda la conexion a internet
+                    notification_enable_wifi_lock=True, 
+                    notification_set_ongoing=True, # para que se mantenga atento el dispositivo constantemente a los cambios
+                    notification_channel_name="Ubicación en segundo plano"
+                )
+            )
+        else:
+            configuracion = ftg.GeolocatorConfiguration( # configuracion para cualquier dispositivo que no sea Android
                 accuracy=ftg.GeolocatorPositionAccuracy.BEST
-            ),
+            )
+
+        geo = ftg.Geolocator(
+            configuration=configuracion, # la configuracion varia dependiendo del dispositivo
             on_position_change=cambio_ubicacion, # para llamar a un metodo que actualice cuando haya un cambio de posicion
             on_error=lambda e: None # mensaje de error que aparecera en la pantalla
         )
