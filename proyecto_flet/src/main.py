@@ -15,7 +15,6 @@ async def main(page: ft.Page):
     await wrapper_grupos.cargar_datos_usuario()
     wrapper_usuarios = WrapperUsuario(page)
     user_controller = UserController(page,wrapper_usuarios)
-
     # Cerramos la sesión al arrancar para que siempre aparezca el login SOLO PARA PRUEBAS
     #await wrapper.cerrar_sesion() 
     # o limpiamos los datos guardados en el dispositivo
