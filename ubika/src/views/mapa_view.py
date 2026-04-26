@@ -1,5 +1,6 @@
 import flet as ft
 import flet_map as ftm # para el mapa
+from utils.nominatim import obtener_direccion_legible
 
 class MapaVista:
     def __init__(self, page, controlador):
@@ -62,15 +63,13 @@ class MapaVista:
             info_marcador.open = False
             self.page.update()
 
+        ubicacion = obtener_direccion_legible(lat, lon) # para obtener desde la api de nominatim una ubicacion que entiendan los usuarios
+
         info_marcador = ft.AlertDialog( # la ventana que se abre al pulsar el marcador
             content=ft.Column(
                 [
                     ft.Text(
-                        f"Latitud: {lat}",
-                        color="#000000"
-                    ),
-                    ft.Text(
-                        f"Longitud: {lon}",
+                        f"Ubicación: {ubicacion}",
                         color="#000000"
                     ),
                     ft.Text(

@@ -1,6 +1,5 @@
 import flet as ft
 from utils.formatear_timestamp import formatear_timestamp
-from utils.nominatim import obtener_direccion_legible
 
 class MapaController:
     def __init__(self, page, gps_service, vista = None):
@@ -25,8 +24,6 @@ class MapaController:
         inicial = nombre_marcador[0].upper() 
 
         timestamp_formateado = formatear_timestamp(timestamp)
-
-        
 
         marcador = ft.Container( # envolvemos el avatar en un contenedor para pintar un borde y que destaque más en el mapa
             content=ft.CircleAvatar( # creamos el marcador como un avatar circular
