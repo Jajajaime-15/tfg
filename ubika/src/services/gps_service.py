@@ -45,7 +45,7 @@ class GPSService:
                     db.child("ubicaciones").child(grupo).child(self.yo).set(loc) # si se cambia la posicion la escribimos en la base de datos
             
             if actualizar_marcador_usuario: # solo en caso de que exista
-                actualizar_marcador_usuario(self.datos_usuario, latitud, longitud) # llamamos a la funcion del mapa para pintar el marcador propio personalizado cada vez que se actualice la posicion
+                actualizar_marcador_usuario(self.datos_usuario, latitud, longitud, timestamp) # llamamos a la funcion del mapa para pintar el marcador propio personalizado cada vez que se actualice la posicion
 
         # funcion para solicitar que se active el permiso de ubicacion si no esta activado en la aplicacion
         async def permitir_ubicacion(geo):
@@ -82,7 +82,7 @@ class GPSService:
             except Exception as e:
                 self.page.add(ft.Text(f"Error escritura Firebase: {e}"))
             
-            return latitud, longitud
+            return latitud, longitud, timestamp
         
         # funcion callback para usar el cambio de la ubicacion en los miembros de los grupos a los que pertenece el usuario
         def callback_miembro(miembro): # para identificar que miembro es
@@ -90,6 +90,7 @@ class GPSService:
                 if actualizar_marcador_miembros and ubicacion_miembro["data"]: # 'data' es la forma en la que llega la info de la ubicacion en el stream del listener
                     lat = ubicacion_miembro["data"].get("latitud")
                     lon = ubicacion_miembro["data"].get("longitud")
+                    timestamp = ubicacion_miembro["data"].get("timestamp")
 
                     if miembro not in self.datos_miembros_cache: # comprobamos si el miembro esta en la cache
                         nombre_miembro = db.child("usuarios").child(miembro).child("nombre").get().val()
@@ -97,8 +98,8 @@ class GPSService:
                         self.datos_miembros_cache[miembro] = {"nombre" : nombre_miembro, "color": color_miembro} # si no esta obtenemos sus datos de firebase para dibujar el marcador
                     datos_miembro = self.datos_miembros_cache[miembro] # en cualquier caso obtenemos asi el nombre y el color que seran enviados al mapa
 
-                    if lat and lon:
-                        actualizar_marcador_miembros(miembro, datos_miembro, lat, lon) # indicamos el miembro, con su nombre y color y su localizacion para que el mapa lo pueda pintar
+                    if lat and lon and timestamp:
+                        actualizar_marcador_miembros(miembro, datos_miembro, lat, lon, timestamp) # indicamos el miembro, con su nombre y color y su localizacion para que el mapa lo pueda pintar
             return cambio_ubicacion_miembro
 
         # listener para recibir cada vez que haya un cambio en la ubicacion de un miembro de los grupos a los que pertenece el usuario
@@ -134,10 +135,10 @@ class GPSService:
         if not await permitir_ubicacion(geo): # solicitamos el permiso de ubicacion
             return # para salir del programa si no se han concedido los permisos de ubicacion
         
-        lat, lon = await posicion_inicial(geo) # obtenemos la posicion actual del usuario
+        lat, lon, timestamp = await posicion_inicial(geo) # obtenemos la posicion actual del usuario
         
         if actualizar_marcador_usuario: 
-            actualizar_marcador_usuario(self.datos_usuario, lat, lon) # llamamos a la funcion del mapa para pintar el marcador propio personalizado con la posicion inicial
+            actualizar_marcador_usuario(self.datos_usuario, lat, lon, timestamp) # llamamos a la funcion del mapa para pintar el marcador propio personalizado con la posicion inicial
 
         for miembro in self.miembros_grupos:
             hilo_listener = Thread(target=listener_ubicacion_miembros, args=(miembro,)) # el listener va en un hilo para que pueda estar escuchando y no bloquee el programa, un hilo por miembro

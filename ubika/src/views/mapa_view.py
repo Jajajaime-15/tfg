@@ -55,3 +55,45 @@ class MapaVista:
         )
         self.marker_layer_miembros.markers = list(self.marcadores_miembros.values())
         self.page.update()
+    
+    # funcion para mostrar la informacion de cada usuario al pulsar el marcador
+    def mostrar_info_marcador(self, nombre, lat, lon, timestamp):
+        def cerrar_marcador(e): # para poder cerrar el marcador
+            info_marcador.open = False
+            self.page.update()
+
+        info_marcador = ft.AlertDialog( # la ventana que se abre al pulsar el marcador
+            content=ft.Column(
+                [
+                    ft.Text(
+                        f"Latitud: {lat}",
+                        color="#000000"
+                    ),
+                    ft.Text(
+                        f"Longitud: {lon}",
+                        color="#000000"
+                    ),
+                    ft.Text(
+                        f"Día y hora de la ubicación: {timestamp}",
+                        color="#000000"
+                    )
+                ],
+                tight=True # para que se ajuste al contenido que se muestra
+            ),
+            title=ft.Text(
+                nombre,
+                color="#1A6AFE"
+            ),
+            actions=[
+                ft.TextButton(
+                    ft.Text("Cerrar"),
+                    style=ft.ButtonStyle(color="#1A6AFE"),
+                    on_click=cerrar_marcador # al pulsar el boton de cerrar
+                )
+            ],
+            bgcolor="#FFFFFF",
+            open=True # para que se abra la ventana
+        )
+
+        self.page.overlay.append(info_marcador)
+        self.page.update()
