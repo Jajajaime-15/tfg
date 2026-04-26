@@ -9,7 +9,7 @@ from controllers.ajustes_controller import AjustesController
 from router import Router
 
 async def main(page: ft.Page):
-    page.title = "PROYECTO TFG"
+    page.title = "UBIKA"
     page.window_width = 400
     page.window_height = 700
     
