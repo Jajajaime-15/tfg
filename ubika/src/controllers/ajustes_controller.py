@@ -1,5 +1,6 @@
 import flet as ft # type: ignore
 import asyncio
+import json
 
 class AjustesController:
     def __init__(self, page, ajustes_service, usuario_service,vista = None):
@@ -93,8 +94,11 @@ class AjustesController:
     async def borrar_cuenta(self, e):
         exito, aviso = await self.service.borrar_cuenta()
         if exito:
+            # limpiamos lo guardado en memoria
             self.usuario_s.id_usuario = None
             self.usuario_s.token = None
+            self.service.id_usuario = None
+            self.service.token = None
             # recorremos el overlay para cerrar cualquier diálogo abierto
             for control in self.page.overlay:
                 if isinstance(control,ft.AlertDialog):
@@ -145,14 +149,20 @@ class AjustesController:
         if exito:
             id_user = await self.page.shared_preferences.get("id_usuario")
             token = await self.page.shared_preferences.get("token")
-            if nuevo_estado:
-                print(f"Ubicación activada")
-            else:
+            if not nuevo_estado:
                 try:
-                    self.usuario_s.db.child("ubicaciones").child(id_user).remove(token) # eliminamos también la ultima posicion del usuario en el mapa
-                    print("Ubicación desactivada")
+                    grupos_guardados = await self.page.shared_preferences.get("grupos")
+                    grupos = json.loads(grupos_guardados) if grupos_guardados else {}
+                    if grupos:
+                        for id_grupo in grupos.keys():
+                            self.usuario_s.db.child("ubicaciones").child(id_grupo).child(id_user).remove(token)
+                        print("Ubicación desactivada en todos los grupos")
+                    else:
+                        print("Ubicación desactivada")
                 except Exception as ex:
-                    print(f"Error al eliminar la ubicación: {ex}")
+                    print(f"Error al desactivar la ubicación: {ex}")
+            else:
+                print ("Ubicación activada")
         else:
             print(f"Error al sincronizar con firebase: {estado}")
         self.page.update()
@@ -179,5 +189,6 @@ class AjustesController:
             else:
                 self.vista.ubicacion.value = False
 
+            self.vista.btn_tema.update()
             self.vista.ubicacion.update() # obligamos a que se active/desactive el switch según la configuración guardada en la última sesión
             self.page.update()
