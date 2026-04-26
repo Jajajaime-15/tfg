@@ -1,3 +1,5 @@
+import json
+
 class AjustesService:
     def __init__(self, page, firebase_service, auth_service):
         self.page = page
@@ -41,12 +43,16 @@ class AjustesService:
         try:
             self.id_usuario = await self.page.shared_preferences.get("id_usuario")
             self.token = await self.page.shared_preferences.get("token")
-
+            # obtenemos el grupo o grupos al que pertenece
+            grupos_guardados = await self.page.shared_preferences.get("grupos")
+            grupos = json.loads(grupos_guardados) if grupos_guardados else {} 
             if self.id_usuario and self.token:
                 # borramos toda la informacion de la base de datos (de Realtime)
                 self.db.child("usuarios").child(self.id_usuario).remove(self.token)
-                # borramos la última posición guardada del usuario para que no se quede marcada al eliminar la cuenta
-                self.db.child("ubicaciones").child(self.id_usuario).remove(self.token)
+                # borramos la última posición guardada del usuario en todos los grupos para que no se quede marcada al eliminar la cuenta
+                if grupos:
+                    for id_grupo in grupos.keys():
+                        self.db.child("ubicaciones").child(id_grupo).child(self.id_usuario).remove(self.token)
                 # borramos el usuario de Authentication
                 self.auth.delete_user_account(self.token)
                 # una vez eliminado cerramos sesión
@@ -64,7 +70,9 @@ class AjustesService:
                 try:
                     self.token = await self.page.shared_preferences.get("token")
                     self.db.child("usuarios").child(self.id_usuario).remove(self.token)
-                    self.db.child("ubicaciones").child(self.id_usuario).remove(self.token)
+                    if grupos:
+                        for id_grupo in grupos.keys():
+                            self.db.child("ubicaciones").child(id_grupo).child(self.id_usuario).remove(self.token)
                     self.auth.delete_user_account(self.token)
                     await self.auth_s.cerrar_sesion()
                     return True, "La cuenta ha sido eliminada"
