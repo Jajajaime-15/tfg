@@ -1,12 +1,12 @@
 [project]
-name = "Ubika"
+name = "ubika"
 version = "0.1.0"
 description = ""
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    { name = "Alba Barroso" }, 
-    { name = "Julio Flores" }, 
+    { name = "Alba Barroso" },
+    { name = "Julio Flores" },
     { name = "Jaime Ruiz" }
 ]
 dependencies = [
@@ -25,16 +25,20 @@ dev = [
 ]
 
 [tool.flet]
-org = "com.mycompany"
+org = "com.ubika.tfg"
 product = "Ubika"
-company = "Flet"
+icon = "assets/android/res/icono_ubika.png"
+company = "Equipo TFG"
 copyright = "Copyright (C) 2023-2026 by Flet"
-permissions = ["location"]
 
 [tool.flet.app]
 path = "src"
 
-[tool.flet.android.permission]
-"android.permission.ACCESS_FINE_LOCATION" = true
-"android.permission.ACCESS_COARSE_LOCATION" = true
-"android.permission.ACCESS_BACKGROUND_LOCATION" = true
+[tool.flet.android]
+adaptive_icon_foreground = "assets/android/res/icono_ubika.png"
+adaptive_icon_background = "#FFFFFF"
+permissions = [
+    "ACCESS_FINE_LOCATION",
+    "ACCESS_COARSE_LOCATION",
+    "ACCESS_BACKGROUND_LOCATION"
+]
