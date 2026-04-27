@@ -42,15 +42,6 @@ class VistaGrupos:
             on_click=self.crear_grupo
         )
 
-        self.btn_eliminar_grupo = ft.ElevatedButton(
-            content=ft.Text("Eliminar grupo"),
-            icon=ft.Icons.DELETE,
-            bgcolor="#FF4136",
-            color="white",
-            width=200,
-            on_click=self.eliminar_grupo
-        )
-        
 
         self.inferior = ft.NavigationBar( # POR QUE ESTA LA BARRA AQUI? NO SE SUPONE QUE LA TENEMOS SOLO EN HOME?
             selected_index=0,
@@ -71,7 +62,6 @@ class VistaGrupos:
         async def manejador(e):
             # Seleccionar el grupo para operaciones mas adelante como eliminar o actualizar el nombre
             self.grupo_seleccionado = grupo_nombre
-            self.nombre_grupo_input.value = grupo_nombre
             self.page.update()
         return manejador    
 
@@ -102,21 +92,21 @@ class VistaGrupos:
 
        
 
-    async def eliminar_grupo(self, e):
+    def eliminar_grupo_desde_tarjeta(self, nombre_grupo):
         # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
         self.btn_crear_grupos.disabled = True
         self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
         self.page.update()
 
         # llamamos a la función para eliminar un grupo
-        await self.group_controller.eliminar_grupo(
-            self.nombre_grupo_input,
-            self.mensaje_error
+        self.page.run_task(
+        self.group_controller.eliminar_grupo,
+        nombre_grupo,
+        self.mensaje_error
         )
 
         # activamos de nuevo el botón
-        self.btn_crear_grupos.disabled = False
-        self.page.update()       
+        self.btn_crear_grupos.disabled = False 
 
     def anyadir_integrante_desde_tarjeta(self, nombre_grupo, integrante_field):
         # Funcion para manejar el click en el botón anyadir desde la tarjeta del grupo
@@ -193,7 +183,8 @@ class VistaGrupos:
                     tarjeta_grupos(grupos, 
                                    self.integrantes[i] if self.integrantes else "", 
                                    on_click_tarjeta=self.manejador_tarjeta(grupos),
-                                   on_click_anyadir=self.anyadir_integrante_desde_tarjeta,),
+                                   on_click_anyadir=self.anyadir_integrante_desde_tarjeta,
+                                   on_click_eliminar=self.eliminar_grupo_desde_tarjeta,),
                                    
                 )
                 for i, grupos in enumerate(self.datos_grupo or [])
@@ -228,7 +219,6 @@ class VistaGrupos:
                         self.nombre_grupo_input,
                         self.integrante_input,
                         self.btn_crear_grupos,
-                        self.btn_eliminar_grupo,
                     ],
                 ),
                 # Centro dinámico (expande para ocupar el espacio)

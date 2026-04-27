@@ -69,6 +69,16 @@ def plus_Button(on_click=None, width=150, disabled=False, loading=False):
     
     return boton
 
+def delete_Button(on_click=None, width=150, disabled=False, loading=False):
+    
+    boton = ft.Button(
+        content=ft.Icon(ft.CupertinoIcons.DELETE),
+        disabled=disabled or loading,
+        on_click=on_click if not disabled and not loading else None,
+    )
+    
+    return boton
+
 def SecondaryButton(text, on_click=None, width=150, disabled=False, loading=False):
     
     # Este segundo boton se utilizará principalmente para acciones secundarias, como "Registrarse", "Cancelar", etc.
@@ -126,7 +136,7 @@ def SecondaryButton(text, on_click=None, width=150, disabled=False, loading=Fals
     
     return boton
 
-def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None, on_click_anyadir=None, width=400):
+def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None, on_click_anyadir=None, on_click_eliminar=None, width=400):
     """
     Crea una tarjeta para mostrar información de un grupo.
     
@@ -168,6 +178,11 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None, on_click_
             # Llamar a on_click_anyadir con el nombre del grupo y el integrante
             on_click_anyadir(nombre_grupo, integrante_field)
 
+    def on_delete_click(e):
+        if on_click_eliminar:
+            # Llamar a on_click_anyadir con el nombre del grupo y el integrante
+            on_click_eliminar(nombre_grupo)        
+
     content = ft.Column(
         controls=[
             ft.Row(
@@ -181,7 +196,10 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None, on_click_
             ft.Container(expand=True),
             ft.Divider(height=10, thickness=1),
             ft.Row(
-            [plus_Button(on_click=on_plus_click, width=30)],
+            controls=[
+                plus_Button(on_click=on_plus_click, width=30),
+                delete_Button(on_click=on_delete_click, width=30),
+            ],
             alignment=ft.MainAxisAlignment.END, 
         ),
         ],

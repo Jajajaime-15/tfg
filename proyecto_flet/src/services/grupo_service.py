@@ -66,6 +66,7 @@ class Wrapper:
         
     # función para eliminar grupos
     async def eliminar_grupo(self, nombre_grupo):
+        #FALTA CAMBIAR QUE SE ELIMINE TAMBIEN DEL USUARIO
         try:
             if not self.token or not self.id_usuario:
                 return False, "Debes iniciar sesión para eliminar un grupo"

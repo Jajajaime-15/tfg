@@ -33,32 +33,33 @@ class GroupController:
 
         self.page.update()
 
-    async def eliminar_grupo (self,nombre,mensaje):
+    async def eliminar_grupo (self,nombre_grupo,mensaje):
         mensaje.value = ""
         self.page.update()
 
-        datos = [nombre.value]
-
-        if not all (datos):
-            mensaje.value = "Todos los campos son obligatorios"
+        # Si nombre_grupo es un objeto o string
+        if hasattr(nombre_grupo, 'value'):
+            nombre = nombre_grupo.value
         else:
-            borrado, aviso = await self.wrapper.eliminar_grupo(nombre.value)
+            nombre = nombre_grupo
+
+        if not nombre:
+            mensaje.value = "El nombre del grupo es obligatorio"
+            mensaje.color = "red"
+        else:
+            borrado, aviso = await self.wrapper.eliminar_grupo(nombre)
             if borrado:
-                # provisional para confirmar en pantalla el registro
                 mensaje.value = "Grupo eliminado correctamente"
                 mensaje.color = "green"
                 self.page.update()
-                await asyncio.sleep(2)
-                await self.page.push_route("/")
-                '''# uso de snack_bar para mostrar el aviso de registrado y que desaparezca solo NO ME APARECE
-                self.page.snack_bar = ft.SnackBar(ft.Text("Grupo creado correctamente"))
-                self.page.snack_bar.open = True'''
+                await asyncio.sleep(1.5)
+                mensaje.value = ""  
             else:
-                mensaje.value = f"Error al crear grupo: {aviso}"
+                mensaje.value = f"Error al eliminar grupo: {aviso}"
                 mensaje.color = "red"
 
 
-        self.page.update()    
+            self.page.update()    
 
         
     async def mostrar_grupos(self, mensaje):
