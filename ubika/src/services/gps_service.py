@@ -33,11 +33,11 @@ class GPSService:
         def cambio_ubicacion(cambio: ftg.GeolocatorPositionChangeEvent): # para el on position change del geolocator
             latitud = cambio.position.latitude
             longitud = cambio.position.longitude
-            timestamp = cambio.position.timestamp
+            timestamp = str(cambio.position.timestamp)
             loc = {
                 "latitud" : latitud,
                 "longitud" : longitud,
-                "timestamp" : str(timestamp)
+                "timestamp" : timestamp
             }
 
             if self.grupos:
