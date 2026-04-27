@@ -1,8 +1,8 @@
-pip install python-dotenv
-pip install pyrebase4
-pip install flet==0.80.5 
-pip install flet-cli==0.80.5 
-pip install flet-desktop==0.80.5 
-pip install flet-geolocator==0.80.5 
-pip install flet-map==0.80.5 
-pip install flet-web==0.80.5
+python-dotenv
+pyrebase4
+flet==0.80.5 
+flet-cli==0.80.5 
+flet-desktop==0.80.5 
+flet-geolocator==0.80.5 
+flet-map==0.80.5 
+flet-web==0.80.5
