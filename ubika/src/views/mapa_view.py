@@ -22,7 +22,6 @@ class MapaVista:
             max_zoom=23,
             on_tap=None, # lo que hara en caso de pulsar una vez en el mapa 
             on_secondary_tap=None, # lo mismo pero dos veces
-            on_event=print, # lo que hara en cada evento del mapa, para depurar he puesto que imprima cada accion en la consola
             interaction_configuration=ftm.InteractionConfiguration( 
                 flags=ftm.InteractionFlag.ALL # para habilitar todas las opciones de interaccion con el mapa (zoom, drag, etc)
             ),

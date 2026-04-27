@@ -26,7 +26,11 @@ Copy-Item -Path $SOURCE -Destination $DEST -Recurse
 Write-Host "      OK -> $DEST" -ForegroundColor Green
 
 # 2. Entrar al directorio limpio
-Set-Location "$DEST\ubika"
+if (Test-Path "$DEST\ubika") {
+    Set-Location "$DEST\ubika"
+} else {
+    Set-Location $DEST
+}
 
 # 3. Buildear
 Write-Host ""
