@@ -88,20 +88,20 @@ class GroupController:
         mensaje.value = ""
         self.page.update()
         
-        print(f"Intentando añadir participante en el controller '{nombre_grupo}'")  
-        datos = [nombre_grupo, nuevo_integrante.value]
+        nombre_integrante = nuevo_integrante
+        datos = [nombre_grupo, nombre_integrante]
 
         if not all (datos):
             mensaje.value = "Todos los campos son obligatorios"
         else:
-            anyadido, aviso = await self.wrapper.anyadir_participante(nombre_grupo.value, nuevo_integrante.value)
+            anyadido, aviso = await self.wrapper.anyadir_participante(nombre_grupo, nombre_integrante)
             if anyadido:
                 # provisional para confirmar en pantalla el registro
                 mensaje.value = "Participante añadido correctamente"
                 mensaje.color = "green"
                 self.page.update()
                 await asyncio.sleep(2)
-                await self.page.push_route("/")
+                #await self.page.push_route("/")
             else:
                 mensaje.value = f"Error al crear grupo: {aviso}"
                 mensaje.color = "red"

@@ -126,7 +126,7 @@ def SecondaryButton(text, on_click=None, width=150, disabled=False, loading=Fals
     
     return boton
 
-def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None, on_click_boton=None, width=400):
+def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None, on_click_anyadir=None, width=400):
     """
     Crea una tarjeta para mostrar información de un grupo.
     
@@ -154,20 +154,34 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None, on_click_
             ft.Text("Sin miembros", size=14, color=ft.Colors.GREY_600)
         )
     
+    # Crear el TextField para nuevo integrante
+    integrante_field = ft.TextField(
+        label="Nuevo integrante", 
+        width=200, 
+        color=ft.Colors.BLACK,
+        hint_text="Nombre del integrante"
+    )
+
+    # Función para manejar el click en el botón anyadir
+    def on_plus_click(e):
+        if on_click_anyadir:
+            # Llamar a on_click_anyadir con el nombre del grupo y el integrante
+            on_click_anyadir(nombre_grupo, integrante_field)
+
     content = ft.Column(
         controls=[
             ft.Row(
                 ft.Text(nombre_grupo, size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
                 alignment=ft.MainAxisAlignment.CENTER
                 ),  # Espacio superior,
-            ft.Text(f"Miembros: {len(miembros)}", size=14, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK), # Botón para agregar miembros
-            ft.TextField(label="Nuevo integrante", width=200, color=ft.Colors.BLACK),
+            ft.Text(f"Miembros: {len(miembros)}", size=14, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+            integrante_field,
             ft.Divider(height=10, thickness=1),
             ft.Column(miembros_controls, spacing=5, scroll=ft.ScrollMode.AUTO),
             ft.Container(expand=True),
             ft.Divider(height=10, thickness=1),
             ft.Row(
-            [plus_Button(on_click=on_click_boton, width=30)],
+            [plus_Button(on_click=on_plus_click, width=30)],
             alignment=ft.MainAxisAlignment.END, 
         ),
         ],

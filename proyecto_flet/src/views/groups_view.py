@@ -51,14 +51,6 @@ class VistaGrupos:
             on_click=self.eliminar_grupo
         )
         
-        self.btn_anyadir_integrante = ft.ElevatedButton(
-            content=ft.Text("Añadir integrante"),
-            icon=ft.Icons.DELETE, # DELETE PARA AÑADIR?
-            bgcolor="#FF4136",
-            color="white",
-            width=200,
-            on_click=self.anyadir_integrante
-        )
 
         self.inferior = ft.NavigationBar( # POR QUE ESTA LA BARRA AQUI? NO SE SUPONE QUE LA TENEMOS SOLO EN HOME?
             selected_index=0,
@@ -77,9 +69,7 @@ class VistaGrupos:
 
     def manejador_tarjeta(self, grupo_nombre):
         async def manejador(e):
-            await self.anyadir_integrante(grupo_seleccionado=grupo_nombre)
-            print(f"Tarjeta seleccionada: {grupo_nombre}")
-            # Aquí puedo añadir acciones del grupo seleccionado
+            # Seleccionar el grupo para operaciones mas adelante como eliminar o actualizar el nombre
             self.grupo_seleccionado = grupo_nombre
             self.nombre_grupo_input.value = grupo_nombre
             self.page.update()
@@ -106,10 +96,6 @@ class VistaGrupos:
             self.mensaje_error
         )
         
-        # obtenemos solo los nombres de los grupos para mostrarlos en las tarjetas
-        print(f"Grupos disponibles: {self.datos_grupo}") # mostramos en consola los grupos disponibles para comprobar que se están recuperando correctamente
-        
-
         # activamos de nuevo el botón
         self.btn_crear_grupos.disabled = False
         self.page.update()    
@@ -130,42 +116,65 @@ class VistaGrupos:
 
         # activamos de nuevo el botón
         self.btn_crear_grupos.disabled = False
-        self.page.update()        
+        self.page.update()       
 
-    async def anyadir_integrante(self, grupo_seleccionado=None):
-        # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
-        self.btn_crear_grupos.disabled = True
-        self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
-        self.page.update()
-        # llamamos a la función para añadir un integrante a un grupo
-        await self.group_controller.anyadir_participante(
-            grupo_seleccionado,
-            self.integrante_input,
-            self.mensaje_error
+    def anyadir_integrante_desde_tarjeta(self, nombre_grupo, integrante_field):
+        # Funcion para manejar el click en el botón anyadir desde la tarjeta del grupo
+
+        # Extraer el valor del TextField
+        nombre_integrante = integrante_field.value
+        
+        # Validar que no esté vacío
+        if not nombre_integrante or nombre_integrante.strip() == "":
+            integrante_field.error_text = "El nombre del integrante no puede estar vacío"
+            integrante_field.value = ""
+            self.page.update()
+            return
+        
+        # Limpiar errores y el valor del TextField para la proxima vez
+        integrante_field.error_text = None
+        integrante_field.value = ""
+        
+        self.page.run_task(
+        self.group_controller.anyadir_participante,
+        nombre_grupo,
+        nombre_integrante,
+        self.mensaje_error
         )
 
-        # activamos de nuevo el botón
-        self.btn_crear_grupos.disabled = False
-        self.page.update()     
+        #AQUI SE ACTUALIZARA LA INFORMACION DE LOS GRUPOS PARA QUE SE VEA EL NUEVO INTEGRANTE
 
-    async def cambiar_pestana(self, e):
-        indice = e.control.selected_index # guardamos el indice del botón que se selecciona
-        
-        if indice == 0:
-            await self.obtener_info_grupos()
-            self.centro.content = ft.Row(
+    async def actualizar_tarjetas_grupos(self):
+        # obtener info de los grupos
+        await self.obtener_info_grupos()
+
+        # Actualizar el contenido del centro con las nueva informacion de los grupos
+        self.centro.content = ft.Row(
             expand=True,
             spacing=10,
             scroll=ft.ScrollMode.AUTO,
             controls=[
                 ft.Container(
-                    tarjeta_grupos(grupos, self.integrantes[i] if self.integrantes else "", on_click_tarjeta=self.manejador_tarjeta(grupos)),
+                    tarjeta_grupos(
+                        grupos, 
+                        self.integrantes[i] if self.integrantes and i < len(self.integrantes) else [], 
+                        on_click_tarjeta=self.manejador_tarjeta(grupos),
+                        on_click_anyadir=self.anyadir_integrante_desde_tarjeta  
+                    ),
                 )
                 for i, grupos in enumerate(self.datos_grupo or [])
             ],
         )
+        self.page.update()
+    
+
+    async def cambiar_pestana(self, e):
+        indice = e.control.selected_index # guardamos el indice del botón que se selecciona
+        
+        if indice == 0:
+            await self.actualizar_tarjetas_grupos()
         elif indice == 1:
-            # aqui el controlador de mapay agregamos al centro la vista del mapa
+            # aqui el controlador de mapa y agregamos al centro la vista del mapa
             print ("MAPA JAIME")
         elif indice == 2:
             self.centro.content = VistaPerfil(self.page, self.user_controller).vista() # aqui el controlador de perfil y agregamos al centro la vista del perfil
@@ -181,7 +190,11 @@ class VistaGrupos:
             scroll=ft.ScrollMode.AUTO,
             controls=[
                 ft.Container(
-                    tarjeta_grupos(grupos, self.integrantes[i] if self.integrantes else "", on_click_tarjeta=self.manejador_tarjeta(grupos)),
+                    tarjeta_grupos(grupos, 
+                                   self.integrantes[i] if self.integrantes else "", 
+                                   on_click_tarjeta=self.manejador_tarjeta(grupos),
+                                   on_click_anyadir=self.anyadir_integrante_desde_tarjeta,),
+                                   
                 )
                 for i, grupos in enumerate(self.datos_grupo or [])
             ],

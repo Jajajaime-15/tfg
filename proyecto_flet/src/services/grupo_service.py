@@ -143,67 +143,55 @@ class Wrapper:
             print(f"Error al mostrar grupos: {e}")
             return [], [], False
         
+    
     async def anyadir_participante(self, nombre_grupo, nuevo_integrante):
         try:
             if not self.token or not self.id_usuario:
                 return False, "Debes iniciar sesión para añadir participantes"
             
+            # Obtener todos los grupos
+            grupos = self.db.child("grupos").get(self.token).val()
             
-            # Leer todos los grupos del usuario con ruta absoluta
-            ruta_grupos_usuario = f"usuarios/{self.id_usuario}/id_grupo"
-            grupos_usuario = self.db.child(ruta_grupos_usuario).get(self.token).val()
+            if not grupos:
+                return False, "No hay grupos en la base de datos"
             
-            if not grupos_usuario:
-                return False, "No tienes grupos para añadir participantes"
+            # Buscar el grupo por nombre y admin 
+            id_grupo_encontrar = None
+            datos_grupo_encontrar = None
             
-            # Buscar el grupo por nombre y obtener su ID
-            buscar_id_grupo = None
-            for id_grupo, info_grupo in grupos_usuario.items():
-                if info_grupo.get("nombre") == nombre_grupo:
-                    buscar_id_grupo = id_grupo
+            for id_grupo, datos_grupo in grupos.items():
+                if datos_grupo.get("nombre") == nombre_grupo and datos_grupo.get("admin") == self.id_usuario:
+                    id_grupo_encontrar = id_grupo
+                    datos_grupo_encontrar = datos_grupo
                     break
             
-            if not buscar_id_grupo:
-                return False, f"No se encontró el grupo '{nombre_grupo}'"
+            if not id_grupo_encontrar:
+                return False, f"No se encontró el grupo '{nombre_grupo}' o no eres el administrador"
             
-            # Obtener el grupo del nodo "grupos" para ver los integrantes actuales
-            ruta_grupo = f"grupos/{buscar_id_grupo}"
-            datos_grupo = self.db.child(ruta_grupo).get(self.token).val()
+            # Obtener los miembros
+            miembros = datos_grupo_encontrar.get("miembros", [])
             
-            if not datos_grupo:
-                return False, "El grupo no existe en la base de datos"
+            # Verificar que miembros sea una lista
+            if isinstance(miembros, str):
+                miembros = [miembros] if miembros else []
+            elif miembros is None:
+                miembros = []
             
-            # Obtener la lista actual de integrantes
-            integrantes_actuales = datos_grupo.get("integrante", "")
+            # Verificar si ya existe
+            if nuevo_integrante in miembros:
+                return False, "El integrante ya está en el grupo"
             
-            # convertir a lista si es un string vacío o solo un nombre
-            if isinstance(integrantes_actuales, str):
-                if integrantes_actuales:
-                    lista_integrantes = [integrantes_actuales]
-                else:
-                    lista_integrantes = []
-            else:
-                lista_integrantes = integrantes_actuales if isinstance(integrantes_actuales, list) else []
+            # Añadir el nuevo integrante
+            miembros.append(nuevo_integrante)
             
-            # Verificar si el nuevo integrante ya existe
-            if nuevo_integrante in lista_integrantes:
-                return False, f"El integrante '{nuevo_integrante}' ya esta en el grupo"
+            # Actualizar usando el ID del grupo
+            self.db.child(f"grupos/{id_grupo_encontrar}").update({"miembros": miembros}, self.token)
             
-            # Agregar el nuevo integrante a la lista
-            lista_integrantes.append(nuevo_integrante)
-            
-            # Guardar la lista actualizada en el nodo grupos
-            self.db.child(ruta_grupo).update({"integrante": lista_integrantes}, self.token)
-            
-            # Actualizar la copia dentro del usuario
-            grupos_usuario[buscar_id_grupo]["integrante"] = lista_integrantes
-            self.db.child(ruta_grupos_usuario).set(grupos_usuario, self.token)
-            
-            print(f" Integrante '{nuevo_integrante}' añadido al grupo '{nombre_grupo}'")
-            return True, f" Integrante añadido correctamente"
-            
+            print(f"Integrante '{nuevo_integrante}' añadido al grupo '{nombre_grupo}'")
+            return True, "Integrante añadido correctamente"
+
         except Exception as e:
-            print(f" Error al añadir participante: {e}")
+            print(f"Error al añadir participante: {e}")
             return False, str(e)
-        
-        
+            
+            
