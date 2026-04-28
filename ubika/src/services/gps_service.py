@@ -142,6 +142,7 @@ class GPSService:
 
         for miembro in self.miembros_grupos:
             hilo_listener = Thread(target=listener_ubicacion_miembros, args=(miembro,)) # el listener va en un hilo para que pueda estar escuchando y no bloquee el programa, un hilo por miembro
+            hilo_listener.daemon = True # para que muera el hilo siempre que se cierre la app
             hilo_listener.start()
 
         return lat, lon, geo # para poder dibujar la posicion inicial en el mapa y pasar el geo para añadirlo a la pagina desde el mapa en un Stack
