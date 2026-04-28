@@ -108,6 +108,31 @@ class GPSService:
                 for grupo in self.grupos.keys():
                     # el stream hace que escuchemos constantemente esta parte de realtime por si hay cambios y llamamos al callback
                     db.child("ubicaciones").child(grupo).child(miembro).stream(callback_miembro(miembro)) 
+        
+        # funcion para cargar la posicion inicial de los miembros, que sera su ultima posicion conocida, antes de entrar en el stream del listener
+        def posicion_inicial_miembros():
+            for miembro in self.miembros_grupos:
+                if not self.grupos:
+                    break
+                for grupo in self.grupos.keys():
+                    try:
+                        posicion = db.child("ubicaciones").child(grupo).child(miembro).get().val()
+                        if posicion:
+                            latitud = posicion.get("latitud")
+                            longitud = posicion.get("longitud")
+                            timestamp = posicion.get("timestamp")
+                        
+                            if latitud and longitud and timestamp:
+                                if miembro not in self.datos_miembros_cache:
+                                    nombre_miembro = db.child("usuarios").child(miembro).child("nombre").get().val()
+                                    color_miembro = db.child("usuarios").child(miembro).child("color_avatar").get().val()
+                                    self.datos_miembros_cache[miembro] = {"nombre" : nombre_miembro, "color": color_miembro}
+
+                                if actualizar_marcador_miembros:
+                                    datos_miembro = self.datos_miembros_cache[miembro]
+                                    actualizar_marcador_miembros(miembro, datos_miembro, latitud, longitud, timestamp)
+                    except Exception as e:
+                        print(f"Error al cargar la posicion inicial del miembro {miembro}: {e}")
 
         if self.page.platform == ft.PagePlatform.ANDROID:
             configuracion = ftg.GeolocatorAndroidConfiguration( # configuracion solo para dispositivos Android
@@ -139,6 +164,9 @@ class GPSService:
         
         if actualizar_marcador_usuario: 
             actualizar_marcador_usuario(self.datos_usuario, lat, lon, timestamp) # llamamos a la funcion del mapa para pintar el marcador propio personalizado con la posicion inicial
+
+        # para cargar la ultima posicion registrada de los miembros antes de iniciar el listener de sus posiciones
+        posicion_inicial_miembros()
 
         for miembro in self.miembros_grupos:
             hilo_listener = Thread(target=listener_ubicacion_miembros, args=(miembro,)) # el listener va en un hilo para que pueda estar escuchando y no bloquee el programa, un hilo por miembro
