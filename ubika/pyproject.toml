@@ -27,7 +27,6 @@ dev = [
 [tool.flet]
 org = "com.ubika.tfg"
 product = "Ubika"
-icon = "assets/android/res/icono_ubika.png"
 company = "Equipo TFG"
 copyright = "Copyright (C) 2023-2026 by Flet"
 
@@ -35,8 +34,6 @@ copyright = "Copyright (C) 2023-2026 by Flet"
 path = "src"
 
 [tool.flet.android]
-adaptive_icon_foreground = "assets/android/res/icono_ubika.png"
-adaptive_icon_background = "#FFFFFF"
 permissions = [
     "ACCESS_FINE_LOCATION",
     "ACCESS_COARSE_LOCATION",
