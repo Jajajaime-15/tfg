@@ -40,6 +40,7 @@ class AjustesService:
         
     # funcion para eliminar la cuenta y los datos de dicha cuenta
     async def borrar_cuenta(self):
+        grupos = {}
         try:
             self.id_usuario = await self.page.shared_preferences.get("id_usuario")
             self.token = await self.page.shared_preferences.get("token")

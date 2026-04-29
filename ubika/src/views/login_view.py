@@ -10,7 +10,7 @@ class VistaLogin:
         self.controlador.vista = self
 
         self.logo = ft.Image(
-            src="logo2.png",
+            src="logo.png",
             width=200,
             height=120,
             fit="contain"

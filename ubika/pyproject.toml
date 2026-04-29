@@ -1,11 +1,13 @@
 [project]
-name = "proyecto-flet"
+name = "ubika"
 version = "0.1.0"
 description = ""
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    { name = "Alba Barroso" }, { name = "Julio Flores" }, { name = "Jaime Ruiz" }
+    { name = "Alba Barroso" },
+    { name = "Julio Flores" },
+    { name = "Jaime Ruiz" }
 ]
 dependencies = [
     "flet==0.80.5",
@@ -23,16 +25,17 @@ dev = [
 ]
 
 [tool.flet]
-org = "com.mycompany"
-product = "proyecto-flet"
-company = "Flet"
+org = "com.ubika.tfg"
+product = "Ubika"
+company = "Equipo TFG"
 copyright = "Copyright (C) 2023-2026 by Flet"
-permissions = ["location"]
 
 [tool.flet.app]
 path = "src"
 
-[tool.flet.android.permission]
-"android.permission.ACCESS_FINE_LOCATION" = true
-"android.permission.ACCESS_COARSE_LOCATION" = true
-"android.permission.ACCESS_BACKGROUND_LOCATION" = true
+[tool.flet.android]
+permissions = [
+    "ACCESS_FINE_LOCATION",
+    "ACCESS_COARSE_LOCATION",
+    "ACCESS_BACKGROUND_LOCATION"
+]
