@@ -1,28 +1,41 @@
 [project]
-name = "proyecto-flet"
+name = "ubika"
 version = "0.1.0"
 description = ""
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    { name = "Flet developer", email = "you@example.com" }
+    { name = "Alba Barroso" },
+    { name = "Julio Flores" },
+    { name = "Jaime Ruiz" }
 ]
 dependencies = [
-    "flet>=0.81.0"
+    "flet==0.80.5",
+    "pyrebase4==4.9.0",
+    "flet-geolocator==0.80.5",
+    "flet-map==0.80.5",
+    "python-dotenv",
 ]
 
 [dependency-groups]
 dev = [
-    "flet-cli>=0.81.0",
-    "flet-desktop>=0.81.0",
-    "flet-web>=0.81.0",
+    "flet-cli==0.80.5",
+    "flet-desktop==0.80.5",
+    "flet-web==0.80.5",
 ]
 
 [tool.flet]
-org = "com.mycompany"
-product = "proyecto-flet"
-company = "Flet"
+org = "com.ubika.tfg"
+product = "Ubika"
+company = "Equipo TFG"
 copyright = "Copyright (C) 2023-2026 by Flet"
 
 [tool.flet.app]
 path = "src"
+
+[tool.flet.android]
+permissions = [
+    "ACCESS_FINE_LOCATION",
+    "ACCESS_COARSE_LOCATION",
+    "ACCESS_BACKGROUND_LOCATION"
+]
