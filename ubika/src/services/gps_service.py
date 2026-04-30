@@ -3,6 +3,7 @@ import pyrebase # para firebase
 import flet_geolocator as ftg # para la geolocalizacion
 from threading import Thread # para los hilos
 from database.config import config_keys # las claves que tenemos en el .env
+import asyncio
 
 firebase = pyrebase.initialize_app(config_keys) # iniciamos firebase
 db = firebase.database() # instanciamos la base de datos y la autenticacion
@@ -29,6 +30,18 @@ class GPSService:
                         self.miembros_grupos.append(miembro)
 
     async def gps(self, actualizar_marcador_usuario=None, actualizar_marcador_miembros=None): # recibe las funciones para actualizar los marcadores en tiempo real
+
+        cola_miembros = asyncio.Queue()
+        bucle = asyncio.get_event_loop()
+
+        async def procesar_cola():
+            while True:
+                miembro, datos_miembro, lat, lon, timestamp = await cola_miembros.get()
+                if actualizar_marcador_miembros:
+                    actualizar_marcador_miembros(miembro, datos_miembro, lat, lon, timestamp)
+
+        self.page.run_task(procesar_cola)
+
         # funcion para gestionar el cambio de ubicacion del usuario con geolocator tanto en firebase como en el mapa
         def cambio_ubicacion(cambio: ftg.GeolocatorPositionChangeEvent): # para el on position change del geolocator
             latitud = cambio.position.latitude
@@ -99,7 +112,7 @@ class GPSService:
                     datos_miembro = self.datos_miembros_cache[miembro] # en cualquier caso obtenemos asi el nombre y el color que seran enviados al mapa
 
                     if lat and lon and timestamp:
-                        actualizar_marcador_miembros(miembro, datos_miembro, lat, lon, timestamp) # indicamos el miembro, con su nombre y color y su localizacion para que el mapa lo pueda pintar
+                        bucle.call_soon_threadsafe(cola_miembros.put_nowait, (miembro, datos_miembro, lat, lon, timestamp)) # indicamos el miembro, con su nombre y color y su localizacion para que el mapa lo pueda pintar
             return cambio_ubicacion_miembro
 
         # listener para recibir cada vez que haya un cambio en la ubicacion de un miembro de los grupos a los que pertenece el usuario
@@ -108,35 +121,12 @@ class GPSService:
                 for grupo in self.grupos.keys():
                     # el stream hace que escuchemos constantemente esta parte de realtime por si hay cambios y llamamos al callback
                     db.child("ubicaciones").child(grupo).child(miembro).stream(callback_miembro(miembro)) 
-        
-        # funcion para cargar la posicion inicial de los miembros, que sera su ultima posicion conocida, antes de entrar en el stream del listener
-        def posicion_inicial_miembros():
-            for miembro in self.miembros_grupos:
-                if not self.grupos:
-                    break
-                for grupo in self.grupos.keys():
-                    try:
-                        posicion = db.child("ubicaciones").child(grupo).child(miembro).get().val()
-                        if posicion:
-                            latitud = posicion.get("latitud")
-                            longitud = posicion.get("longitud")
-                            timestamp = posicion.get("timestamp")
-                        
-                            if latitud and longitud and timestamp:
-                                if miembro not in self.datos_miembros_cache:
-                                    nombre_miembro = db.child("usuarios").child(miembro).child("nombre").get().val()
-                                    color_miembro = db.child("usuarios").child(miembro).child("color_avatar").get().val()
-                                    self.datos_miembros_cache[miembro] = {"nombre" : nombre_miembro, "color": color_miembro}
-
-                                if actualizar_marcador_miembros:
-                                    datos_miembro = self.datos_miembros_cache[miembro]
-                                    actualizar_marcador_miembros(miembro, datos_miembro, latitud, longitud, timestamp)
-                    except Exception as e:
-                        print(f"Error al cargar la posicion inicial del miembro {miembro}: {e}")
 
         if self.page.platform == ft.PagePlatform.ANDROID:
             configuracion = ftg.GeolocatorAndroidConfiguration( # configuracion solo para dispositivos Android
                 accuracy=ftg.GeolocatorPositionAccuracy.BEST, # declaramos el geolocator configurando su precision de localizacion como la mejor posible
+                interval_duration=10000, # para que se actualice cada 10 segundos la posicion
+                distance_filter=5, # para que se actualice al desplazarse cierta distancia, en este caso 5 metros
                 foreground_notification_config=ftg.ForegroundNotificationConfiguration( # para mostrar una notificacion de la ubicacion que persista con la app en segundo plano
                     notification_title="Ubika",
                     notification_text="Compartiendo la ubicación en tiempo real...",
@@ -148,7 +138,8 @@ class GPSService:
             )
         else:
             configuracion = ftg.GeolocatorConfiguration( # configuracion para cualquier dispositivo que no sea Android
-                accuracy=ftg.GeolocatorPositionAccuracy.BEST
+                accuracy=ftg.GeolocatorPositionAccuracy.BEST,
+                distance_filter=5
             )
 
         geo = ftg.Geolocator(
@@ -164,9 +155,6 @@ class GPSService:
         
         if actualizar_marcador_usuario: 
             actualizar_marcador_usuario(self.datos_usuario, lat, lon, timestamp) # llamamos a la funcion del mapa para pintar el marcador propio personalizado con la posicion inicial
-
-        # para cargar la ultima posicion registrada de los miembros antes de iniciar el listener de sus posiciones
-        posicion_inicial_miembros()
 
         for miembro in self.miembros_grupos:
             hilo_listener = Thread(target=listener_ubicacion_miembros, args=(miembro,)) # el listener va en un hilo para que pueda estar escuchando y no bloquee el programa, un hilo por miembro
