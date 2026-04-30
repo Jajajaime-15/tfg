@@ -28,7 +28,7 @@ class Wrapper:
                 "nombre": nombre,
                 "telefono": telefono,
                 "email": email,
-                "id_grupo":"", # se rellena cuando se tenga una familia
+                "grupos":"", # se rellena cuando se tenga una familia
                 "fecha_registro": datetime.now().strftime("%Y-%m-%d %H:%M:%S") # se usa strtime porque firebase no lee fechas, tiene que ser texto o numeros
             }
             self.db.child("usuarios").child(self.id_usuario).set(info_usuario,self.token) # guardamos la informacion del usuario y el token en la base de datos

@@ -40,7 +40,7 @@ class Wrapper:
             id_grupo = resultado["name"]  
             
             # Obtener los grupos actuales del usuario
-            ruta_completa = f"usuarios/{self.id_usuario}/id_grupo"
+            ruta_completa = f"usuarios/{self.id_usuario}/grupos"
             grupos_actuales = self.db.child(ruta_completa).get(self.token).val()
             
             if grupos_actuales and isinstance(grupos_actuales, dict) and "grupos" in grupos_actuales:
@@ -54,7 +54,7 @@ class Wrapper:
             grupos_usuario[id_grupo] = nombre_grupo
             
             # Guardarlo actualizado en la base de datos
-            self.db.child(ruta_completa).set({"grupos": grupos_usuario}, self.token)
+            self.db.child(ruta_completa).set(grupos_usuario, self.token)
             
             print(f"Grupo '{nombre_grupo}' creado correctamente con ID: {id_grupo}")
             return True, "Grupo creado correctamente"
@@ -90,7 +90,7 @@ class Wrapper:
             self.db.child(f"grupos/{id_grupo_encontrar}").remove(self.token)
             
             # Eliminar el grupo del usuario
-            ruta_usuario = f"usuarios/{self.id_usuario}/id_grupo/grupos"
+            ruta_usuario = f"usuarios/{self.id_usuario}/grupos"
             grupos_usuario = self.db.child(ruta_usuario).get(self.token).val()
             
             if grupos_usuario and id_grupo_encontrar in grupos_usuario:
@@ -130,7 +130,7 @@ class Wrapper:
             self.db.child(f"grupos/{id_grupo_encontrar}").update({"nombre": nuevo_nombre_grupo}, self.token)
             
             # Editar el nombre del grupo del usuario
-            ruta_usuario = f"usuarios/{self.id_usuario}/id_grupo/grupos"
+            ruta_usuario = f"usuarios/{self.id_usuario}/grupos"
             grupos_usuario = self.db.child(ruta_usuario).get(self.token).val()
             
 
@@ -152,15 +152,15 @@ class Wrapper:
     async def mostrar_grupos(self):
     
         nombres_grupos = []  
-        integrantes = []
+        integrantes_con_nombres = [] 
 
         try:
             if not self.token or not self.id_usuario:
                 return [], "Debes iniciar sesión para ver los grupos", False  
             
-            # Obtener todos los grupos
+            # Obtener todos los grupos y usuarios
             grupos = self.db.child("grupos").get(self.token).val()
-
+            usuarios = self.db.child("usuarios").get(self.token).val()  # Obtenemos los usuarios para obtener los nombres
             
             if not grupos:
                 print("No hay grupos en la base de datos")
@@ -171,17 +171,27 @@ class Wrapper:
                     nombres_grupos.append(datos_grupo.get("nombre", "Sin nombre"))
                     
                     # Obtener integrantes
-                    miembros = datos_grupo.get("miembros", [])
-                    if isinstance(miembros, str):
-                        miembros = [miembros] if miembros else []
+                    miembros = datos_grupo.get("miembros", {})
                     
-                    integrantes.append(miembros)
+                    nombres_integrantes = []
+                    
+                    if isinstance(miembros, dict):
+                        for id_integrante in miembros.keys():
+                            # Buscar el nombre del usuario por su ID
+                            if usuarios and id_integrante in usuarios:
+                                nombre_usuario = usuarios[id_integrante].get("nombre", id_integrante)
+                                nombres_integrantes.append(nombre_usuario)
+                            else:
+                                # Si no se encuentra el usuario, mostrar el ID
+                                nombres_integrantes.append(f"Desconocido ({id_integrante})")
+                    
+                    integrantes_con_nombres.append(nombres_integrantes)
             
             if not nombres_grupos:
                 print("No eres admin de ningún grupo")
                 return [], "No eres admin de ningún grupo", True
             
-            return nombres_grupos, integrantes, True
+            return nombres_grupos, integrantes_con_nombres, True
             
         except Exception as e:
             print(f"Error al mostrar grupos: {e}")
@@ -195,6 +205,8 @@ class Wrapper:
             
             # Obtener todos los grupos
             grupos = self.db.child("grupos").get(self.token).val()
+            usuarios = self.db.child("usuarios").get(self.token).val()
+
             
             if not grupos:
                 return False, "No hay grupos en la base de datos"
@@ -213,20 +225,29 @@ class Wrapper:
                 return False, f"No se encontró el grupo '{nombre_grupo}' o no eres el administrador"
             
             # Obtener los miembros
-            miembros = datos_grupo_encontrar.get("miembros", [])
+            miembros = datos_grupo_encontrar.get("miembros", {})
             
-            # Verificar que miembros sea una lista
-            if isinstance(miembros, str):
-                miembros = [miembros] if miembros else []
-            elif miembros is None:
-                miembros = []
+            # Verificar que miembros sea un diccionario
+            if not isinstance(miembros, dict):
+                miembros = {}
+
+            id_integrante = None
+
+            for id_usuario, datos_usuario in usuarios.items():
+                if datos_usuario.get("email") == nuevo_integrante:
+                    id_integrante = id_usuario
+                    print(f"Nuevo integrante encontrado: {id_integrante} (ID de usuario)")
+                    break    
             
+            if not id_integrante:
+                return False, f"No se encontró el usuario con email {nuevo_integrante}"
+
             # Verificar si ya existe
-            if nuevo_integrante in miembros:
+            if id_integrante in miembros:
                 return False, "El integrante ya está en el grupo"
             
             # Añadir el nuevo integrante
-            miembros.append(nuevo_integrante)
+            miembros[id_integrante] = True
             
             # Actualizar usando el ID del grupo
             self.db.child(f"grupos/{id_grupo_encontrar}").update({"miembros": miembros}, self.token)
@@ -237,5 +258,3 @@ class Wrapper:
         except Exception as e:
             print(f"Error al añadir participante: {e}")
             return False, str(e)
-            
-            
