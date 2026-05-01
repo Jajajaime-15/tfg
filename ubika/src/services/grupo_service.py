@@ -27,10 +27,28 @@ class Wrapper:
             if not self.token or not self.id_usuario:
                 return False, "Debes iniciar sesión para crear un grupo"
             
+            usuarios = self.db.child("usuarios").get(self.token).val()
+
+            id_nuevo_integrante = None
+
+            for id_usuario, datos_usuario in usuarios.items():
+                if datos_usuario.get("email") == integrante:
+                    id_nuevo_integrante = id_usuario
+                    print(f"Nuevo integrante encontrado: {id_nuevo_integrante} (ID de usuario)")
+                    break
+
+            if not id_nuevo_integrante:
+                print("No se encontró el usuario con email:", integrante)
+                return False, f"No se encontró el usuario con email {integrante}"    
+            
+            miembros = {
+                self.id_usuario: True,
+                id_nuevo_integrante: True}
+            
             info_grupo = {
                 "admin": self.id_usuario,
                 "nombre": nombre_grupo,
-                "miembros": integrante,
+                "miembros": miembros,
                 "fecha_creacion": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             }
             
@@ -43,18 +61,27 @@ class Wrapper:
             ruta_completa = f"usuarios/{self.id_usuario}/grupos"
             grupos_actuales = self.db.child(ruta_completa).get(self.token).val()
             
-            if grupos_actuales and isinstance(grupos_actuales, dict) and "grupos" in grupos_actuales:
-                grupos_usuario = grupos_actuales["grupos"]
-            else:
-                grupos_usuario = {}
+            ruta_admin = f"usuarios/{self.id_usuario}/grupos"
+            grupos_admin = self.db.child(ruta_admin).get(self.token).val()
             
-            print(f"Grupos actuales: {grupos_usuario}")
+            # Si no hay grupos o no es diccionario lo creamos como un diccionario vacío
+            if not grupos_admin or not isinstance(grupos_admin, dict):
+                grupos_admin = {}
             
-            # Añadir el nuevo grupo
-            grupos_usuario[id_grupo] = nombre_grupo
+            # Añadir el nuevo grupo sin borrar los anteriores
+            grupos_admin[id_grupo] = nombre_grupo
             
-            # Guardarlo actualizado en la base de datos
-            self.db.child(ruta_completa).set(grupos_usuario, self.token)
+            self.db.child(ruta_admin).update(grupos_admin, self.token)
+            
+            # Actualizar los grupos del nuevo integrante
+            ruta_integrante = f"usuarios/{id_nuevo_integrante}/grupos"
+            grupos_integrante = self.db.child(ruta_integrante).get(self.token).val()
+            
+            if not grupos_integrante or not isinstance(grupos_integrante, dict):
+                grupos_integrante = {}
+            
+            grupos_integrante[id_grupo] = nombre_grupo
+            self.db.child(ruta_integrante).update(grupos_integrante, self.token)
             
             print(f"Grupo '{nombre_grupo}' creado correctamente con ID: {id_grupo}")
             return True, "Grupo creado correctamente"
@@ -160,42 +187,53 @@ class Wrapper:
             
             # Obtener todos los grupos y usuarios
             grupos = self.db.child("grupos").get(self.token).val()
-            usuarios = self.db.child("usuarios").get(self.token).val()  # Obtenemos los usuarios para obtener los nombres
+            usuarios = self.db.child("usuarios").get(self.token).val()
             
             if not grupos:
                 print("No hay grupos en la base de datos")
                 return [], "No hay grupos", True
             
-            for datos_grupo in grupos.values():
-                if datos_grupo.get("admin") == self.id_usuario:  # Solo los grupos donde el usuario es admin
+            # Recorrer todos los grupos
+            for clave_grupo, datos_grupo in grupos.items():
+                grupos_usuario = datos_grupo.get("miembros", {})
+                
+                # Si es un string, convertirlo a diccionario vacío
+                if isinstance(grupos_usuario, str):
+                    grupos_usuario = {}
+                elif grupos_usuario is None:
+                    grupos_usuario = {}
+                
+                # Verificar si el usuario esta en los miembros
+                if isinstance(grupos_usuario, dict) and self.id_usuario in grupos_usuario:
                     nombres_grupos.append(datos_grupo.get("nombre", "Sin nombre"))
+                    print(f"Usuario {self.id_usuario}")
+                    print(f"Grupos: {nombres_grupos}")
                     
                     # Obtener integrantes
-                    miembros = datos_grupo.get("miembros", {})
-                    
                     nombres_integrantes = []
                     
-                    if isinstance(miembros, dict):
-                        for id_integrante in miembros.keys():
+                    # Verificar que miembros es un diccionario
+                    if isinstance(grupos_usuario, dict):
+                        for id_integrante in grupos_usuario.keys():
                             # Buscar el nombre del usuario por su ID
                             if usuarios and id_integrante in usuarios:
                                 nombre_usuario = usuarios[id_integrante].get("nombre", id_integrante)
                                 nombres_integrantes.append(nombre_usuario)
                             else:
-                                # Si no se encuentra el usuario, mostrar el ID
                                 nombres_integrantes.append(f"Desconocido ({id_integrante})")
                     
                     integrantes_con_nombres.append(nombres_integrantes)
             
             if not nombres_grupos:
-                print("No eres admin de ningún grupo")
-                return [], "No eres admin de ningún grupo", True
+                print(f"No eres miembro de ningún grupo. Tu ID: {self.id_usuario}")
+                return [], f"No eres miembro de ningún grupo (ID: {self.id_usuario})", True
             
             return nombres_grupos, integrantes_con_nombres, True
             
         except Exception as e:
             print(f"Error al mostrar grupos: {e}")
             return [], [], False
+            
         
     
     async def anyadir_participante(self, nombre_grupo, nuevo_integrante):
@@ -240,6 +278,7 @@ class Wrapper:
                     break    
             
             if not id_integrante:
+                print("No se encontró el usuario con email:", nuevo_integrante)
                 return False, f"No se encontró el usuario con email {nuevo_integrante}"
 
             # Verificar si ya existe
