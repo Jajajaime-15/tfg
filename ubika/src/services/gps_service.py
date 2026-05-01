@@ -31,15 +31,17 @@ class GPSService:
 
     async def gps(self, actualizar_marcador_usuario=None, actualizar_marcador_miembros=None): # recibe las funciones para actualizar los marcadores en tiempo real
 
-        cola_miembros = asyncio.Queue()
-        bucle = asyncio.get_event_loop()
+        cola_miembros = asyncio.Queue() # la cola que nos permite conectar los hilos de pyrebase con el event loop de flet
+        bucle = asyncio.get_event_loop() # instanciamos el event loop de flet
 
+        # es la funcion que define la corutina que nos permite procesar lo que haya en la cola desde el event loop de flet de forma segura
         async def procesar_cola():
             while True:
-                miembro, datos_miembro, lat, lon, timestamp = await cola_miembros.get()
+                miembro, datos_miembro, lat, lon, timestamp = await cola_miembros.get() # la corrutina se puede pausar aqui si fuera necesario y reanudar en este punto cuando le toque
                 if actualizar_marcador_miembros:
-                    actualizar_marcador_miembros(miembro, datos_miembro, lat, lon, timestamp)
+                    actualizar_marcador_miembros(miembro, datos_miembro, lat, lon, timestamp) # indicamos el miembro, con su nombre y color y su localizacion para que el mapa lo pueda pintar
 
+        # añade la corrutina a la lista de tareas que tiene pendientes el event loop de flet, la corrutina pasa a vivir en el event loop
         self.page.run_task(procesar_cola)
 
         # funcion para gestionar el cambio de ubicacion del usuario con geolocator tanto en firebase como en el mapa
@@ -112,7 +114,8 @@ class GPSService:
                     datos_miembro = self.datos_miembros_cache[miembro] # en cualquier caso obtenemos asi el nombre y el color que seran enviados al mapa
 
                     if lat and lon and timestamp:
-                        bucle.call_soon_threadsafe(cola_miembros.put_nowait, (miembro, datos_miembro, lat, lon, timestamp)) # indicamos el miembro, con su nombre y color y su localizacion para que el mapa lo pueda pintar
+                        # metemos los datos en la cola creada para que no haya problemas con los hilos, es el event loop quien mete los datos a la cola cuando es seguro hacerlo
+                        bucle.call_soon_threadsafe(cola_miembros.put_nowait, (miembro, datos_miembro, lat, lon, timestamp)) 
             return cambio_ubicacion_miembro
 
         # listener para recibir cada vez que haya un cambio en la ubicacion de un miembro de los grupos a los que pertenece el usuario
