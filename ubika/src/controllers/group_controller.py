@@ -34,6 +34,7 @@ class GroupController:
         self.page.update()
 
     async def eliminar_grupo (self,nombre_grupo,mensaje):
+        print(f"GroupController.eliminar_grupo llamado con: {nombre_grupo}")  # PRINT DEBUG
         mensaje.value = ""
         self.page.update()
 
@@ -52,7 +53,6 @@ class GroupController:
                 mensaje.value = "Grupo eliminado correctamente"
                 mensaje.color = "green"
                 self.page.update()
-                await asyncio.sleep(1.5)
                 mensaje.value = ""  
             else:
                 mensaje.value = f"Error al eliminar grupo: {aviso}"

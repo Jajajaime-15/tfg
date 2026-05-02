@@ -142,12 +142,20 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None,
     miembros_controls = []
     for miembro in miembros:
         miembros_controls.append(
-            ft.Text(miembro, size=14, color=ft.Colors.BLACK)
+            ft.Container(
+                content=ft.Row([
+                    ft.Icon(ft.Icons.PERSON, color="#1A6AFE", size=20),
+                    ft.Text(miembro, size=16, color=ft.Colors.BLACK),
+                ]),
+                bgcolor=ft.Colors.GREY_100,
+                border_radius=10,
+                padding=10,
+            )
         )
     
     if not miembros_controls:
         miembros_controls.append(
-            ft.Text("Sin miembros", size=14, color=ft.Colors.GREY_600)
+            ft.Text("Este grupo todavia no tiene miembros", size=18, color=ft.Colors.GREY_600)
         )
 
     # Textfield de nombre 
@@ -162,7 +170,7 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None,
     # Texto del nombre
     nombre_text = ft.Text(
         nombre_grupo, 
-        size=18, 
+        size=20, 
         weight=ft.FontWeight.BOLD, 
         color=ft.Colors.BLACK,
         visible=True
@@ -267,6 +275,7 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None,
             on_click_anyadir(current_nombre, integrante_field)
     
     def on_delete_click(e):
+        print(f"Botón eliminar clickeado para grupo: {current_nombre}")  # PRINT DEBUG
         if on_click_eliminar:
             on_click_eliminar(current_nombre)
     
@@ -278,9 +287,18 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None,
     # Contenido principal
     content = ft.Column(
         controls=[
-            nombre_container,
+            ft.Row([
+                ft.Icon(ft.Icons.PEOPLE, color="#1A6AFE", size=22),
+                nombre_container
+                ],
+                spacing=5,
+                alignment=ft.MainAxisAlignment.CENTER,),
             botones_edicion,
-            ft.Text(f"Miembros: {len(miembros)}", size=14, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+            ft.Row([
+                ft.Text(f"Miembros: {len(miembros)}", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                ],
+                spacing=5,
+                alignment=ft.MainAxisAlignment.CENTER,),
             integrante_field,
             ft.Divider(height=10, thickness=1),
             ft.Column(miembros_controls, spacing=5, scroll=ft.ScrollMode.AUTO),
@@ -296,14 +314,13 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None,
             ),
         ],
         spacing=10,
-        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
     )
     
     tarjeta = ft.Container(
         content=content,
         width=width,
         height=450,
-        bgcolor=ft.Colors.GREY_200,
+        bgcolor=ft.Colors.GREY_100,
         padding=15,
         border_radius=8,
         on_click=on_click_tarjeta,

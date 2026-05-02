@@ -93,6 +93,7 @@ class VistaGrupos:
        
 
     def eliminar_grupo_desde_tarjeta(self, nombre_grupo):
+        print(f"eliminar_grupo_desde_tarjeta llamado con: {nombre_grupo}")  # PRINT DEBUG
         # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
         self.btn_crear_grupos.disabled = True
         self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
