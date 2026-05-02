@@ -4,6 +4,9 @@ from datetime import datetime, timezone, timedelta
 def formatear_timestamp(timestamp):
     try:
         fecha = datetime.fromisoformat(timestamp) # pasamos el string del timestamp a un objeto datetime
+        # en escritorio lee mal la fecha, por lo que le obligamos a poner el momento actual solo en el marcador, incluso si no es acorde a la ubicacion, en firebase seguira correctamente
+        if fecha.year < 2025:
+            fecha = datetime.now(timezone.utc)
         zona_horaria_espanya = timezone(timedelta(hours=2)) # la zona horaria de españa en verano, habra que cambiarlo en invierno
         formato_espanya = fecha.astimezone(zona_horaria_espanya) # transformamos el datetime en el formato de españa
         return formato_espanya.strftime("%d/%m/%Y, %H:%M:%S") # lo mostramos como estamos acostumbrados en españa

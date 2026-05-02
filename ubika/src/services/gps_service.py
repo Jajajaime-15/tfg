@@ -52,7 +52,7 @@ class GPSService:
             "timestamp" : timestamp
         }
 
-        if self.grupos:
+        if self.grupos and self.page.platform == ft.PagePlatform.ANDROID: # para que solo escriba en Firebase desde el móvil, ya que escritorio no escribe la ubicacion correcta
             for grupo in self.grupos.keys(): # para escribir el cambio de posicion en todos los grupos a los que se pertenezca
                 db.child("ubicaciones").child(grupo).child(self.yo).set(loc) # si se cambia la posicion la escribimos en la base de datos
         
@@ -88,7 +88,7 @@ class GPSService:
         }
 
         try:
-            if self.grupos:
+            if self.grupos and self.page.platform == ft.PagePlatform.ANDROID: # para que solo escriba en Firebase desde el móvil, ya que escritorio no escribe la ubicacion correcta
                 for grupo in self.grupos.keys(): # para escribir la posicion inicial en todos los grupos a los que se pertenezca
                     db.child("ubicaciones").child(grupo).child(self.yo).set(loc) # para escribir los valores debemos marcar el nivel dentro de los json con los 'child' y 'set'
         except Exception as e:
