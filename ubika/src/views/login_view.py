@@ -73,16 +73,20 @@ class VistaLogin:
         self.page.update()
 
         # llamamos a la función para iniciar sesión(conectarse)
-        await self.controlador.conectarse(
+        iniciado =await self.controlador.conectarse(
             self.email_input, 
             self.psw_input, 
             self.mensaje_error
         )
 
-        # activamos de nuevo el botón
-        self.btn_entrar.disabled = False
-        self.page.go("/grupos")
-        self.page.update()
+        if iniciado:
+            # activamos de nuevo el botón
+            self.btn_entrar.disabled = False
+            self.page.go("/grupos")
+            self.page.update()
+        else:
+            self.btn_entrar.disabled = False
+            self.page.update()    
 
     # función para crear la vista que se mostrará en la pantalla
     def vista(self):

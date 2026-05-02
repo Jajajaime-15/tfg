@@ -51,23 +51,27 @@ class UserController:
 
     async def conectarse (self,email,psw,mensaje):
         mensaje.value = ""
+        iniciado = None
         self.page.update()
 
         if not email.value or not psw.value:
             mensaje.value = "Introduce email y contraseña"
+            iniciado = False
         else:
             conectado, aviso = await self.wrapper.iniciar_sesion(email.value,psw.value)
             if conectado:
+                iniciado = True
                 # provisional para confirmar en pantalla el inicio de sesion
                 mensaje.value = "Sesión iniciada"
                 mensaje.color = "green"
                 self.page.update()
                 await asyncio.sleep(2)                
-                await self.page.push_route("/") # ruta a la pantalla principal/perfil/grupos
+                await self.page.push_route("/grupos") # ruta a la pantalla principal/perfil/grupos
                 '''self.page.snack_bar = ft.SnackBar(ft.Text("Sesión iniciada"))
                 self.page.snack_bar.open = True
                 self.page.update()'''
             else:
+                iniciado = False
                 error_log = str(aviso).upper() # convertimos el diccionario del aviso en texto en mayuscula para poder comprobar los errores
                 if "INVALID_LOGIN_CREDENTIALS" in error_log or "INVALID_PASSWORD" in error_log:
                     mensaje.value = "Email o contraseña incorrecto"
@@ -81,7 +85,7 @@ class UserController:
                 # limpiamos el campo de la contraseña y dejamos el focus ahí tras saltar un error    
                 psw.value = ""
                 psw.focus()
-
+        return iniciado
         self.page.update()
 
     async def recuperar_psw(self,email,mensaje):
