@@ -31,7 +31,7 @@ class MapaController:
                 bgcolor=color_marcador,
                 radius=15
             ),
-            border=ft.border.all(2, ft.Colors.BLACK),
+            border=ft.Border.all(2, ft.Colors.BLACK),
             border_radius=50,
             on_click=lambda e: self.vista.mostrar_info_marcador(nombre_marcador, lat, lon, timestamp_formateado) # el evento que permite abrir la info del usuario al pulsar el marcador
         )
