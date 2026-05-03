@@ -10,7 +10,7 @@ class UsuarioService:
             self.token = None
 
     # funcion para actualizar los datos del usuario
-    async def actualizar_datos(self,datos_actualizados):
+    async def actualizar_datos(self, datos_actualizados):
         try:
             self.id_usuario = await self.page.shared_preferences.get("id_usuario")
             self.token = await self.page.shared_preferences.get("token")

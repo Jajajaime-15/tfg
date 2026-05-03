@@ -2,16 +2,18 @@ import flet as ft # para flet
 import pyrebase # para firebase
 import flet_geolocator as ftg # para la geolocalizacion
 from threading import Thread # para los hilos
-from database.config import config_keys # las claves que tenemos en el .env
+from database.config import config # las claves que tenemos en el .env
 import asyncio
 
-firebase = pyrebase.initialize_app(config_keys) # iniciamos firebase
-db = firebase.database() # instanciamos la base de datos y la autenticacion
-auth = firebase.auth()
+firebase = pyrebase.initialize_app(config) 
+db = firebase.database() 
 
 class GPSService:
-    def __init__(self, page):
+    def __init__(self, page, firebase_service):
         self.page = page
+        self.firebase = firebase_service # instanciamos firebase, su bbdd y la autenticacion
+        self.db = self.firebase.db
+        self.auth = self.firebase.auth
         self.yo = "jaime" # el propio usuario
         self.miembros_grupos = [] # una lista de los miembros de todos los grupos a los que pertenece el usuario
         self.grupos = db.child("usuarios").child(self.yo).child("grupos").get().val() 

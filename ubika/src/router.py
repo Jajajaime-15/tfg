@@ -1,18 +1,19 @@
-import flet as ft# type: ignore
+import flet as ft
 from views.login_view import VistaLogin
 from views.registro_view import VistaRegistro
 from views.perfil_view import VistaPerfil
 from views.principal_view import VistaPrincipal
 from views.ajustes_view import VistaAjustes
+from views.mapa_view import VistaMapa
 # Aquí importamos las nuevas vistas que se creen 
 
 class Router:
-    def __init__(self, page, controlador_auth, controlador_settings, controlador_user):
+    def __init__(self, page, controlador_auth, controlador_settings, controlador_user, controlador_mapa):
         self.page = page
         self.controlador_auth = controlador_auth
         self.controlador_settings = controlador_settings
         self.controlador_user = controlador_user
-        # se añadel los controladores de grupos y mapa
+        self.controlador_mapa = controlador_mapa
         
         # Diccionario de rutas
         self.routes = {
@@ -21,6 +22,7 @@ class Router:
             "/perfil": VistaPerfil, # vista perfil (Alba)
             "/settings": VistaAjustes, # vista ajustes (Alba)
             "/home": VistaPrincipal, # vista principal después de hacer login con grupos (Julio)
+            "/mapa": VistaMapa, # vista mapa
         }
 
     async def route_change(self, e):
@@ -43,6 +45,9 @@ class Router:
         elif vista_clase == VistaRegistro:
             pantalla = VistaRegistro(self.page, self.controlador_auth)
             self.controlador_auth.vista = pantalla     
+        elif vista_clase == VistaMapa:
+            pantalla = VistaMapa(self.page, self.controlador_mapa)
+            self.controlador_mapa.vista = pantalla     
         else: 
             pantalla = VistaLogin(self.page, self.controlador_auth)
             self.controlador_auth.vista = pantalla

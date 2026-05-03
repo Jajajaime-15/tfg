@@ -2,7 +2,7 @@ import flet as ft
 import flet_map as ftm # para el mapa
 from utils.nominatim import obtener_direccion_legible
 
-class MapaVista:
+class VistaMapa:
     def __init__(self, page, controlador):
         self.page = page
         self.controlador = controlador

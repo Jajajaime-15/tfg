@@ -2,7 +2,7 @@ import flet as ft # type: ignore
 import asyncio
 
 class UsuarioController:
-    def __init__ (self,page,usuario_service,vista=None,ajustes_controller=None):
+    def __init__ (self, page, usuario_service, vista=None, ajustes_controller=None):
         self.page = page
         self.service = usuario_service
         self.vista = vista
@@ -89,7 +89,7 @@ class UsuarioController:
         self.page.update()
 
     # funcion para abrir los ajustes
-    async def ajustes (self,e):
+    async def ajustes (self, e):
         # guardamos en memoria 2 que es la posición de Perfil en nuestra vista principal para así cuando demos a volver nos vuelva a perfil
         self.page.index_navegacion = 2 # no usamos shared_preferences porque solo se recuerda mientras que la sesion este activa, si cerramos la aplicacion desde la vista que sea siempre al abrirla vuelve a aparecer la principal con grupos
         await self.page.push_route("/settings")

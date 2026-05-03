@@ -11,7 +11,7 @@ class AjustesService:
         self.token = None
 
     # funcion para cambiar la contraseña estando conectado    
-    async def cambiar_psw(self,nueva_psw):
+    async def cambiar_psw(self, nueva_psw):
         try:
             self.token = await self.page.shared_preferences.get("token")
             # obtenemos el token si no está en memoria
