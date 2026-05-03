@@ -1,18 +1,16 @@
-import flet as ft # type: ignore
-import asyncio
+import flet as ft
 from views.perfil_view import VistaPerfil
-from controllers.usuario_controller import UsuarioController
 from views.mapa_view import VistaMapa
 
 class VistaPrincipal: 
-    def __init__(self, page, user_controller, mapa_controller):
+    def __init__(self, page, controlador_user, controlador_mapa):
         self.page = page
-        self.controlador_u = user_controller
-        self.controlador_mapa = mapa_controller
+        self.controlador_u = controlador_user
+        self.controlador_mapa = controlador_mapa
         self.centro = ft.Container(expand=True)
         # self.cargar_pestana_grupos()
-        # guardamos el indice (en el caso de volver para atras desde ajustes voolvemos a home pero recordamos que estabamos en perfil)
-        self.index_inicio = getattr(self.page, "index_navegacion", 0)  # Considera usar shared_preferences para persistencia
+        # guardamos el indice (en el caso de volver para atras desde ajustes volvemos a home pero recordamos que estabamos en perfil)
+        self.index_inicio = getattr(self.page, "index_navegacion", 0)
         # barra de los botones de abajo con grupos,mapa y perfil
         self.inferior = ft.NavigationBar(
             selected_index=self.index_inicio,  # recuperamos el indice
@@ -31,16 +29,15 @@ class VistaPrincipal:
     # funcion para que cuando volvamos hacia atras recuerde en que vista estabamos
     def actualizar_vista_centro(self, indice):
         if indice == 0: # grupos
-            pass
-            # Vista de Grupos (Julio)
+            pass # Vista de Grupos (Julio)
         elif indice == 1: # mapa
             nueva_vista = VistaMapa(self.page, self.controlador_mapa)
             self.centro.content = nueva_vista.vista()
-            self.page.run_task()
+            self.page.run_task(self.controlador_mapa.iniciar_gps())
         elif indice == 2: # perfil
             nueva_vista = VistaPerfil(self.page, self.controlador_u)
             self.centro.content = nueva_vista.vista()
-            asyncio.create_task(self.controlador_u.cargar_perfil())
+            self.page.run_task(self.controlador_u.cargar_perfil())
         self.page.update()
 
     def cambiar_pestana(self, e):
@@ -50,11 +47,11 @@ class VistaPrincipal:
         elif indice == 1: # mapa
             nueva_vista = VistaMapa(self.page, self.controlador_mapa)
             self.centro.content = nueva_vista.vista()
-            self.page.run_task()
+            self.page.run_task(self.controlador_mapa.iniciar_gps())
         elif indice == 2: # perfil
             nueva_vista = VistaPerfil(self.page, self.controlador_u)
             self.centro.content = nueva_vista.vista()
-            asyncio.create_task(self.controlador_u.cargar_perfil())
+            self.page.run_task(self.controlador_u.cargar_perfil())
         self.page.update()
 
     def vista(self):

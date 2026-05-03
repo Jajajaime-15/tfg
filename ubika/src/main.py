@@ -11,7 +11,7 @@ from controllers.mapa_controller import MapaController
 from router import Router
 
 async def main(page: ft.Page):
-    page.title = "PROYECTO TFG"
+    page.title = "UBIKA"
     page.window_width = 400
     page.window_height = 700
     
@@ -44,7 +44,7 @@ async def main(page: ft.Page):
     
     # arrancamos el archivo de las rutas y conectamos con la funcion de cambio de ruta del router
     router = Router(page, auth_controller, ajustes_controller, usuario_controller, mapa_controller)
-    page.on_route_change = router.route_change 
+    page.on_route_change = router.cambiar_ruta 
 
     # comprobamos si hay algun usuario que haya iniciado sesion ya
     id_usuario = await auth_service.usuario_conectado()
@@ -57,13 +57,8 @@ async def main(page: ft.Page):
     else:
         page.route = "/" # ruta de login (principal)
         
-    await router.route_change(None) # cargamos la primera vista
+    await router.cambiar_ruta(None) # cargamos la primera vista
     page.update()
 
 if __name__ == "__main__":
-    ft.run(main, view=ft.AppView.WEB_BROWSER, assets_dir="assets")
-
-async def main(page: ft.Page):
-    service = GPSService(page)
-    controller = MapaController(page, service)
-    await controller.iniciar_gps()
+    ft.run(main, assets_dir="assets")

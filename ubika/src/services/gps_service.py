@@ -1,12 +1,7 @@
 import flet as ft # para flet
-import pyrebase # para firebase
 import flet_geolocator as ftg # para la geolocalizacion
 from threading import Thread # para los hilos
-from database.config import config # las claves que tenemos en el .env
 import asyncio
-
-firebase = pyrebase.initialize_app(config) 
-db = firebase.database() 
 
 class GPSService:
     def __init__(self, page, firebase_service):
@@ -16,11 +11,11 @@ class GPSService:
         self.auth = self.firebase.auth
         self.yo = "jaime" # el propio usuario
         self.miembros_grupos = [] # una lista de los miembros de todos los grupos a los que pertenece el usuario
-        self.grupos = db.child("usuarios").child(self.yo).child("grupos").get().val() 
+        self.grupos = self.db.child("usuarios").child(self.yo).child("grupos").get().val() 
         self.datos_miembros_cache = {} # diccionario para manejar los nombres y colores de los miembros para poder pintarlos en el mapa
         self.datos_usuario = { # lo mismo pero con los datos del propio usuario
-            "nombre" : db.child("usuarios").child(self.yo).child("nombre").get().val(), 
-            "color" : db.child("usuarios").child(self.yo).child("color_avatar").get().val()
+            "nombre" : self.db.child("usuarios").child(self.yo).child("nombre").get().val(), 
+            "color" : self.db.child("usuarios").child(self.yo).child("color_avatar").get().val()
         }
 
         self.actualizar_marcador_usuario = None # para conectar con el controlador y poder actualizar los marcadores en el mapa
@@ -31,10 +26,11 @@ class GPSService:
         # recorremos los grupos a los que pertenece el usuario y cada miembro para guardarlos en la lista de miembros y poder evitar repetidos
         if self.grupos: # por si el usuario no esta todavia en ningun grupo
             for grupo in self.grupos.keys():
-                miembros = db.child("grupos").child(grupo).child("miembros").get().val()
-                for miembro in miembros.keys():
-                    if miembro not in self.miembros_grupos and miembro != self.yo: 
-                        self.miembros_grupos.append(miembro)
+                miembros = self.db.child("grupos").child(grupo).child("miembros").get().val()
+                if miembros:
+                    for miembro in miembros.keys():
+                        if miembro not in self.miembros_grupos and miembro != self.yo: 
+                            self.miembros_grupos.append(miembro)
         
     # es la funcion que define la corutina que nos permite procesar lo que haya en la cola desde el event loop de flet de forma segura
     async def procesar_cola(self):
@@ -56,7 +52,7 @@ class GPSService:
 
         if self.grupos and self.page.platform == ft.PagePlatform.ANDROID: # para que solo escriba en Firebase desde el móvil, ya que escritorio no escribe la ubicacion correcta
             for grupo in self.grupos.keys(): # para escribir el cambio de posicion en todos los grupos a los que se pertenezca
-                db.child("ubicaciones").child(grupo).child(self.yo).set(loc) # si se cambia la posicion la escribimos en la base de datos
+                self.db.child("ubicaciones").child(grupo).child(self.yo).set(loc) # si se cambia la posicion la escribimos en la base de datos
         
         if self.actualizar_marcador_usuario: # solo en caso de que exista
             self.actualizar_marcador_usuario(self.datos_usuario, latitud, longitud, timestamp) # llamamos a la funcion del mapa para pintar el marcador propio personalizado cada vez que se actualice la posicion
@@ -92,7 +88,7 @@ class GPSService:
         try:
             if self.grupos and self.page.platform == ft.PagePlatform.ANDROID: # para que solo escriba en Firebase desde el móvil, ya que escritorio no escribe la ubicacion correcta
                 for grupo in self.grupos.keys(): # para escribir la posicion inicial en todos los grupos a los que se pertenezca
-                    db.child("ubicaciones").child(grupo).child(self.yo).set(loc) # para escribir los valores debemos marcar el nivel dentro de los json con los 'child' y 'set'
+                    self.db.child("ubicaciones").child(grupo).child(self.yo).set(loc) # para escribir los valores debemos marcar el nivel dentro de los json con los 'child' y 'set'
         except Exception as e:
             self.page.add(ft.Text(f"Error escritura Firebase: {e}"))
         
@@ -107,8 +103,8 @@ class GPSService:
                 timestamp = ubicacion_miembro["data"].get("timestamp")
 
                 if miembro not in self.datos_miembros_cache: # comprobamos si el miembro esta en la cache
-                    nombre_miembro = db.child("usuarios").child(miembro).child("nombre").get().val()
-                    color_miembro = db.child("usuarios").child(miembro).child("color_avatar").get().val()
+                    nombre_miembro = self.db.child("usuarios").child(miembro).child("nombre").get().val()
+                    color_miembro = self.db.child("usuarios").child(miembro).child("color_avatar").get().val()
                     self.datos_miembros_cache[miembro] = {"nombre" : nombre_miembro, "color": color_miembro} # si no esta obtenemos sus datos de firebase para dibujar el marcador
                 datos_miembro = self.datos_miembros_cache[miembro] # en cualquier caso obtenemos asi el nombre y el color que seran enviados al mapa
 
@@ -122,7 +118,7 @@ class GPSService:
         if self.grupos:
             for grupo in self.grupos.keys():
                 # el stream hace que escuchemos constantemente esta parte de realtime por si hay cambios y llamamos al callback
-                db.child("ubicaciones").child(grupo).child(miembro).stream(self.callback_miembro(miembro)) 
+                self.db.child("ubicaciones").child(grupo).child(miembro).stream(self.callback_miembro(miembro)) 
 
     # funcion para configurar el geolocator segun el dispositivo en el que se use la app
     def configurar_geolocator(self):

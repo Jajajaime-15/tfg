@@ -1,11 +1,9 @@
-import flet as ft
 from views.login_view import VistaLogin
 from views.registro_view import VistaRegistro
 from views.perfil_view import VistaPerfil
 from views.principal_view import VistaPrincipal
 from views.ajustes_view import VistaAjustes
 from views.mapa_view import VistaMapa
-# Aquí importamos las nuevas vistas que se creen 
 
 class Router:
     def __init__(self, page, controlador_auth, controlador_settings, controlador_user, controlador_mapa):
@@ -22,10 +20,10 @@ class Router:
             "/perfil": VistaPerfil, # vista perfil (Alba)
             "/settings": VistaAjustes, # vista ajustes (Alba)
             "/home": VistaPrincipal, # vista principal después de hacer login con grupos (Julio)
-            "/mapa": VistaMapa, # vista mapa
+            "/mapa": VistaMapa # vista mapa
         }
 
-    async def route_change(self, e):
+    async def cambiar_ruta(self, e):
         print(f"Cambiando a la ruta: {self.page.route}")
         
         # Limpiamos los controles actuales de la página
@@ -35,7 +33,7 @@ class Router:
         vista_clase = self.routes.get(self.page.route, VistaLogin)
         
         if vista_clase == VistaPrincipal:
-            pantalla = VistaPrincipal(self.page, self.controlador_user) # aqui hay que usar el controlador de grupos cuando lo unamos
+            pantalla = VistaPrincipal(self.page, self.controlador_user, self.controlador_mapa)
         elif vista_clase == VistaAjustes:
             pantalla = VistaAjustes(self.page, self.controlador_settings)
             self.controlador_settings.vista = pantalla
