@@ -29,7 +29,7 @@ async def main(page: ft.Page):
     auth_service = AuthService(page, fb_service)
     usuario_service = UsuarioService(page, fb_service, auth_service)
     ajustes_service = AjustesService(page, fb_service, auth_service)
-    gps_service = GPSService(page, fb_service, auth_service)
+    gps_service = GPSService(page, fb_service)
 
     # controladores
     auth_controller = AuthController(page, auth_service)

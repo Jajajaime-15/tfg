@@ -24,35 +24,25 @@ class VistaPrincipal:
             on_change=self.cambiar_pestana
         )
         # self.mostrar_grupos() # cargamos la pestaña inicial que es grupos
-        self.actualizar_vista_centro(self.index_inicio)
+        self.actualizar_vista(self.index_inicio)
 
     # funcion para que cuando volvamos hacia atras recuerde en que vista estabamos
-    def actualizar_vista_centro(self, indice):
+    def actualizar_vista(self, indice):
         if indice == 0: # grupos
             pass # Vista de Grupos (Julio)
         elif indice == 1: # mapa
             nueva_vista = VistaMapa(self.page, self.controlador_mapa)
             self.centro.content = nueva_vista.vista()
-            self.page.run_task(self.controlador_mapa.iniciar_gps())
+            self.page.run_task(self.controlador_mapa.iniciar_gps)
         elif indice == 2: # perfil
             nueva_vista = VistaPerfil(self.page, self.controlador_u)
             self.centro.content = nueva_vista.vista()
-            self.page.run_task(self.controlador_u.cargar_perfil())
+            self.page.run_task(self.controlador_u.cargar_perfil)
         self.page.update()
 
     def cambiar_pestana(self, e):
         indice = e.control.selected_index  # guardamos el indice del botón que se selecciona
-        if indice == 0: # grupos
-            print("GRUPOS JULIO")
-        elif indice == 1: # mapa
-            nueva_vista = VistaMapa(self.page, self.controlador_mapa)
-            self.centro.content = nueva_vista.vista()
-            self.page.run_task(self.controlador_mapa.iniciar_gps())
-        elif indice == 2: # perfil
-            nueva_vista = VistaPerfil(self.page, self.controlador_u)
-            self.centro.content = nueva_vista.vista()
-            self.page.run_task(self.controlador_u.cargar_perfil())
-        self.page.update()
+        self.actualizar_vista(indice)
 
     def vista(self):
         return ft.Column([

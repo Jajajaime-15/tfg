@@ -2,6 +2,7 @@ import flet as ft # para flet
 import flet_geolocator as ftg # para la geolocalizacion
 from threading import Thread # para los hilos
 import asyncio
+import json
 
 class GPSService:
     def __init__(self, page, firebase_service):
@@ -9,19 +10,29 @@ class GPSService:
         self.firebase = firebase_service # instanciamos firebase, su bbdd y la autenticacion
         self.db = self.firebase.db
         self.auth = self.firebase.auth
-        self.yo = "jaime" # el propio usuario
+        self.yo = None # el propio usuario
+        self.grupos = None # los grupos a los que pertenece el usuario
         self.miembros_grupos = [] # una lista de los miembros de todos los grupos a los que pertenece el usuario
-        self.grupos = self.db.child("usuarios").child(self.yo).child("grupos").get().val() 
         self.datos_miembros_cache = {} # diccionario para manejar los nombres y colores de los miembros para poder pintarlos en el mapa
-        self.datos_usuario = { # lo mismo pero con los datos del propio usuario
-            "nombre" : self.db.child("usuarios").child(self.yo).child("nombre").get().val(), 
-            "color" : self.db.child("usuarios").child(self.yo).child("color_avatar").get().val()
+        self.datos_usuario = { # lo mismo pero con los datos del propio usuario, lo inicializamos de forma estandar
+            "nombre" : "", 
+            "color" : "#1A6AFE"
         }
-
         self.actualizar_marcador_usuario = None # para conectar con el controlador y poder actualizar los marcadores en el mapa
         self.actualizar_marcador_miembros = None
         self.cola_miembros = None # la cola que nos permite conectar los hilos de pyrebase con el event loop de flet
         self.bucle = None # sera la referencia al event loop de flet para poder hacer llamadas seguras
+    
+    # funcion para cargar los datos del usuario antes de iniciar el gps
+    async def iniciar_usuario(self):
+        self.yo = await self.page.shared_preferences.get("id_usuario")
+        nombre = await self.page.shared_preferences.get("nombre")
+        color = await self.page.shared_preferences.get("color_avatar")
+        self.datos_usuario = { "nombre" : nombre, "color" : color }
+
+        grupos_usuario = await self.page.shared_preferences.get("grupos")
+        if grupos_usuario: # solo en caso de que el usuario tenga algun grupo
+            self.grupos = json.loads(grupos_usuario)
 
         # recorremos los grupos a los que pertenece el usuario y cada miembro para guardarlos en la lista de miembros y poder evitar repetidos
         if self.grupos: # por si el usuario no esta todavia en ningun grupo
@@ -31,7 +42,7 @@ class GPSService:
                     for miembro in miembros.keys():
                         if miembro not in self.miembros_grupos and miembro != self.yo: 
                             self.miembros_grupos.append(miembro)
-        
+
     # es la funcion que define la corutina que nos permite procesar lo que haya en la cola desde el event loop de flet de forma segura
     async def procesar_cola(self):
         while True:
@@ -144,6 +155,7 @@ class GPSService:
 
     # metodo principal que servira como orquestador de todo el gps
     async def gps(self, actualizar_marcador_usuario=None, actualizar_marcador_miembros=None): # recibe las funciones para actualizar los marcadores en tiempo real
+        self.iniciar_usuario() # cargamos los datos del usuario al iniciar el gps
         self.actualizar_marcador_usuario = actualizar_marcador_usuario
         self.actualizar_marcador_miembros = actualizar_marcador_miembros # declaramos la funcion del controller para que procesar cola la pueda usar
         self.cola_miembros = asyncio.Queue() # instanciamos la cola ahora que el event loop es el correcto
