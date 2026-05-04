@@ -145,3 +145,22 @@ class GroupController:
 
 
         self.page.update()    
+
+    async def eliminar_participante(self, nombre_grupo, nombre_integrante, mensaje):
+        mensaje.value = ""
+        self.page.update()
+        
+        eliminado, aviso = await self.wrapper.eliminar_participante(nombre_grupo, nombre_integrante)
+        
+        if eliminado:
+            mensaje.value = "Integrante eliminado correctamente"
+            mensaje.color = "green"
+            self.page.update()
+            await asyncio.sleep(1.5)
+            mensaje.value = ""
+        else:
+            mensaje.value = f"Error al eliminar integrante: {aviso}"
+            mensaje.color = "red"
+        
+        self.page.update()
+        return eliminado    

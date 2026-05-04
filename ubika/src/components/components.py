@@ -130,31 +130,56 @@ def SecondaryButton(text, on_click=None, width=150, disabled=False, loading=Fals
 
 def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None, 
                    on_click_anyadir=None, on_click_editar=None, 
-                   on_click_eliminar=None, width=400):
-    """
-    Crea una tarjeta para mostrar información de un grupo.
-    """
+                   on_click_eliminar=None, on_click_eliminar_integrante=None, width=400):
     
     if miembros is None:
         miembros = []
     
-    # Controles de miembros
-    miembros_controls = []
-    for miembro in miembros:
-        miembros_controls.append(
-            ft.Container(
-                content=ft.Row([
-                    ft.Icon(ft.Icons.PERSON, color="#1A6AFE", size=20),
-                    ft.Text(miembro, size=16, color=ft.Colors.BLACK),
-                ]),
-                bgcolor=ft.Colors.GREY_100,
-                border_radius=10,
-                padding=10,
-            )
-        )
+    # Variable para controlar modo edición
+    modo_edicion = False
     
-    if not miembros_controls:
-        miembros_controls.append(
+    # Controles de miembros
+    columna_miembros = ft.Column(spacing=5)
+    
+    def actualizar_controles_miembros():
+        columna_miembros.controls.clear()
+        for miembro in miembros:
+            if modo_edicion and on_click_eliminar_integrante:
+                columna_miembros.controls.append(
+                    ft.Container(
+                        content=ft.Row([
+                            ft.Icon(ft.Icons.PERSON, color="#1A6AFE", size=20),
+                            ft.Text(miembro, size=16, color=ft.Colors.BLACK, expand=True),
+                            ft.IconButton(
+                                icon=ft.Icons.CLOSE,
+                                icon_size=16,
+                                icon_color="red",
+                                tooltip="Eliminar integrante",
+                                on_click=lambda e, m=miembro: (on_click_eliminar_integrante(e, nombre_grupo, m), salir_modo_edicion()),
+                            ),
+                        ]),
+                        bgcolor=ft.Colors.GREY_100,
+                        border_radius=10,
+                        padding=10,
+                    )
+                )
+            else:
+                columna_miembros.controls.append(
+                    ft.Container(
+                        content=ft.Row([
+                            ft.Icon(ft.Icons.PERSON, color="#1A6AFE", size=20),
+                            ft.Text(miembro, size=16, color=ft.Colors.BLACK),
+                        ]),
+                        bgcolor=ft.Colors.GREY_100,
+                        border_radius=10,
+                        padding=10,
+                    )
+                )
+    
+    actualizar_controles_miembros()
+    
+    if not miembros:
+        columna_miembros.controls.append(
             ft.Text("Este grupo todavia no tiene miembros", size=18, color=ft.Colors.GREY_600)
         )
 
@@ -181,7 +206,8 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None,
         label="Nuevo integrante", 
         width=200, 
         color=ft.Colors.BLACK,
-        hint_text="Nombre del integrante"
+        hint_text="Email del integrante",
+        visible=False
     )
 
     # Referencia a la tarjeta
@@ -203,6 +229,10 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None,
         visible=False,
     )
 
+    # Botón plus para añadir integrante
+    plus_btn = plus_Button(width=30)
+    plus_btn.visible = False
+
     # Boton editar original
     edit_btn_original = edit_Button(width=30)
 
@@ -223,14 +253,18 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None,
 
     # Funciones
     def salir_modo_edicion():
-        nonlocal current_nombre
+        nonlocal current_nombre, modo_edicion
+        modo_edicion = False
         nombre_edit_field.visible = False
         nombre_text.visible = True
         botones_edicion.visible = False
         edit_btn_original.visible = True
         guardar_btn.visible = False
         cancelar_btn.visible = False
+        plus_btn.visible = False
+        integrante_field.visible = False
         nombre_edit_field.value = current_nombre
+        actualizar_controles_miembros()
         if tarjeta and tarjeta.page:
             tarjeta.page.update()
     
@@ -255,12 +289,17 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None,
         salir_modo_edicion()
     
     def entrar_modo_edicion(e):
+        nonlocal modo_edicion
+        modo_edicion = True
         nombre_text.visible = False
         nombre_edit_field.visible = True
         botones_edicion.visible = True
         edit_btn_original.visible = False
         guardar_btn.visible = True
         cancelar_btn.visible = True
+        plus_btn.visible = True
+        integrante_field.visible = True
+        actualizar_controles_miembros()
         if tarjeta and tarjeta.page:
             tarjeta.page.update()
             async def do_focus():
@@ -275,7 +314,6 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None,
             on_click_anyadir(current_nombre, integrante_field)
     
     def on_delete_click(e):
-        print(f"Botón eliminar clickeado para grupo: {current_nombre}")  # PRINT DEBUG
         if on_click_eliminar:
             on_click_eliminar(current_nombre)
     
@@ -283,6 +321,7 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None,
     edit_btn_original.on_click = on_edit_click
     guardar_btn.on_click = guardar_edicion
     cancelar_btn.on_click = cancelar_edicion
+    plus_btn.on_click = on_plus_click
 
     # Contenido principal
     content = ft.Column(
@@ -301,12 +340,12 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None,
                 alignment=ft.MainAxisAlignment.CENTER,),
             integrante_field,
             ft.Divider(height=10, thickness=1),
-            ft.Column(miembros_controls, spacing=5, scroll=ft.ScrollMode.AUTO),
+            columna_miembros,
             ft.Container(expand=True),
             ft.Divider(height=10, thickness=1),
             ft.Row(
                 controls=[
-                    plus_Button(on_click=on_plus_click, width=30),
+                    plus_btn,
                     edit_btn_original,
                     delete_Button(on_click=on_delete_click, width=30),
                 ],

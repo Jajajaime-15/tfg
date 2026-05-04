@@ -62,7 +62,21 @@ class VistaGrupos:
         self.btn_crear_grupos.disabled = False
         self.page.update()    
 
-       
+    def eliminar_integrante_desde_tarjeta(self, e, nombre_grupo, nombre_integrante):
+        print(f"Eliminando integrante: {nombre_integrante} del grupo: {nombre_grupo}")
+        
+        self.btn_crear_grupos.disabled = True
+        self.mensaje_error.value = ""
+        self.page.update()
+        
+        self.page.run_task(
+            self.group_controller.eliminar_participante,
+            nombre_grupo,
+            nombre_integrante,
+            self.mensaje_error
+        )
+        
+        self.btn_crear_grupos.disabled = False
 
     def eliminar_grupo_desde_tarjeta(self, nombre_grupo):
         print(f"eliminar_grupo_desde_tarjeta llamado con: {nombre_grupo}")  # PRINT DEBUG
@@ -82,9 +96,13 @@ class VistaGrupos:
         self.btn_crear_grupos.disabled = False 
 
     def editar_grupo_desde_tarjeta(self, nombre_actual, nuevo_nombre, callback_ui=None):
-        # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
+        # Si nuevo_nombre es None es porque entró en modo edicion
+        if nuevo_nombre is None:
+            return
+        
+        # Resto del código para guardar cambios
         self.btn_crear_grupos.disabled = True
-        self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
+        self.mensaje_error.value = ""
         self.page.update()
 
         async def realizar_edicion():
@@ -94,15 +112,12 @@ class VistaGrupos:
                 self.mensaje_error
             )
             
-            
             if callback_ui:
                 callback_ui(exito)
             
-            # Actualizar las tarjetas si la edición fue exitosa
             if exito:
                 await self.actualizar_tarjetas_grupos()
 
-            # activamos de nuevo el botón
             self.btn_crear_grupos.disabled = False  
             self.page.update()   
             
@@ -135,10 +150,8 @@ class VistaGrupos:
         #AQUI SE ACTUALIZARA LA INFORMACION DE LOS GRUPOS PARA QUE SE VEA EL NUEVO INTEGRANTE
 
     async def actualizar_tarjetas_grupos(self):
-        # obtener info de los grupos
         await self.obtener_info_grupos()
 
-        # Actualizar el contenido del centro con las nueva informacion de los grupos
         self.centro.content = ft.Row(
             expand=True,
             spacing=10,
@@ -149,7 +162,10 @@ class VistaGrupos:
                         grupos, 
                         self.integrantes[i] if self.integrantes and i < len(self.integrantes) else [], 
                         on_click_tarjeta=self.manejador_tarjeta(grupos),
-                        on_click_anyadir=self.anyadir_integrante_desde_tarjeta  
+                        on_click_anyadir=self.anyadir_integrante_desde_tarjeta,
+                        on_click_eliminar=self.eliminar_grupo_desde_tarjeta,
+                        on_click_editar=self.editar_grupo_desde_tarjeta,
+                        on_click_eliminar_integrante=self.eliminar_integrante_desde_tarjeta,
                     ),
                 )
                 for i, grupos in enumerate(self.datos_grupo or [])
@@ -185,7 +201,8 @@ class VistaGrupos:
                                    on_click_tarjeta=self.manejador_tarjeta(grupos),
                                    on_click_anyadir=self.anyadir_integrante_desde_tarjeta,
                                    on_click_eliminar=self.eliminar_grupo_desde_tarjeta,
-                                   on_click_editar=self.editar_grupo_desde_tarjeta,),
+                                   on_click_editar=self.editar_grupo_desde_tarjeta,
+                                   on_click_eliminar_integrante=self.eliminar_integrante_desde_tarjeta,),
                                    
                 )
                 for i, grupos in enumerate(self.datos_grupo or [])

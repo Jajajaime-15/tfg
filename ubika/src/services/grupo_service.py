@@ -297,3 +297,73 @@ class Wrapper:
         except Exception as e:
             print(f"Error al añadir participante: {e}")
             return False, str(e)
+        
+    async def eliminar_participante(self, nombre_grupo, nombre_integrante):
+        try:
+            if not self.token or not self.id_usuario:
+                return False, "Debes iniciar sesión para eliminar participantes"
+            
+            # Obtener todos los grupos
+            grupos = self.db.child("grupos").get(self.token).val()
+            
+            if not grupos:
+                return False, "No hay grupos en la base de datos"
+            
+            # Buscar el grupo por nombre
+            id_grupo_encontrar = None
+            datos_grupo_encontrar = None
+            
+            for id_grupo, datos_grupo in grupos.items():
+                if datos_grupo.get("nombre") == nombre_grupo:
+                    id_grupo_encontrar = id_grupo
+                    datos_grupo_encontrar = datos_grupo
+                    break
+            
+            if not id_grupo_encontrar:
+                return False, f"No se encontró el grupo '{nombre_grupo}'"
+            
+            # Verificar que sea admin
+            if datos_grupo_encontrar.get("admin") != self.id_usuario:
+                return False, "Solo el administrador puede eliminar participantes"
+            
+            # Obtener miembros
+            miembros = datos_grupo_encontrar.get("miembros", {})
+            
+            if not isinstance(miembros, dict):
+                miembros = {}
+            
+            # Buscar el ID del integrante por nombre
+            usuarios = self.db.child("usuarios").get(self.token).val()
+            id_integrante_eliminar = None
+            
+            for id_usuario, datos_usuario in usuarios.items():
+                if datos_usuario.get("nombre") == nombre_integrante:
+                    id_integrante_eliminar = id_usuario
+                    break
+            
+            if not id_integrante_eliminar:
+                return False, f"No se encontró el integrante '{nombre_integrante}'"
+            
+            # No permitir eliminar al admin
+            if id_integrante_eliminar == self.id_usuario:
+                return False, "No puedes eliminarte a ti mismo del grupo"
+            
+            # Eliminar del diccionario de miembros
+            if id_integrante_eliminar in miembros:
+                del miembros[id_integrante_eliminar]
+                
+                # Actualizar en Firebase
+                self.db.child(f"grupos/{id_grupo_encontrar}").update({"miembros": miembros}, self.token)
+                
+                # Eliminar referencia del grupo en el usuario eliminado
+                ruta_usuario = f"usuarios/{id_integrante_eliminar}/grupos/{id_grupo_encontrar}"
+                self.db.child(ruta_usuario).remove(self.token)
+                
+                print(f"Integrante '{nombre_integrante}' eliminado del grupo '{nombre_grupo}'")
+                return True, "Integrante eliminado correctamente"
+            else:
+                return False, "El integrante no está en el grupo"
+                
+        except Exception as e:
+            print(f"Error al eliminar participante: {e}")
+            return False, str(e)    
