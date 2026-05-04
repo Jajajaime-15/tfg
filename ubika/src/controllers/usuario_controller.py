@@ -99,7 +99,11 @@ class UsuarioController:
 
     # funcion para abrir el menu
     async def mostrar_colores(self, e):
-        self.page.overlay.append(self.vista.lista_colores)
+        # limpiamos el overlay para evitar duplicados
+        if self.vista.lista_colores in self.page.overlay:
+            self.page.overlay.remove(self.vista.lista_colores)
+
+        self.page.overlay.append(self.vista.lista_colores) # añadimos de nuevo el overlay
         self.vista.lista_colores.open = True # mostramos el menu
         self.page.update()
 
@@ -107,13 +111,11 @@ class UsuarioController:
     async def seleccionar_color(self, e):
         color_elegido = e.control.data
         self.vista.lista_colores.open = False # cerramos el menu
-        
-        datos = {"color_avatar":color_elegido} 
-        exito,mensaje = await self.service.actualizar_datos(datos) # usamos la funcion de actualizar datos para guardarlo en firebase y Shared preferences
-        if exito:
-            self.vista.avatar.bgcolor = color_elegido # actualizamos el color del avatar
-
+        self.vista.avatar.bgcolor = color_elegido # actualizamos el color del avatar
         self.page.update()
+
+        datos = {"color_avatar":color_elegido} 
+        await self.service.actualizar_datos(datos) # usamos la funcion de actualizar datos para guardarlo en firebase y Shared preferences
 
     # función para que la vista de perfil limpie la información de la sesión anterior
     def limpiar_vista(self):

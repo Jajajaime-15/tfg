@@ -56,6 +56,7 @@ class VistaPerfil:
                     ], 
                     wrap=True,
                     alignment=ft.MainAxisAlignment.CENTER),
+                    ft.Container(height=50), # añadimos una linea invisible para separar de la barra de navegación del movil
                 ],
                 tight=True),
             )
