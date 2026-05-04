@@ -155,7 +155,7 @@ class GPSService:
 
     # metodo principal que servira como orquestador de todo el gps
     async def gps(self, actualizar_marcador_usuario=None, actualizar_marcador_miembros=None): # recibe las funciones para actualizar los marcadores en tiempo real
-        self.iniciar_usuario() # cargamos los datos del usuario al iniciar el gps
+        await self.iniciar_usuario() # cargamos los datos del usuario al iniciar el gps
         self.actualizar_marcador_usuario = actualizar_marcador_usuario
         self.actualizar_marcador_miembros = actualizar_marcador_miembros # declaramos la funcion del controller para que procesar cola la pueda usar
         self.cola_miembros = asyncio.Queue() # instanciamos la cola ahora que el event loop es el correcto
