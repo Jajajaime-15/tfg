@@ -30,6 +30,8 @@ class GPSService:
         color = await self.page.shared_preferences.get("color_avatar")
         self.datos_usuario = { "nombre" : nombre, "color" : color }
 
+        self.token = await self.page.shared_preferences.get("token")
+
         grupos_usuario = await self.page.shared_preferences.get("grupos")
         if grupos_usuario: # solo en caso de que el usuario tenga algun grupo
             self.grupos = json.loads(grupos_usuario)
@@ -37,7 +39,7 @@ class GPSService:
         # recorremos los grupos a los que pertenece el usuario y cada miembro para guardarlos en la lista de miembros y poder evitar repetidos
         if self.grupos: # por si el usuario no esta todavia en ningun grupo
             for grupo in self.grupos.keys():
-                miembros = self.db.child("grupos").child(grupo).child("miembros").get().val()
+                miembros = self.db.child("grupos").child(grupo).child("miembros").get(self.token).val()
                 if miembros:
                     for miembro in miembros.keys():
                         if miembro not in self.miembros_grupos and miembro != self.yo: 
