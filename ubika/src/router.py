@@ -3,9 +3,11 @@ import flet as ft
 from views.login_view import VistaLogin
 from views.registro import VistaRegistro
 from views.groups_view import VistaGrupos
+from views.crear_grupo import VistaCrearGrupo
 from controllers.user_controller import UserController
 from controllers.group_controller import GroupController
 from controllers.user_controller import UserController
+
 # Aquí importamos las nuevas vistas que se creen 
 
 class Router:
@@ -22,12 +24,20 @@ class Router:
             "/": (VistaLogin, self.user_controller),
             "/registro": (VistaRegistro, self.user_controller),
             "/grupos": (VistaGrupos, self.group_controller, self.user_controller), # pasamos ambos controladores a la vista de grupos para poder usar las funciones de ambos
+            "/crear_grupo": (VistaCrearGrupo, self.group_controller), # pasamos el controlador de grupos a la vista de crear grupo para poder usar sus funciones
         }
 
     async def route_change(self, e):
         """Función que se activa cada vez que cambia la URL"""
         print(f"Cambiando a la ruta: {self.page.route}")
         
+
+        # Recargar datos del usuario en CADA cambio de ruta
+        await self.grupo_wrapper.cargar_datos_usuario()
+        
+        print(f"Token después de recargar: {self.grupo_wrapper.token}")
+        print(f"ID Usuario después de recargar: {self.grupo_wrapper.id_usuario}")
+
         # Limpiamos los controles actuales de la página
         self.page.controls.clear()
         
@@ -41,9 +51,13 @@ class Router:
             #Pasamos dos controladores a VistaGrupos
             pantalla = VistaGrupos(self.page, self.group_controller, self.user_controller)
             await pantalla.obtener_info_grupos()  # Cargar datos iniciales
+
+        elif self.page.route == "/crear_grupo":
+            pantalla = VistaCrearGrupo(self.page, self.group_controller)  
         else:
             # Ruta no encontrada, redirigir a login
             pantalla = VistaLogin(self.page, self.user_controller)
+            
         
         # Agregamos la vista a la página
         self.page.add(pantalla.vista())

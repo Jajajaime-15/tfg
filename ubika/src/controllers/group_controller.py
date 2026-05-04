@@ -22,7 +22,7 @@ class GroupController:
                 mensaje.color = "green"
                 self.page.update()
                 await asyncio.sleep(2) # POR QUE? PONED AUNQUE SEA UN COMENTARIO PARA SABER POR QUE SE HACE ESTO
-                await self.page.push_route("/") # ESTO NO LLEVARIA A LA PANTALLA DE LOGIN EN VEZ DE A LA DE HOME? LO TIENES ASI EN TODAS LAS ACCIONES
+                await self.page.push_route("/grupos")
                 '''# uso de snack_bar para mostrar el aviso de registrado y que desaparezca solo NO ME APARECE
                 self.page.snack_bar = ft.SnackBar(ft.Text("Grupo creado correctamente"))
                 self.page.snack_bar.open = True'''

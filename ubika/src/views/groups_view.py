@@ -1,6 +1,7 @@
 import flet as ft
 from flet import TextField
 from components.components import tarjeta_grupos
+from components import tarjeta_crear_grupo
 from views.perfil_view import VistaPerfil
 
 
@@ -12,30 +13,11 @@ class VistaGrupos:
         self.datos_grupo = None
         self.integrantes = None
         self.centro = ft.Container(expand=True)
-        
-
-        self.nombre_grupo_input = ft.TextField(
-            label="Nombre del grupo",
-            hint_text="Introduce el nombre del grupo",
-            prefix_icon=ft.CupertinoIcons.PERSON,
-            focused_border_color="#1A6AFE",
-            width=300,
-            border_radius=10
-        )
-
-        self.integrante_input = ft.TextField(
-            label="Integrante",
-            hint_text="Introduce el nombre del integrante",
-            prefix_icon=ft.CupertinoIcons.PERSON,
-            focused_border_color="#1A6AFE",
-            width=300,
-            border_radius=10
-        )
 
 
         self.btn_crear_grupos = ft.ElevatedButton(
-            content=ft.Text("Crear grupo"),
-            icon=ft.Icons.APP_REGISTRATION,
+            content=ft.Text("Añadir grupo"),
+            icon=ft.CupertinoIcons.PLUS,
             bgcolor="#1A6AFE",
             color="white",
             width=200,
@@ -66,17 +48,7 @@ class VistaGrupos:
         return manejador    
 
     async def crear_grupo(self, e):
-        # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
-        self.btn_crear_grupos.disabled = True
-        self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
-        self.page.update()
-
-        # llamamos a la función para crear un grupo
-        await self.group_controller.crear_grupo(
-            self.nombre_grupo_input,
-            self.integrante_input,
-            self.mensaje_error
-        )
+        self.page.go("/crear_grupo")
     
     async def obtener_info_grupos(self):
 
@@ -245,10 +217,9 @@ class VistaGrupos:
                 ),
                 ft.Row(
                     controls=[
-                        self.nombre_grupo_input,
-                        self.integrante_input,
                         self.btn_crear_grupos,
                     ],
+                    alignment=ft.MainAxisAlignment.END,
                 ),
                 # Centro dinámico (expande para ocupar el espacio)
                 ft.Container(expand=True, content=self.centro),
