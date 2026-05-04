@@ -12,10 +12,15 @@ class MapaController:
 
     async def iniciar_gps(self):
         # llamamos al geolocator
-        self.lat, self.lon, self.geo = await self.service.gps(
+        gps = await self.service.gps(
             actualizar_marcador_usuario = self.actualizar_marcador_usuario, 
             actualizar_marcador_miembros = self.actualizar_marcador_miembros
         ) # le pasamos la pagina y las funciones para dibujar los marcadores
+
+        if gps:
+            self.lat, self.lon, self.geo = gps
+            if self.geo and self.vista:
+                self.vista.anyadir_geo(self.geo) # para anyadir geo al stack una vez haya terminado de cargar y se haya instanciado el geo
 
     # funcion para enviar el marcador y la posicion del usuario con cada cambio de posicion
     def actualizar_marcador_usuario(self, datos_usuario, lat, lon, timestamp):

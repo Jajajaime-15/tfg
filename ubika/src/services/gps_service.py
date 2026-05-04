@@ -116,8 +116,8 @@ class GPSService:
                 timestamp = ubicacion_miembro["data"].get("timestamp")
 
                 if miembro not in self.datos_miembros_cache: # comprobamos si el miembro esta en la cache
-                    nombre_miembro = self.db.child("usuarios").child(miembro).child("nombre").get().val()
-                    color_miembro = self.db.child("usuarios").child(miembro).child("color_avatar").get().val()
+                    nombre_miembro = self.db.child("usuarios").child(miembro).child("nombre").get(self.token).val()
+                    color_miembro = self.db.child("usuarios").child(miembro).child("color_avatar").get(self.token).val()
                     self.datos_miembros_cache[miembro] = {"nombre" : nombre_miembro, "color": color_miembro} # si no esta obtenemos sus datos de firebase para dibujar el marcador
                 datos_miembro = self.datos_miembros_cache[miembro] # en cualquier caso obtenemos asi el nombre y el color que seran enviados al mapa
 
@@ -131,7 +131,10 @@ class GPSService:
         if self.grupos:
             for grupo in self.grupos.keys():
                 # el stream hace que escuchemos constantemente esta parte de realtime por si hay cambios y llamamos al callback
-                self.db.child("ubicaciones").child(grupo).child(miembro).stream(self.callback_miembro(miembro)) 
+                self.db.child("ubicaciones").child(grupo).child(miembro).stream(
+                    self.callback_miembro(miembro), 
+                    token=self.token # al stream, igual que a los get, hay que pasarle el token de la sesion
+                ) 
 
     # funcion para configurar el geolocator segun el dispositivo en el que se use la app
     def configurar_geolocator(self):
@@ -163,7 +166,7 @@ class GPSService:
         self.cola_miembros = asyncio.Queue() # instanciamos la cola ahora que el event loop es el correcto
         self.bucle = asyncio.get_event_loop() # instanciamos el event loop de flet cuando ya ha sido iniciado
 
-        # añade la corrutina a la lista de tareas que tiene pendientes el event loop de flet, la corrutina pasa a vivir en el event loop
+        # anyade la corrutina a la lista de tareas que tiene pendientes el event loop de flet, la corrutina pasa a vivir en el event loop
         self.page.run_task(self.procesar_cola)
 
         geo = ftg.Geolocator(
@@ -185,4 +188,4 @@ class GPSService:
             hilo_listener.daemon = True # para que muera el hilo siempre que se cierre la app
             hilo_listener.start()
 
-        return lat, lon, geo # para poder dibujar la posicion inicial en el mapa y pasar el geo para añadirlo a la pagina desde el mapa en un Stack
+        return lat, lon, geo # para poder dibujar la posicion inicial en el mapa y pasar el geo para anyadirlo a la pagina desde el mapa en un Stack

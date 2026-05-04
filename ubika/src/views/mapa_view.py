@@ -10,6 +10,7 @@ class VistaMapa:
         self.marker_layer_user = ftm.MarkerLayer(markers=[]) # capa para poder dibujar marcadores propios en el mapa
         self.marker_layer_miembros = ftm.MarkerLayer(markers=[]) # capa para poder dibujar marcadores de los miembros en el mapa
         self.marcadores_miembros = {} # para poder diferenciar cada marcador de cada miembro del grupo
+        self.stack = None # el stack ya que el geo se anyade mas tarde
 
     def vista(self):
         self.page.padding = 0 # para evitar bordes blancos a los lados
@@ -35,7 +36,13 @@ class VistaMapa:
             ]
         )
 
-        return ft.Stack(controls=[self.controlador.geo, mapa], expand=True) # construimos un stack para que salga por encima siempre el mapa
+        self.stack = ft.Stack(controls=[self.controlador.geo, mapa], expand=True) # construimos un stack para que salga por encima siempre el mapa
+        return self.stack
+
+    def anyadir_geo(self, geo):
+        if self.stack:
+            self.stack.controls.insert(0, geo) # de esta forma se inserta por debajo de la capa del mapa
+            self.page.update()
 
     # funcion para dibujar el marcador del usuario con cada cambio de posicion
     def pintar_marcador_usuario(self, marcador, lat, lon):
