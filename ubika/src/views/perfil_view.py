@@ -28,7 +28,7 @@ class VistaPerfil:
         self.avatar = ft.CircleAvatar(
             content=self.inicial_texto,
             radius=40,
-            bgcolor="#1A6AFE",
+            bgcolor="TRANSPARENT",
         )
 
         self.contenedor_avatar = ft.Container(
