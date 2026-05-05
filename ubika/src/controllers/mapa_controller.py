@@ -19,7 +19,7 @@ class MapaController:
 
         if gps:
             self.lat, self.lon, self.geo = gps
-            if self.geo and self.vista:
+            if self.vista:
                 self.vista.anyadir_geo(self.geo) # para anyadir geo al stack una vez haya terminado de cargar y se haya instanciado el geo
 
     # funcion para enviar el marcador y la posicion del usuario con cada cambio de posicion

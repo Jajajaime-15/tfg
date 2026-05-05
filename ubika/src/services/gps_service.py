@@ -65,7 +65,7 @@ class GPSService:
 
         if self.grupos and self.page.platform == ft.PagePlatform.ANDROID: # para que solo escriba en Firebase desde el móvil, ya que escritorio no escribe la ubicacion correcta
             for grupo in self.grupos.keys(): # para escribir el cambio de posicion en todos los grupos a los que se pertenezca
-                self.db.child("ubicaciones").child(grupo).child(self.yo).set(loc) # si se cambia la posicion la escribimos en la base de datos
+                self.db.child("ubicaciones").child(grupo).child(self.yo).set(loc, self.token) # si se cambia la posicion la escribimos en la base de datos
         
         if self.actualizar_marcador_usuario: # solo en caso de que exista
             self.actualizar_marcador_usuario(self.datos_usuario, latitud, longitud, timestamp) # llamamos a la funcion del mapa para pintar el marcador propio personalizado cada vez que se actualice la posicion
@@ -101,7 +101,7 @@ class GPSService:
         try:
             if self.grupos and self.page.platform == ft.PagePlatform.ANDROID: # para que solo escriba en Firebase desde el móvil, ya que escritorio no escribe la ubicacion correcta
                 for grupo in self.grupos.keys(): # para escribir la posicion inicial en todos los grupos a los que se pertenezca
-                    self.db.child("ubicaciones").child(grupo).child(self.yo).set(loc) # para escribir los valores debemos marcar el nivel dentro de los json con los 'child' y 'set'
+                    self.db.child("ubicaciones").child(grupo).child(self.yo).set(loc, self.token) # para escribir los valores debemos marcar el nivel dentro de los json con los 'child' y 'set'
         except Exception as e:
             self.page.add(ft.Text(f"Error escritura Firebase: {e}"))
         

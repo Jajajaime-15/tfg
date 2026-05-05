@@ -9,6 +9,7 @@ class UsuarioController:
         self.ajustes_controller = ajustes_controller
 
     async def cargar_perfil(self):
+        await self.service.sincronizar() # sincronizamos los datos del usuario por si acaso cada vez que se carga el perfil
         # cogemos los datos que estan guardados en el dispositivo
         nombre = await self.page.shared_preferences.get("nombre") or ""
         apellidos = await self.page.shared_preferences.get("apellidos") or ""
