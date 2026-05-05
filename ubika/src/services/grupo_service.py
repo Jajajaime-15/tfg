@@ -12,7 +12,7 @@ class Wrapper:
             self.id_usuario = None
             self.id_grupo = None
             self.token = None
-            print("Conectado a firebase") # print para comprobar que no hay problema a la hora de conectarse
+            print("Conectado a firebase")
         except Exception as e:
             print("Error al conectarse a firebase")
 

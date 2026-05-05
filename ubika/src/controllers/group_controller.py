@@ -156,8 +156,7 @@ class GroupController:
             mensaje.value = "Integrante eliminado correctamente"
             mensaje.color = "green"
             self.page.update()
-            await asyncio.sleep(1.5)
-            mensaje.value = ""
+            await asyncio.sleep(2)
         else:
             mensaje.value = f"Error al eliminar integrante: {aviso}"
             mensaje.color = "red"

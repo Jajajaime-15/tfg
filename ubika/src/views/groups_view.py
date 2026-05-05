@@ -1,7 +1,6 @@
 import flet as ft
 from flet import TextField
-from components.components import tarjeta_grupos
-from components import tarjeta_crear_grupo
+from components.tarjeta_grupos import tarjeta_grupos
 from views.perfil_view import VistaPerfil
 
 
@@ -77,9 +76,9 @@ class VistaGrupos:
         )
         
         self.btn_crear_grupos.disabled = False
+        self.page.update()
 
     def eliminar_grupo_desde_tarjeta(self, nombre_grupo):
-        print(f"eliminar_grupo_desde_tarjeta llamado con: {nombre_grupo}")  # PRINT DEBUG
         # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
         self.btn_crear_grupos.disabled = True
         self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
@@ -238,6 +237,7 @@ class VistaGrupos:
                     ],
                     alignment=ft.MainAxisAlignment.END,
                 ),
+                self.mensaje_error,
                 # Centro dinámico (expande para ocupar el espacio)
                 ft.Container(expand=True, content=self.centro),
                 # Barra de navegación inferior
