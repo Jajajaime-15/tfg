@@ -23,12 +23,16 @@ class GPSService:
         self.cola_miembros = None # la cola que nos permite conectar los hilos de pyrebase con el event loop de flet
         self.bucle = None # sera la referencia al event loop de flet para poder hacer llamadas seguras
     
-    # funcion para cargar los datos del usuario antes de iniciar el gps
-    async def iniciar_usuario(self):
-        self.yo = await self.page.shared_preferences.get("id_usuario")
+    # funcion para poder actualizar la informacion del usuario en el marcador del gps
+    async def cargar_datos_usuario(self):
         nombre = await self.page.shared_preferences.get("nombre")
         color = await self.page.shared_preferences.get("color_avatar")
         self.datos_usuario = { "nombre" : nombre, "color" : color }
+
+    # funcion para cargar los datos del usuario antes de iniciar el gps
+    async def iniciar_usuario(self):
+        self.yo = await self.page.shared_preferences.get("id_usuario")
+        await self.cargar_datos_usuario() # en esta funcion solo esta la informacion susceptible de cambiar en el marcador del mapa
 
         self.token = await self.page.shared_preferences.get("token")
 
@@ -52,6 +56,12 @@ class GPSService:
             if self.actualizar_marcador_miembros:
                 self.actualizar_marcador_miembros(miembro, datos_miembro, lat, lon, timestamp) # indicamos el miembro, con su nombre y color y su localizacion para que el mapa lo pueda pintar
 
+    # corrutina para poder actualizar el marcador teniendo en cuenta los cambios del usuario en su perfil
+    async def actualizar_usuario(self, latitud, longitud, timestamp):
+        await self.cargar_datos_usuario() # comprobamos si se han cambiado datos en el usuario
+        if self.actualizar_marcador_usuario: 
+            self.actualizar_marcador_usuario(self.datos_usuario, latitud, longitud, timestamp) # llamamos a la funcion del mapa para pintar el marcador propio personalizado cada vez que se actualice la posicion
+
     # funcion para gestionar el cambio de ubicacion del usuario con geolocator tanto en firebase como en el mapa
     def cambio_ubicacion(self, cambio: ftg.GeolocatorPositionChangeEvent): # para el on position change del geolocator
         latitud = cambio.position.latitude
@@ -68,7 +78,7 @@ class GPSService:
                 self.db.child("ubicaciones").child(grupo).child(self.yo).set(loc, self.token) # si se cambia la posicion la escribimos en la base de datos
         
         if self.actualizar_marcador_usuario: # solo en caso de que exista
-            self.actualizar_marcador_usuario(self.datos_usuario, latitud, longitud, timestamp) # llamamos a la funcion del mapa para pintar el marcador propio personalizado cada vez que se actualice la posicion
+            self.page.run_task(self.actualizar_usuario, latitud, longitud, timestamp) # llamamos a la corrutina para poder actualizar los datos que se cambien en el usuario
 
     # funcion para solicitar que se active el permiso de ubicacion si no esta activado en la aplicacion
     async def permitir_ubicacion(self, geo):
