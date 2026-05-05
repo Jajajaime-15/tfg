@@ -111,7 +111,7 @@ class GroupController:
             return [], []  # Retornar listas vacías en caso de error
         
         if datos_grupo:
-            mensaje.value = f"Se encontraron {len(datos_grupo)} grupos"
+            mensaje.value = ""
             mensaje.color = "green"
         else:
             mensaje.value = "No tienes grupos aún"

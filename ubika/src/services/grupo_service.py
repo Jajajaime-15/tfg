@@ -91,7 +91,6 @@ class Wrapper:
             return False, str(e)
 
         
-    # función para eliminar grupos
     async def eliminar_grupo(self, nombre_grupo):
         try:
             if not self.token or not self.id_usuario:
@@ -103,28 +102,39 @@ class Wrapper:
             if not todos_los_grupos:
                 return False, "No hay grupos en la base de datos"
             
-            # Buscar el ID del grupo por nombre y verificar que sea admin
+            # Buscar el grupo
             id_grupo_encontrar = None
+            datos_grupo_encontrar = None
+            
             for id_grupo, datos_grupo in todos_los_grupos.items():
                 if datos_grupo.get("nombre") == nombre_grupo and datos_grupo.get("admin") == self.id_usuario:
                     id_grupo_encontrar = id_grupo
+                    datos_grupo_encontrar = datos_grupo
                     break
             
             if not id_grupo_encontrar:
                 return False, f"No se encontró el grupo '{nombre_grupo}' o no eres el administrador"
             
-            # Eliminar el grupo del nodo grupos
+            # Obtener la lista de miembros
+            miembros = datos_grupo_encontrar.get("miembros", {})
+            
+            # Eliminar el grupo de todos los miembros
+            for id_miembro in miembros.keys():
+                # Ruta completa al grupo específico del usuario
+                ruta_grupo_usuario = f"usuarios/{id_miembro}/grupos/{id_grupo_encontrar}"
+                
+                # Verificar si existe la referencia
+                grupo_ref = self.db.child(ruta_grupo_usuario).get(self.token).val()
+                if grupo_ref:
+                    # Eliminar la referencia del grupo de este usuario
+                    self.db.child(ruta_grupo_usuario).remove(self.token)
+                    print(f"  ✓ Referencia eliminada para usuario: {id_miembro}")
+            
+            # Eliminar el grupo del nodo principal
             self.db.child(f"grupos/{id_grupo_encontrar}").remove(self.token)
             
-            # Eliminar el grupo del usuario
-            ruta_usuario = f"usuarios/{self.id_usuario}/grupos"
-            grupos_usuario = self.db.child(ruta_usuario).get(self.token).val()
+            print(f"Grupo '{nombre_grupo}' eliminado completamente")
             
-            if grupos_usuario and id_grupo_encontrar in grupos_usuario:
-                del grupos_usuario[id_grupo_encontrar]
-                self.db.child(ruta_usuario).set(grupos_usuario, self.token)
-            
-            print(f"Grupo '{nombre_grupo}' eliminado correctamente")
             return True, "Grupo eliminado correctamente"
             
         except Exception as e:
