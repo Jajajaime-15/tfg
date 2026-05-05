@@ -5,14 +5,15 @@ from views.mapa_view import VistaMapa
 class VistaPrincipal: 
     def __init__(self, page, controlador_user, controlador_mapa):
         self.page = page
-        self.controlador_u = controlador_user
+        self.controlador_user = controlador_user
         self.controlador_mapa = controlador_mapa
         self.centro = ft.Container(expand=True)
-        # self.cargar_pestana_grupos()
         # guardamos el indice (en el caso de volver para atras desde ajustes volvemos a home pero recordamos que estabamos en perfil)
         self.index_inicio = getattr(self.page, "index_navegacion", 0)
-        # barra de los botones de abajo con grupos,mapa y perfil
-        self.inferior = ft.NavigationBar(
+        self.vista_mapa = VistaMapa(self.page, self.controlador_mapa)
+        self.vista_perfil = None
+        
+        self.inferior = ft.NavigationBar( # barra de navegacion de los botones de abajo con grupos, mapa y perfil
             selected_index=self.index_inicio,  # recuperamos el indice
             bgcolor=ft.Colors.TRANSPARENT, # fondo transparente
             elevation=0, # quitamos la elevacion para que no haya sombras ni lineas
@@ -31,13 +32,18 @@ class VistaPrincipal:
         if indice == 0: # grupos
             pass # Vista de Grupos (Julio)
         elif indice == 1: # mapa
-            nueva_vista = VistaMapa(self.page, self.controlador_mapa)
-            self.centro.content = nueva_vista.vista()
-            self.page.run_task(self.controlador_mapa.iniciar_gps)
+            """if not self.vista_mapa: # la primera vez que se abre
+                self.vista_mapa = VistaMapa(self.page, self.controlador_mapa)"""
+
+            self.centro.content = self.vista_mapa.vista()
         elif indice == 2: # perfil
-            nueva_vista = VistaPerfil(self.page, self.controlador_u)
-            self.centro.content = nueva_vista.vista()
-            self.page.run_task(self.controlador_u.cargar_perfil)
+            if not self.vista_perfil: # la primera vez que se abre
+                self.vista_perfil = VistaPerfil(self.page, self.controlador_user)
+
+            self.centro.content = self.vista_perfil.vista()
+            self.controlador_user.limpiar_vista() # limpiamos la vista de los datos anteriores
+            self.page.run_task(self.controlador_user.cargar_perfil) # cargamos el perfil que ademas sincroniza los datos
+
         self.page.update()
 
     def cambiar_pestana(self, e):
