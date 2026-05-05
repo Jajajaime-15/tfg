@@ -71,7 +71,7 @@ class VistaRegistro:
                     ),
                     ft.Container(
                         content=ft.Text("REGISTRO", size=30, weight="bold"),
-                        margin=ft.margin.only(
+                        margin=ft.Margin.only(
                             top=20, # espacio desde arriba
                             bottom=40 # espacio hacia abajo, hacia los campos
                         ),

@@ -10,7 +10,7 @@ class AjustesController:
         self.vista = vista
 
     # funcion para cambiar el tema de la aplicacion (claro/oscuro)
-    async def tema (self,e):
+    async def tema (self, e):
 
         if self.page.theme_mode == ft.ThemeMode.LIGHT or self.page.theme_mode is None:
             self.page.theme_mode = ft.ThemeMode.DARK
@@ -33,7 +33,7 @@ class AjustesController:
         self.page.update()
 
     # funcion que abre el componente CardPassword, valida los datos y llama al wrapper
-    async def cambio_psw (self,componente):
+    async def cambio_psw (self, componente):
         componente.mensaje_error.value = ""
         componente.mensaje_error.color = "red"
         componente.update()
@@ -140,7 +140,7 @@ class AjustesController:
         self.page.update()
 
     # funcion para activar o desactivar la ubicacion del usuario
-    async def compartir_ubicacion(self,e):
+    async def compartir_ubicacion(self, e):
         # vemos lo que está seleccionado en el switch (activo/inactivo) y lo guardamos
         nuevo_estado = self.vista.ubicacion.value # aqui nos indica True o False
         estado = "true" if nuevo_estado else "false" # el estado hay que convertirlo a texto para guardarlo en shared preferences que no admite booleanos

@@ -28,7 +28,7 @@ class VistaPerfil:
         self.avatar = ft.CircleAvatar(
             content=self.inicial_texto,
             radius=40,
-            bgcolor="#1A6AFE",
+            bgcolor="TRANSPARENT",
         )
 
         self.contenedor_avatar = ft.Container(
@@ -56,6 +56,7 @@ class VistaPerfil:
                     ], 
                     wrap=True,
                     alignment=ft.MainAxisAlignment.CENTER),
+                    ft.Container(height=50), # añadimos una linea invisible para separar de la barra de navegación del movil
                 ],
                 tight=True),
             )

@@ -29,6 +29,7 @@ org = "com.ubika.tfg"
 product = "Ubika"
 company = "Equipo TFG"
 copyright = "Copyright (C) 2023-2026 by Flet"
+permissions = ["location"]
 
 [tool.flet.app]
 path = "src"
@@ -37,5 +38,7 @@ path = "src"
 permissions = [
     "ACCESS_FINE_LOCATION",
     "ACCESS_COARSE_LOCATION",
-    "ACCESS_BACKGROUND_LOCATION"
+    "ACCESS_BACKGROUND_LOCATION",
+    "FOREGROUND_SERVICE_LOCATION",
+    "POST_NOTIFICATIONS"
 ]
