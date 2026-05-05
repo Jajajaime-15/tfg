@@ -10,10 +10,13 @@ class VistaMapa:
         self.marker_layer_user = ftm.MarkerLayer(markers=[]) # capa para poder dibujar marcadores propios en el mapa
         self.marker_layer_miembros = ftm.MarkerLayer(markers=[]) # capa para poder dibujar marcadores de los miembros en el mapa
         self.marcadores_miembros = {} # para poder diferenciar cada marcador de cada miembro del grupo
-        self.stack = None # el stack ya que el geo se anyade mas tarde
+        self.stack = None # creamos el stack antes para luego poder anyadir el geolocator
 
     def vista(self):
         self.page.padding = 0 # para evitar bordes blancos a los lados
+
+        if self.stack: # en caso de que ya exista el stack del mapa creado no creamos de nuevo el mapa
+            return self.stack
 
         mapa = ftm.Map( # creacion del mapa
             expand=True, # para que ocupe toda la pantalla
@@ -39,8 +42,9 @@ class VistaMapa:
         self.stack = ft.Stack(controls=[self.controlador.geo, mapa], expand=True) # construimos un stack para que salga por encima siempre el mapa
         return self.stack
 
+    # para anyadir el geo al stack si no se ha agregado antes por no haberse iniciado a tiempo
     def anyadir_geo(self, geo):
-        if self.stack:
+        if self.stack and geo not in self.stack.controls: # comprobamos que haya stack y que aun no haya geo añadido al mismo
             self.stack.controls.insert(0, geo) # de esta forma se inserta por debajo de la capa del mapa
             self.page.update()
 
