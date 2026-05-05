@@ -1,0 +1,24 @@
+{
+  "rules": {
+    "usuarios": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "grupos": {
+      "$grupo_id": {
+        ".read": "auth != null && root.child('grupos').child($grupo_id).child('miembros').child(auth.uid).exists()",
+        ".write": "auth != null && root.child('grupos').child($grupo_id).child('admin').val() === auth.uid"
+      }
+    },
+    "ubicaciones": {
+      "$grupo_id": {
+        ".read": "auth != null && root.child('grupos').child($grupo_id).child('miembros').child(auth.uid).exists()",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
+        }
+      }
+    }
+  }
+}
