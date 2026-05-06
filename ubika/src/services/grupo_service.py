@@ -25,7 +25,7 @@ class Wrapper:
     async def crear_grupo(self, nombre_grupo, integrante):
         try:
             if not self.token or not self.id_usuario:
-                return False, "Debes iniciar sesión para crear un grupo"
+                return False, "Debes iniciar sesión para crear un FFgrupo"
             
             usuarios = self.db.child("usuarios").get(self.token).val()
 
@@ -162,10 +162,13 @@ class Wrapper:
             
             if not id_grupo_encontrar:
                 return False, f"No se encontró el grupo '{nombre_grupo}' o no eres el administrador"
-            
+        
             # Editar el nombre del grupo
             self.db.child(f"grupos/{id_grupo_encontrar}").update({"nombre": nuevo_nombre_grupo}, self.token)
             
+            #DEBUG: Está comentado para que se cambie el nombre en los grupos del usuario y se mantenga True
+
+            '''
             # Editar el nombre del grupo del usuario
             ruta_usuario = f"usuarios/{self.id_usuario}/grupos"
             grupos_usuario = self.db.child(ruta_usuario).get(self.token).val()
@@ -177,6 +180,8 @@ class Wrapper:
                 grupos_usuario[id_grupo_encontrar] = nuevo_nombre_grupo
                 # Guardar el diccionario actualizado
                 self.db.child(ruta_usuario).set(grupos_usuario, self.token)
+
+            '''    
             
             print(f"Grupo '{nombre_grupo}' editado correctamente")
             return True, "Grupo editado correctamente"
