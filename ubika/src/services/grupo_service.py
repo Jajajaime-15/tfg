@@ -69,7 +69,7 @@ class Wrapper:
                 grupos_admin = {}
             
             # Añadir el nuevo grupo sin borrar los anteriores
-            grupos_admin[id_grupo] = nombre_grupo
+            grupos_admin[id_grupo] = True
             
             self.db.child(ruta_admin).update(grupos_admin, self.token)
             
@@ -80,7 +80,7 @@ class Wrapper:
             if not grupos_integrante or not isinstance(grupos_integrante, dict):
                 grupos_integrante = {}
             
-            grupos_integrante[id_grupo] = nombre_grupo
+            grupos_integrante[id_grupo] = True
             self.db.child(ruta_integrante).update(grupos_integrante, self.token)
             
             print(f"Grupo '{nombre_grupo}' creado correctamente con ID: {id_grupo}")
@@ -284,8 +284,21 @@ class Wrapper:
             for id_usuario, datos_usuario in usuarios.items():
                 if datos_usuario.get("email") == nuevo_integrante:
                     id_integrante = id_usuario
+                    datos_usuario_encontrar = datos_usuario
                     print(f"Nuevo integrante encontrado: {id_integrante} (ID de usuario)")
                     break    
+
+            grupos_integrante = datos_usuario_encontrar.get("grupos", {})    
+
+            # Verificar que grupos_integrante sea un diccionario
+            if not isinstance(grupos_integrante, dict):
+                grupos_integrante = {}
+            
+            grupos_integrante[id_grupo_encontrar] = True
+    
+            # Verificar que miembros sea un diccionario
+            if not isinstance(miembros, dict):
+                miembros = {}
             
             if not id_integrante:
                 print("No se encontró el usuario con email:", nuevo_integrante)
@@ -300,6 +313,7 @@ class Wrapper:
             
             # Actualizar usando el ID del grupo
             self.db.child(f"grupos/{id_grupo_encontrar}").update({"miembros": miembros}, self.token)
+            self.db.child(f"usuarios/{id_integrante}/grupos").update(grupos_integrante, self.token)
             
             print(f"Integrante '{nuevo_integrante}' añadido al grupo '{nombre_grupo}'")
             return True, "Integrante añadido correctamente"
