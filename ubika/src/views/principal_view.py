@@ -7,7 +7,7 @@ class VistaPrincipal:
         self.page = page
         self.controlador_user = controlador_user
         self.controlador_mapa = controlador_mapa
-        self.controlador_mapa.vista = self
+        self.controlador_mapa.vista = self # vinculamos con la vista para poder actualizar mapa e interfaz
         # el contenedor del centro lo ajustamos para que no quede pegado arriba del todo
         self.centro = ft.Container(
             expand=True, 
@@ -43,7 +43,6 @@ class VistaPrincipal:
                 self.vista_perfil = VistaPerfil(self.page, self.controlador_user)
 
             self.centro.content = self.vista_perfil.vista()
-            self.controlador_user.limpiar_vista() # limpiamos la vista de los datos anteriores
             self.page.run_task(self.controlador_user.cargar_perfil) # cargamos el perfil que ademas sincroniza los datos
 
         self.page.update()

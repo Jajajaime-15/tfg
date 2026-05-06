@@ -26,29 +26,33 @@ class Router:
         self.vista_principal = None
         
     async def cambiar_ruta(self, e):
-        print(f"Cambiando a la ruta: {self.page.route}")
-
-        # definimos la pila segun la ruta
+        # definimos la pila segun la ruta para asegurar "el volver atrás"
         pila = {
             "/settings": ["/home", "/settings"],
             "/home": ["/home"],
             "/registro": ["/", "/registro"]
         }
+        # obtenemos la lista de las pantallas para ruta actual o por defecto la de login
         pila_rutas = pila.get(self.page.route, ["/"])
 
         # reconstruimos la pila de las vistas
-        self.page.views.clear()
+        
+        self.page.views.clear() # limpiamos todas las vistas que esten cargadas en la aplicacion
+        # recorremos una a una las rutas ded diccionario de rutas y cogemos la vista y su controlador correspondiente
         for ruta in pila_rutas:
             vista_clase, controlador = self.routes[ruta]
-            
+            # comprobamos la vista que toca cargar, si no existe de primeras se crea y se añade a la pantalla
             if vista_clase == VistaPrincipal:
                 if not self.vista_principal:
+                    # # creamos la instancia de la pantalla principal pasando el controlador de usuario[0] y el de mapa[1] para que el mapa siempre esté listo cada vez que se cambie de vista
                     self.vista_principal = VistaPrincipal(self.page, controlador[0], controlador[1])
                 pantalla = self.vista_principal
-            else:
+            else: # creamos una instancia nueva para el resto de rutas
                 pantalla = vista_clase(self.page, controlador)
+                # para login y registro enlazamos la pantalla con el controller de auth
                 if vista_clase == VistaLogin or vista_clase == VistaRegistro:
                     self.controlador_auth.vista = pantalla
+                # para ajustes enlazamos la pantalla con el controller settings
                 if vista_clase == VistaAjustes: 
                     self.controlador_settings.vista = pantalla
             # creamos la vista física y la añadimos a la pila de navegación para mostrarla
@@ -56,11 +60,11 @@ class Router:
 
         self.page.update()
 
-        if self.page.route == "/home":
-            await self.controlador_user.service.sincronizar()
-            if self.controlador_mapa.geo:
-                await self.controlador_mapa.iniciar_gps()
-            else:
+        # sincronizamos los datos y los cargamos
+        if vista_clase == VistaPrincipal:
+            await self.controlador_user.service.sincronizar() # sincronizamos si se ha cambiado algo en otro dispositivo
+            if not self.controlador_mapa.geo: # la primera vez que se abre
                 self.page.run_task(self.controlador_mapa.iniciar_gps)
-        elif self.page.route == "/settings":
+        elif vista_clase == VistaAjustes:
+            await self.controlador_user.service.sincronizar()
             await self.controlador_settings.cargar_ajustes()

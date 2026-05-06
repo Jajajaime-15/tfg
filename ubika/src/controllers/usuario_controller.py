@@ -120,6 +120,7 @@ class UsuarioController:
         datos = {"color_avatar":color_elegido} 
         await self.service.actualizar_datos(datos) # usamos la funcion de actualizar datos para guardarlo en firebase y Shared preferences
 
+    ''' PENDIENTE DE BORRAR, EL ERROR DE QUE AL CERRAR SESIÓN Y ABRIR UNA NUEVA CARGUE LOS DATOS ANTIGUOS SE SOLUCIONA CON EL RESET_VISTA
     # función para que la vista de perfil limpie la información de la sesión anterior
     def limpiar_vista(self):
         if self.vista:
@@ -132,4 +133,4 @@ class UsuarioController:
             self.vista.usuario.value = ""
             self.vista.email.value = ""
             self.vista.avatar.bgcolor = "TRANSPARENT"
-            print("Datos anteriores eliminados")
+            print("Datos anteriores eliminados")'''
