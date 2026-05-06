@@ -48,7 +48,7 @@ class AuthService:
             return False, str(e)
 
     # función para iniciar sesión con un usuario ya registrado
-    async def iniciar_sesion (self,email,psw):
+    async def iniciar_sesion (self, email, psw):
         try:
             usuario = self.auth.sign_in_with_email_and_password(email, psw)
             self.id_usuario = usuario["localId"]
@@ -101,7 +101,7 @@ class AuthService:
             print(f"Error al cerrar sesión: {e}")
 
     # función para recuperar la contraseña mediante el correo
-    async def recu_psw(self,email):
+    async def recu_psw(self, email):
         try:
             self.auth.send_password_reset_email(email) # firebase envía automáticamente un correo al email que se indique (tiene que ser un email registrado)
             print("Correo enviado para recuperar contraseña")

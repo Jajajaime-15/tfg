@@ -1,8 +1,8 @@
-import pyrebase
-from database.config import config
+import pyrebase # para firebase en python
+from database.config import config # las claves que tenemos en el .env
 
 class FirebaseService:
-    def __init__(self,page):
+    def __init__(self, page):
         self.page = page
         try:
             self.firebase = pyrebase.initialize_app(config)

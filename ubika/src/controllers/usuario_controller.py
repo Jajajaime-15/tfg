@@ -2,13 +2,14 @@ import flet as ft # type: ignore
 import asyncio
 
 class UsuarioController:
-    def __init__ (self,page,usuario_service,vista=None,ajustes_controller=None):
+    def __init__ (self, page, usuario_service, vista=None, ajustes_controller=None):
         self.page = page
         self.service = usuario_service
         self.vista = vista
         self.ajustes_controller = ajustes_controller
 
     async def cargar_perfil(self):
+        await self.service.sincronizar() # sincronizamos los datos del usuario por si acaso cada vez que se carga el perfil
         # cogemos los datos que estan guardados en el dispositivo
         nombre = await self.page.shared_preferences.get("nombre") or ""
         apellidos = await self.page.shared_preferences.get("apellidos") or ""
@@ -89,7 +90,7 @@ class UsuarioController:
         self.page.update()
 
     # funcion para abrir los ajustes
-    async def ajustes (self,e):
+    async def ajustes (self, e):
         # guardamos en memoria 2 que es la posición de Perfil en nuestra vista principal para así cuando demos a volver nos vuelva a perfil
         self.page.index_navegacion = 2 # no usamos shared_preferences porque solo se recuerda mientras que la sesion este activa, si cerramos la aplicacion desde la vista que sea siempre al abrirla vuelve a aparecer la principal con grupos
         await self.page.push_route("/settings")
@@ -99,7 +100,11 @@ class UsuarioController:
 
     # funcion para abrir el menu
     async def mostrar_colores(self, e):
-        self.page.overlay.append(self.vista.lista_colores)
+        # limpiamos el overlay para evitar duplicados
+        if self.vista.lista_colores in self.page.overlay:
+            self.page.overlay.remove(self.vista.lista_colores)
+
+        self.page.overlay.append(self.vista.lista_colores) # añadimos de nuevo el overlay
         self.vista.lista_colores.open = True # mostramos el menu
         self.page.update()
 
@@ -107,13 +112,11 @@ class UsuarioController:
     async def seleccionar_color(self, e):
         color_elegido = e.control.data
         self.vista.lista_colores.open = False # cerramos el menu
-        
-        datos = {"color_avatar":color_elegido} 
-        exito,mensaje = await self.service.actualizar_datos(datos) # usamos la funcion de actualizar datos para guardarlo en firebase y Shared preferences
-        if exito:
-            self.vista.avatar.bgcolor = color_elegido # actualizamos el color del avatar
-
+        self.vista.avatar.bgcolor = color_elegido # actualizamos el color del avatar
         self.page.update()
+
+        datos = {"color_avatar":color_elegido} 
+        await self.service.actualizar_datos(datos) # usamos la funcion de actualizar datos para guardarlo en firebase y Shared preferences
 
     # función para que la vista de perfil limpie la información de la sesión anterior
     def limpiar_vista(self):

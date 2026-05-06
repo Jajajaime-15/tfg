@@ -1,10 +1,9 @@
-# configuración de firebase cogiendo los datos de .env
-
 import os
-from dotenv import load_dotenv # type: ignore
+from dotenv import load_dotenv 
 
 load_dotenv() # carga el archivo .env
 
+# configuración de firebase cogiendo los datos de .env
 config = {
     "apiKey": os.getenv("FB_API_KEY"),
     "authDomain": os.getenv("FB_AUTH_DOMAIN"),
