@@ -27,7 +27,7 @@ class UsuarioController:
         self.vista.localidad_input.value = localidad
         
         # extraemos la primera letra del nombre y la ponemos en mayusculas para el avatar
-        if nombre:
+        if nombre and len(nombre.strip())>0: # evitamos que de error si el nombre llega vacío
             self.vista.inicial_texto.value = nombre[0].upper()
         else:
             self.vista.inicial_texto.value = "?"
@@ -78,7 +78,7 @@ class UsuarioController:
                     self.page.update()
                     await asyncio.sleep(2)
                     await self.service.auth_s.cerrar_sesion()
-                    self.ajustes_controller.router.reset_vistas()
+                    self.page.router.reset_vistas() # # llamamos a la funcion que resetea la vista
                     self.page.index_navegacion = 0 # aseguramos que al iniciar sesion entre en grupos
                     self.page.go("/")
                 elif "PERMISSION_DENIED" in error_guardado:
