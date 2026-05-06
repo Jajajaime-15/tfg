@@ -7,11 +7,16 @@ class VistaPrincipal:
         self.page = page
         self.controlador_user = controlador_user
         self.controlador_mapa = controlador_mapa
-        self.centro = ft.Container(expand=True)
+        self.controlador_mapa.vista = self
+        # el contenedor del centro lo ajustamos para que no quede pegado arriba del todo
+        self.centro = ft.Container(
+            expand=True, 
+            padding=ft.padding.only(top=45, left=0, right=0, bottom=0)
+        )
         # guardamos el indice (en el caso de volver para atras desde ajustes volvemos a home pero recordamos que estabamos en perfil)
         self.index_inicio = getattr(self.page, "index_navegacion", 0)
         self.vista_mapa = VistaMapa(self.page, self.controlador_mapa)
-        self.vista_perfil = None
+        self.vista_perfil = None # dejamos en None para que solo esté en memoria cuando se entre en perfil
         
         self.inferior = ft.NavigationBar( # barra de navegacion de los botones de abajo con grupos, mapa y perfil
             selected_index=self.index_inicio,  # recuperamos el indice

@@ -49,7 +49,7 @@ class VistaAjustes:
             padding=20,
             content=ft.Column(
                 [
-                    ft.Divider(height=10),
+                    ft.Divider(height=10, color="transparent"),
                     ft.Row([self.btn_volver, self.titulo]),
                     ft.Divider(height=10),
 

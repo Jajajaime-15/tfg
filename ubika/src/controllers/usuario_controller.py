@@ -78,6 +78,8 @@ class UsuarioController:
                     self.page.update()
                     await asyncio.sleep(2)
                     await self.service.auth_s.cerrar_sesion()
+                    self.ajustes_controller.router.reset_vistas()
+                    self.page.index_navegacion = 0 # aseguramos que al iniciar sesion entre en grupos
                     self.page.go("/")
                 elif "PERMISSION_DENIED" in error_guardado:
                     self.vista.mensaje_error.value = "No tienes permisos para modificar los datos"
@@ -126,8 +128,8 @@ class UsuarioController:
             self.vista.telefono_input.value = ""
             self.vista.pais_input.value = ""
             self.vista.localidad_input.value = ""
-            self.vista.inicial_texto.value = "?"
+            self.vista.inicial_texto.value = ""
             self.vista.usuario.value = ""
             self.vista.email.value = ""
-            self.vista.avatar.bgcolor = "#1A6AFE"
+            self.vista.avatar.bgcolor = "TRANSPARENT"
             print("Datos anteriores eliminados")

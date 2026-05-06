@@ -3,10 +3,11 @@ import asyncio
 import json
 
 class AjustesController:
-    def __init__(self, page, ajustes_service, usuario_service,vista = None):
+    def __init__(self, page, ajustes_service, usuario_service, router, vista = None):
         self.page = page
         self.service = ajustes_service
         self.usuario_s = usuario_service
+        self.router = router
         self.vista = vista
 
     # funcion para cambiar el tema de la aplicacion (claro/oscuro)
@@ -126,10 +127,14 @@ class AjustesController:
 
     async def cerrar_sesion(self, e):
         await self.service.auth_s.cerrar_sesion() # cerramos la sesion con firebase
+        
         self.usuario_s.id_usuario = None
         self.usuario_s.token = None
         self.service.id_usuario = None
         self.service.token = None
+
+        self.router.reset_vistas()
+        
         self.page.index_navegacion = 0 # reseteamos para que al volver a iniciar sesion aparezca grupos
         self.page.go("/") # abre el login una vez cerrada la sesión
 
