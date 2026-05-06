@@ -7,7 +7,6 @@ class VistaPrincipal:
         self.page = page
         self.controlador_user = controlador_user
         self.controlador_mapa = controlador_mapa
-        self.controlador_mapa.vista = self # vinculamos con la vista para poder actualizar mapa e interfaz
         # el contenedor del centro lo ajustamos para que no quede pegado arriba del todo
         self.centro = ft.Container(
             expand=True, 

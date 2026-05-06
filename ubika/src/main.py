@@ -61,7 +61,7 @@ async def main(page: ft.Page):
 
     # arrancamos el archivo de las rutas y conectamos con la funcion de cambio de ruta del router
     router = Router(page, auth_controller, ajustes_controller, usuario_controller, mapa_controller)
-    ajustes_controller.router = router # al cerrar sesion reseteamos el router
+    page.router = router # al cerrar sesion reseteamos el router
     page.on_route_change = router.cambiar_ruta 
 
     # comprobamos si hay algun usuario que haya iniciado sesion ya

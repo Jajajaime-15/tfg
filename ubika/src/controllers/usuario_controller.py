@@ -27,7 +27,7 @@ class UsuarioController:
         self.vista.localidad_input.value = localidad
         
         # extraemos la primera letra del nombre y la ponemos en mayusculas para el avatar
-        if nombre and len(nombre.strip())>0: # evitamos que de error si el nombre llega vacío
+        if nombre and len(nombre.strip()) > 0: # evitamos que de error si el nombre llega vacío
             self.vista.inicial_texto.value = nombre[0].upper()
         else:
             self.vista.inicial_texto.value = "?"
@@ -45,7 +45,7 @@ class UsuarioController:
 
         self.page.update()
     
-    async def guardar_cambios(self,e):
+    async def guardar_cambios(self, e):
         self.vista.btn_guardar.disabled = True # bloqueamos el botón para que no se pueda hacer clic mas de una vez
         self.vista.mensaje_error.value = ""
         self.page.update()
@@ -60,39 +60,39 @@ class UsuarioController:
 
         guardado, aviso = await self.service.actualizar_datos(datos)
         if guardado:
-                self.vista.mensaje_error.value = "Datos actualizados"
-                self.vista.mensaje_error.color = "green"
-                # actualiza la cabecera si se cambia el apellio
-                nombre = self.vista.nombre_input.value
-                apellidos = self.vista.apellidos_input.value
-                self.vista.usuario.value = f"{nombre} {apellidos}".strip()
-                self.page.update()
-                await asyncio.sleep(3) # Esperamos 3 segundos
-                self.vista.mensaje_error.value = ""
-                self.page.update()
+            self.vista.mensaje_error.value = "Datos actualizados"
+            self.vista.mensaje_error.color = "green"
+            # actualiza la cabecera si se cambia el apellio
+            nombre = self.vista.nombre_input.value
+            apellidos = self.vista.apellidos_input.value
+            self.vista.usuario.value = f"{nombre} {apellidos}".strip()
+            self.page.update()
+            await asyncio.sleep(3) # Esperamos 3 segundos
+            self.vista.mensaje_error.value = ""
+            self.page.update()
         else:
-                self.vista.mensaje_error.color = "red"
-                error_guardado = str(aviso).upper()
-                if "SESION_EXPIRADA" in error_guardado:
-                    self.vista.mensaje_error.value = "Sesión caducada, vuelve a iniciar sesión"
-                    self.page.update()
-                    await asyncio.sleep(2)
-                    await self.service.auth_s.cerrar_sesion()
-                    self.page.router.reset_vistas() # # llamamos a la funcion que resetea la vista
-                    self.page.index_navegacion = 0 # aseguramos que al iniciar sesion entre en grupos
-                    self.page.go("/")
-                elif "PERMISSION_DENIED" in error_guardado:
-                    self.vista.mensaje_error.value = "No tienes permisos para modificar los datos"
-                elif "NETWORK" in error_guardado or "CONNECTION" in error_guardado:
-                    self.vista.mensaje_error.value = "Sin conexión."
-                else:
-                    self.vista.mensaje_error.value = "Error al guardar los datos"
+            self.vista.mensaje_error.color = "red"
+            error_guardado = str(aviso).upper()
+            if "SESION_EXPIRADA" in error_guardado:
+                self.vista.mensaje_error.value = "Sesión caducada, vuelve a iniciar sesión"
+                self.page.update()
+                await asyncio.sleep(2)
+                await self.service.auth_s.cerrar_sesion()
+                self.page.router.reset_vistas() # # llamamos a la funcion que resetea la vista
+                self.page.index_navegacion = 0 # aseguramos que al iniciar sesion entre en grupos
+                self.page.go("/")
+            elif "PERMISSION_DENIED" in error_guardado:
+                self.vista.mensaje_error.value = "No tienes permisos para modificar los datos"
+            elif "NETWORK" in error_guardado or "CONNECTION" in error_guardado:
+                self.vista.mensaje_error.value = "Sin conexión."
+            else:
+                self.vista.mensaje_error.value = "Error al guardar los datos"
 
         self.vista.btn_guardar.disabled = False # activamos el botón de nuevo
         self.page.update()
 
     # funcion para abrir los ajustes
-    async def ajustes (self, e):
+    async def ajustes(self, e):
         # guardamos en memoria 2 que es la posición de Perfil en nuestra vista principal para así cuando demos a volver nos vuelva a perfil
         self.page.index_navegacion = 2 # no usamos shared_preferences porque solo se recuerda mientras que la sesion este activa, si cerramos la aplicacion desde la vista que sea siempre al abrirla vuelve a aparecer la principal con grupos
         await self.page.push_route("/settings")
@@ -119,18 +119,3 @@ class UsuarioController:
 
         datos = {"color_avatar":color_elegido} 
         await self.service.actualizar_datos(datos) # usamos la funcion de actualizar datos para guardarlo en firebase y Shared preferences
-
-    ''' PENDIENTE DE BORRAR, EL ERROR DE QUE AL CERRAR SESIÓN Y ABRIR UNA NUEVA CARGUE LOS DATOS ANTIGUOS SE SOLUCIONA CON EL RESET_VISTA
-    # función para que la vista de perfil limpie la información de la sesión anterior
-    def limpiar_vista(self):
-        if self.vista:
-            self.vista.nombre_input.value = ""
-            self.vista.apellidos_input.value = ""
-            self.vista.telefono_input.value = ""
-            self.vista.pais_input.value = ""
-            self.vista.localidad_input.value = ""
-            self.vista.inicial_texto.value = ""
-            self.vista.usuario.value = ""
-            self.vista.email.value = ""
-            self.vista.avatar.bgcolor = "TRANSPARENT"
-            print("Datos anteriores eliminados")'''

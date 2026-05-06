@@ -10,8 +10,7 @@ class AjustesController:
         self.vista = vista
 
     # funcion para cambiar el tema de la aplicacion (claro/oscuro)
-    async def tema (self, e):
-
+    async def tema(self, e):
         if self.page.theme_mode == ft.ThemeMode.LIGHT or self.page.theme_mode is None:
             self.page.theme_mode = ft.ThemeMode.DARK
             e.control.icon = ft.Icons.DARK_MODE # el icono del boton es el del tema oscuro
@@ -33,7 +32,7 @@ class AjustesController:
         self.page.update()
 
     # funcion que abre el componente CardPassword, valida los datos y llama al wrapper
-    async def cambio_psw (self, componente):
+    async def cambio_psw(self, componente):
         componente.mensaje_error.value = ""
         componente.mensaje_error.color = "red"
         componente.update()
