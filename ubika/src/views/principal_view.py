@@ -32,9 +32,6 @@ class VistaPrincipal:
         if indice == 0: # grupos
             pass # Vista de Grupos (Julio)
         elif indice == 1: # mapa
-            """if not self.vista_mapa: # la primera vez que se abre
-                self.vista_mapa = VistaMapa(self.page, self.controlador_mapa)"""
-
             self.centro.content = self.vista_mapa.vista()
         elif indice == 2: # perfil
             if not self.vista_perfil: # la primera vez que se abre
