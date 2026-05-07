@@ -21,9 +21,10 @@ class Router:
             "/home": (VistaPrincipal,(controlador_user, controlador_mapa)) # vista principal después de hacer login con grupos (Julio)
         }
 
-    # funcion para evitar que si se cierra sesion y se abre con otro usuario no nos cargue los datos del anterior (se usa en cerrar sesion)
+    # funcion para evitar que si se cierra sesion y se inicie de nuevo con otro usuario no nos cargue los datos del anterior
     def reset_vistas(self):
         self.vista_principal = None
+        self.controlador_mapa.geo = None
         
     async def cambiar_ruta(self, e):
         # definimos la pila segun la ruta para asegurar "el volver atrás"
