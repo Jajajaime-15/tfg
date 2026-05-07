@@ -55,8 +55,8 @@ async def main(page: ft.Page):
 
     # controladores
     auth_controller = AuthController(page, auth_service)
-    ajustes_controller = AjustesController(page, ajustes_service, usuario_service, None)
-    usuario_controller = UsuarioController(page, usuario_service, ajustes_controller)
+    ajustes_controller = AjustesController(page, ajustes_service, usuario_service)
+    usuario_controller = UsuarioController(page, usuario_service)
     mapa_controller = MapaController(page, gps_service)
 
     # arrancamos el archivo de las rutas y conectamos con la funcion de cambio de ruta del router
