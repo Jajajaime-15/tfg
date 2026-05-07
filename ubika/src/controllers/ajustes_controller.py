@@ -122,8 +122,7 @@ class AjustesController:
                                     on_click=lambda _: self.cerrar_dialogo())
                     ]
             self.page.update()
-            print(f"Error al borrar: {aviso}")
-
+            
     async def cerrar_sesion(self, e):
         await self.service.auth_s.cerrar_sesion() # cerramos la sesion con firebase
         
@@ -145,6 +144,10 @@ class AjustesController:
 
     # funcion para activar o desactivar la ubicacion del usuario
     async def compartir_ubicacion(self, e):
+        # si no es un dispositivo móvil no hacemos nada
+        if self.page.platform != ft.PagePlatform.ANDROID:
+            return
+
         # vemos lo que está seleccionado en el switch (activo/inactivo) y lo guardamos
         nuevo_estado = self.vista.ubicacion.value # aqui nos indica True o False
         estado = "true" if nuevo_estado else "false" # el estado hay que convertirlo a texto para guardarlo en shared preferences que no admite booleanos
@@ -182,16 +185,22 @@ class AjustesController:
                 self.vista.btn_tema.icon = ft.Icons.LIGHT_MODE
                 self.vista.btn_tema.tooltip = "Cambiar tema a modo oscuro"
             
-            # comprobamos el estado de la ubicacion y lo cargamos
-            estado = await self.page.shared_preferences.get("compartir_ubicacion")
-            estado_guardado = str(estado).lower().strip()
-            print(f"Estado cargado:{estado_guardado}")
-            
-            # volvemos a convertir el estado a un booleano para el switch
-            if estado_guardado == "true":
-                self.vista.ubicacion.value = True
+            # comprobamos si estamos en windows o en movil
+            android = self.page.platform == ft.PagePlatform.ANDROID
+            if android == False: # si no estamos en movil
+                self.vista.ubicacion.disabled = True # bloqueamos el switch
+                self.vista.ubicacion.value = False 
             else:
-                self.vista.ubicacion.value = False
+                self.vista.ubicacion.disabled = False
+                # comprobamos el estado de la ubicacion y lo cargamos
+                estado = await self.page.shared_preferences.get("compartir_ubicacion")
+                estado_guardado = str(estado).lower().strip()
+
+                # volvemos a convertir el estado a un booleano para el switch
+                if estado_guardado == "true":
+                    self.vista.ubicacion.value = True
+                else:
+                    self.vista.ubicacion.value = False
 
             self.vista.btn_tema.update()
             self.vista.ubicacion.update() # obligamos a que se active/desactive el switch según la configuración guardada en la última sesión
