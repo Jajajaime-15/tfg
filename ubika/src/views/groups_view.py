@@ -146,8 +146,6 @@ class VistaGrupos:
         self.mensaje_error
         )
 
-        #AQUI SE ACTUALIZARA LA INFORMACION DE LOS GRUPOS PARA QUE SE VEA EL NUEVO INTEGRANTE
-
     async def actualizar_tarjetas_grupos(self):
         await self.obtener_info_grupos()
 

@@ -29,7 +29,7 @@ class Wrapper:
                 return []
         except Exception as e:
             print(f"Error al buscar grupos del usuario: {e}")
-            return []
+            return [], "No se encontraron grupos"
         
 
     async def grupos_del_usuario_admin(self, nombre_grupo):
@@ -50,7 +50,7 @@ class Wrapper:
 
         except Exception as e:
             print(f"Error al buscar grupos del usuario en grupos: {e}")
-            return []    
+            return [], "No se encontró el grupo o no eres el administrador"
 
     async def cargar_datos_usuario(self):
         self.id_usuario = await self.page.shared_preferences.get("id_usuario")
@@ -182,6 +182,7 @@ class Wrapper:
     
         nombres_grupos = []  
         integrantes_con_nombres = [] 
+        grupos_dentro_usuarios = None
 
         try:
             await self.cargar_datos_usuario()  # Cargar datos del usuario
@@ -189,28 +190,28 @@ class Wrapper:
             # Obtener todos los grupos y usuarios
             grupos = await self.buscar_grupos()
             usuarios = self.db.child("usuarios").get(self.token).val()
-            
-            # Recorrer todos los grupos
-            for clave_grupo, datos_grupo in grupos.items():
-                grupos_usuario = datos_grupo.get("miembros", {})
-                
-                # Si es un string, convertirlo a diccionario vacío
-                if isinstance(grupos_usuario, str):
-                    grupos_usuario = {}
-                elif grupos_usuario is None:
-                    grupos_usuario = {}
-                
-                # Verificar si el usuario esta en los miembros
-                if isinstance(grupos_usuario, dict) and self.id_usuario in grupos_usuario:
+
+            for id_usuario, datos_usuario in usuarios.items():
+                if id_usuario == self.id_usuario:
+                    grupos_dentro_usuarios = datos_usuario.get("grupos", {})
+                    if isinstance(grupos_dentro_usuarios, str):
+                        grupos_dentro_usuarios = {} 
+                    elif grupos_dentro_usuarios is None:
+                        grupos_dentro_usuarios = {}
+
+            print(f"Los grupos del usuario {id_usuario} son: {grupos_dentro_usuarios}")
+
+            for id_grupo, datos_grupo in grupos.items():
+                if id_grupo in grupos_dentro_usuarios:
                     nombres_grupos.append(datos_grupo.get("nombre", "Sin nombre"))
                     
                     # Obtener integrantes
                     nombres_integrantes = []
                     
-                    # Verificar que miembros es un diccionario
-                    if isinstance(grupos_usuario, dict):
-                        for id_integrante in grupos_usuario.keys():
-                            # Buscar el nombre del usuario por su ID
+                    miembros = datos_grupo.get("miembros", {})
+                    
+                    if isinstance(miembros, dict):
+                        for id_integrante in miembros.keys():
                             if usuarios and id_integrante in usuarios:
                                 nombre_usuario = usuarios[id_integrante].get("nombre", id_integrante)
                                 nombres_integrantes.append(nombre_usuario)
