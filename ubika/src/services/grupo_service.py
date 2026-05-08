@@ -183,6 +183,7 @@ class Wrapper:
         nombres_grupos = []  
         integrantes_con_nombres = [] 
         grupos_dentro_usuarios = None
+        emails_usuarios_por_grupo = []
 
         try:
             await self.cargar_datos_usuario()  # Cargar datos del usuario
@@ -190,6 +191,7 @@ class Wrapper:
             # Obtener todos los grupos y usuarios
             grupos = await self.buscar_grupos()
             usuarios = self.db.child("usuarios").get(self.token).val()
+            emails_usuarios = []
 
             for id_usuario, datos_usuario in usuarios.items():
                 if id_usuario == self.id_usuario:
@@ -199,8 +201,6 @@ class Wrapper:
                     elif grupos_dentro_usuarios is None:
                         grupos_dentro_usuarios = {}
 
-            print(f"Los grupos del usuario {id_usuario} son: {grupos_dentro_usuarios}")
-
             for id_grupo, datos_grupo in grupos.items():
                 if id_grupo in grupos_dentro_usuarios:
                     nombres_grupos.append(datos_grupo.get("nombre", "Sin nombre"))
@@ -208,26 +208,28 @@ class Wrapper:
                     # Obtener integrantes
                     nombres_integrantes = []
                     
+                    emails_usuarios = [] 
+                    
                     miembros = datos_grupo.get("miembros", {})
                     
                     if isinstance(miembros, dict):
                         for id_integrante in miembros.keys():
-                            if usuarios and id_integrante in usuarios:
-                                nombre_usuario = usuarios[id_integrante].get("nombre", id_integrante)
-                                nombres_integrantes.append(nombre_usuario)
-                            else:
-                                nombres_integrantes.append(f"Desconocido ({id_integrante})")
+                            nombre_usuario = usuarios[id_integrante].get("nombre", id_integrante)
+                            email_usuario = usuarios[id_integrante].get("email", id_integrante)
+                            nombres_integrantes.append(nombre_usuario)
+                            emails_usuarios.append(email_usuario)
                     
                     integrantes_con_nombres.append(nombres_integrantes)
+                    emails_usuarios_por_grupo.append(emails_usuarios)
             
             if not nombres_grupos:
-                return [], f"No eres miembro de ningún grupo", True
+                return [], [], [], f"No eres miembro de ningún grupo", True
             
-            return nombres_grupos, integrantes_con_nombres, True
+            return nombres_grupos, integrantes_con_nombres, emails_usuarios_por_grupo, True
             
         except Exception as e:
             print(f"Error al mostrar grupos: {e}")
-            return [], [], False
+            return [], [], [], False
             
 
     async def anyadir_participante(self, nombre_grupo, nuevo_integrante):
@@ -289,7 +291,7 @@ class Wrapper:
             print(f"Error al añadir participante: {e}")
             return False, str(e)
         
-    async def eliminar_participante(self, nombre_grupo, nombre_integrante):
+    async def eliminar_participante(self, nombre_grupo, email_integrante):
         try:
 
             await self.cargar_datos_usuario()  # Cargar datos del usuario
@@ -315,7 +317,7 @@ class Wrapper:
             id_integrante_eliminar = None
             
             for id_usuario, datos_usuario in usuarios.items():
-                if datos_usuario.get("nombre") == nombre_integrante:
+                if datos_usuario.get("email") == email_integrante:
                     id_integrante_eliminar = id_usuario
                     break
             

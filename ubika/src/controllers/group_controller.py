@@ -102,7 +102,7 @@ class GroupController:
         mensaje.value = ""
         self.page.update()
         
-        datos_grupo, integrantes, aviso = await self.wrapper.mostrar_grupos()
+        datos_grupo, integrantes, emails, aviso = await self.wrapper.mostrar_grupos()
         
         if aviso is False:
             mensaje.value = f"Error: {integrantes}"
@@ -118,7 +118,7 @@ class GroupController:
             mensaje.color = "orange"
         
         self.page.update()
-        return datos_grupo, integrantes
+        return datos_grupo, integrantes, emails
     
     
     async def anyadir_participante(self, nombre_grupo, nuevo_integrante, mensaje):
@@ -146,11 +146,11 @@ class GroupController:
 
         self.page.update()    
 
-    async def eliminar_participante(self, nombre_grupo, nombre_integrante, mensaje):
+    async def eliminar_participante(self, nombre_grupo, email_integrante, mensaje):
         mensaje.value = ""
         self.page.update()
         
-        eliminado, aviso = await self.wrapper.eliminar_participante(nombre_grupo, nombre_integrante)
+        eliminado, aviso = await self.wrapper.eliminar_participante(nombre_grupo, email_integrante)
         
         if eliminado:
             mensaje.value = "Integrante eliminado correctamente"

@@ -28,13 +28,18 @@ def edit_Button(on_click=None, width=150, disabled=False, loading=False):
     return boton
 
 
-def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None, 
+def tarjeta_grupos(nombre_grupo, miembros=None, 
+                   emails = None, on_click_tarjeta=None, 
                    on_click_anyadir=None, on_click_editar=None, 
                    on_click_eliminar=None, on_click_eliminar_integrante=None, width=400):
     
     if miembros is None:
         miembros = []
-    
+
+    if emails is None:
+        emails = []
+
+
     # Variable para controlar modo edición
     modo_edicion = False
     
@@ -43,19 +48,21 @@ def tarjeta_grupos(nombre_grupo, miembros=None, on_click_tarjeta=None,
     
     def actualizar_controles_miembros():
         columna_miembros.controls.clear()
-        for miembro in miembros:
+        for i, miembro in enumerate(miembros):
             if modo_edicion and on_click_eliminar_integrante:
+                email_miembro = emails[i] if i < len(emails) else "Email no disponible"
                 columna_miembros.controls.append(
                     ft.Container(
                         content=ft.Row([
                             ft.Icon(ft.Icons.PERSON, color="#1A6AFE", size=20),
                             ft.Text(miembro, size=16, color=ft.Colors.BLACK, expand=True),
+                            ft.Text(email_miembro, size=12, color=ft.Colors.BLACK),
                             ft.IconButton(
                                 icon=ft.Icons.CLOSE,
                                 icon_size=16,
                                 icon_color="red",
                                 tooltip="Eliminar integrante",
-                                on_click=lambda e, m=miembro: (on_click_eliminar_integrante(e, nombre_grupo, m), salir_modo_edicion()),
+                                on_click=lambda e, email=email_miembro: (on_click_eliminar_integrante(e, nombre_grupo, email), salir_modo_edicion()),
                             ),
                         ]),
                         bgcolor=ft.Colors.GREY_100,

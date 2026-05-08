@@ -11,6 +11,7 @@ class VistaGrupos:
         self.user_controller = user_controller # guardamos el controlador de user para usar sus funciones
         self.datos_grupo = None
         self.integrantes = None
+        self.emails = None
         self.centro = ft.Container(expand=True)
 
 
@@ -53,16 +54,14 @@ class VistaGrupos:
 
         # llamamos a la función para crear un grupo
         
-        self.datos_grupo, self.integrantes = await self.group_controller.mostrar_grupos(
-            self.mensaje_error
-        )
+        self.datos_grupo, self.integrantes, self.emails = await self.group_controller.mostrar_grupos(self.mensaje_error)
         
         # activamos de nuevo el botón
         self.btn_crear_grupos.disabled = False
         self.page.update()    
 
-    def eliminar_integrante_desde_tarjeta(self, e, nombre_grupo, nombre_integrante):
-        print(f"Eliminando integrante: {nombre_integrante} del grupo: {nombre_grupo}")
+    def eliminar_integrante_desde_tarjeta(self, e, nombre_grupo, email_integrante):
+        print(f"Eliminando integrante: {email_integrante} del grupo: {nombre_grupo}")
         
         self.btn_crear_grupos.disabled = True
         self.mensaje_error.value = ""
@@ -71,7 +70,7 @@ class VistaGrupos:
         self.page.run_task(
             self.group_controller.eliminar_participante,
             nombre_grupo,
-            nombre_integrante,
+            email_integrante,
             self.mensaje_error
         )
         
@@ -158,6 +157,7 @@ class VistaGrupos:
                     tarjeta_grupos(
                         grupos, 
                         self.integrantes[i] if self.integrantes and i < len(self.integrantes) else [], 
+                        self.emails[i] if self.emails and i < len(self.emails) else [],
                         on_click_tarjeta=self.manejador_tarjeta(grupos),
                         on_click_anyadir=self.anyadir_integrante_desde_tarjeta,
                         on_click_eliminar=self.eliminar_grupo_desde_tarjeta,
@@ -195,6 +195,7 @@ class VistaGrupos:
                 ft.Container(
                     tarjeta_grupos(grupos, 
                                    self.integrantes[i] if self.integrantes else "", 
+                                   self.emails[i] if self.emails and i < len(self.emails) else [],
                                    on_click_tarjeta=self.manejador_tarjeta(grupos),
                                    on_click_anyadir=self.anyadir_integrante_desde_tarjeta,
                                    on_click_eliminar=self.eliminar_grupo_desde_tarjeta,
