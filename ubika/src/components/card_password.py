@@ -1,4 +1,6 @@
 import flet as ft # type: ignore
+from components.input_texto import InputTexto
+from components.boton_principal import BotonPrincipal
 
 class CardPassword(ft.Card):
     def __init__(self,controlador):
@@ -6,17 +8,16 @@ class CardPassword(ft.Card):
         self.controlador = controlador
         self.visible = False # esta tarjeta/componente no aparece hasta que no se ejecuta la funcion de cambiar contraseña
 
-        self.psw_nueva = ft.TextField(
+        self.psw_nueva = InputTexto(
             label = "Nueva contraseña",
             password = True,
-            can_reveal_password = True,
-            border_radius = 10
+            reveal = True
         )
-        self.psw_confirmar = ft.TextField(
+        self.psw_confirmar = InputTexto(
             label = "Confirmar contraseña",
             password = True,
-            can_reveal_password = True,
-            border_radius = 10
+            reveal = True,
+            accion = self.guardar
         )
         self.mensaje_error = ft.Text(value="",color="red",weight="bold")
 
@@ -31,11 +32,11 @@ class CardPassword(ft.Card):
                 self.mensaje_error,
                 ft.Row([
                     ft.TextButton("CANCELAR", on_click=self.cerrar),
-                    ft.ElevatedButton(
-                        "ACTUALIZAR", 
-                        on_click=self.guardar,
-                        bgcolor="#1A6AFE", 
-                        color="white"
+                    BotonPrincipal(
+                        texto="ACTUALIZAR",
+                        ancho=None,
+                        icono=None,
+                        accion=self.guardar,
                     )
                 ], alignment=ft.MainAxisAlignment.END)
             ], spacing=15, tight=True)

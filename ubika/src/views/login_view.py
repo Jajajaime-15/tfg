@@ -28,6 +28,7 @@ class VistaLogin:
             password=True,
             reveal=True,
             icono=ft.Icons.LOCK,
+            accion=self.controlador.conectarse
         )
         
         self.mensaje_error = ft.Text(value="", color="red", weight="bold")

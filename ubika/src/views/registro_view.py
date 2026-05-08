@@ -46,7 +46,8 @@ class VistaRegistro:
             hint="Repite tu contraseña",
             icono=ft.Icons.LOCK_RESET,
             password=True,
-            reveal=True
+            reveal=True,
+            accion=self.controlador.registrar_usuario
         )
         
         self.mensaje_error = ft.Text(value="", color="red", weight="bold")
