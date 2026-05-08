@@ -25,11 +25,6 @@ class AjustesController:
         e.control.update() # se actualiza el boton
         self.page.update()
         print(f"Tema cambiado a: {self.page.theme_mode}")
-        
-    # funcion que muetra la tarjeta
-    def mostrar_tarjeta_psw(self):
-        self.vista.tarjeta_psw.visible = True
-        self.page.update()
 
     # funcion que abre el componente CardPassword, valida los datos y llama al wrapper
     async def cambio_psw(self, componente):

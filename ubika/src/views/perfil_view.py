@@ -35,7 +35,7 @@ class VistaPerfil:
             content=self.avatar,
             alignment=ft.Alignment(0, 0),
             padding=20,
-            on_click=self.controlador.mostrar_colores,
+            on_click=self.mostrar_colores,
         )
 
         self.lista_colores = ft.BottomSheet(
@@ -108,6 +108,17 @@ class VistaPerfil:
             on_click= self.controlador.seleccionar_color,
             data=color_valor # usamos data para aceptar el color y que se modifique el avatar
         )
+
+    # funcion para abrir el menu
+    async def mostrar_colores(self, e):
+        # limpiamos el overlay para evitar duplicados
+        if self.lista_colores in self.page.overlay:
+            self.page.overlay.remove(self.lista_colores)
+
+        self.page.overlay.append(self.lista_colores) # añadimos de nuevo el overlay
+        self.lista_colores.open = True # mostramos el menu
+        self.page.update()
+
     def vista(self):
         
         return ft.Container(

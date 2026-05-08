@@ -96,16 +96,6 @@ class UsuarioController:
         self.page.index_navegacion = 2 # no usamos shared_preferences porque solo se recuerda mientras que la sesion este activa, si cerramos la aplicacion desde la vista que sea siempre al abrirla vuelve a aparecer la principal con grupos
         await self.page.push_route("/settings")
 
-    # funcion para abrir el menu
-    async def mostrar_colores(self, e):
-        # limpiamos el overlay para evitar duplicados
-        if self.vista.lista_colores in self.page.overlay:
-            self.page.overlay.remove(self.vista.lista_colores)
-
-        self.page.overlay.append(self.vista.lista_colores) # añadimos de nuevo el overlay
-        self.vista.lista_colores.open = True # mostramos el menu
-        self.page.update()
-
     # funcion para seleccionar el color y guardarlo
     async def seleccionar_color(self, e):
         color_elegido = e.control.data

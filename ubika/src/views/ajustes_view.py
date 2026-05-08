@@ -24,7 +24,7 @@ class VistaAjustes:
 
         self.btn_mostrar_psw = BotonLink(
             texto="Cambiar mi contraseña",
-            accion=self.controlador.mostrar_tarjeta_psw
+            accion=self.mostrar_tarjeta_psw
         )
 
         self.btn_cerrar_sesion = BotonLink(
@@ -43,6 +43,11 @@ class VistaAjustes:
             active_color="#1A6AFE",
             on_change = self.controlador.compartir_ubicacion
         )
+        
+    # funcion que muetra la tarjeta
+    def mostrar_tarjeta_psw(self):
+        self.tarjeta_psw.visible = True
+        self.page.update()
 
     # funcion que abre un dialogo de confirmación para eliminar la cuenta
     async def dialogo(self, e):
