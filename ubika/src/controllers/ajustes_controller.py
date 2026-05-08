@@ -67,28 +67,6 @@ class AjustesController:
         componente.psw_confirmar.value = ""
         self.page.update()
 
-    # funcion que abre un dialogo de confirmación para eliminar la cuenta
-    async def dialogo(self, e):
-        self.dialogo_confirmacion = ft.AlertDialog(
-            modal=True, # Evita que se cierre haciendo clic fuera
-            title=ft.Text("ELIMINAR CUENTA"),
-            content=ft.Text("¿Deseas eliminar esta cuenta? Se eliminará toda la información."),
-            actions=[
-                ft.TextButton("CANCELAR", on_click=lambda _: self.cerrar_dialogo()),
-                ft.ElevatedButton(
-                    "BORRAR", 
-                    on_click=self.borrar_cuenta, 
-                    bgcolor="red", 
-                    color="white"
-                )
-            ]
-        )
-
-        self.page.overlay.append(self.dialogo_confirmacion)
-        # abrimos el dialogo
-        self.dialogo_confirmacion.open=True
-        self.page.update()
-
     # funcion para borrar la cuenta
     async def borrar_cuenta(self, e):
         exito, aviso = await self.service.borrar_cuenta()
@@ -135,12 +113,6 @@ class AjustesController:
         
         self.page.index_navegacion = 0 # reseteamos para que al volver a iniciar sesion aparezca grupos
         self.page.go("/") # abre el login una vez cerrada la sesión
-
-    def cerrar_dialogo(self):
-        for control in self.page.overlay:
-            if isinstance(control, ft.AlertDialog):
-                control.open = False
-        self.page.update()
 
     # funcion para activar o desactivar la ubicacion del usuario
     async def compartir_ubicacion(self, e):
