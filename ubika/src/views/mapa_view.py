@@ -17,6 +17,11 @@ class VistaMapa:
 
         if self.stack: # en caso de que ya exista el stack del mapa creado no creamos de nuevo el mapa
             return self.stack
+        
+        if self.page.theme_mode == ft.ThemeMode.DARK: # mapa en modo oscuro
+            url_mapa = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
+        else: # mapa en modo claro
+            url_mapa = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"
 
         mapa = ftm.Map( # creacion del mapa
             expand=True, # para que ocupe toda la pantalla
@@ -31,7 +36,7 @@ class VistaMapa:
             ),
             layers=[ # las capas que componen el mapa
                 ftm.TileLayer( # esta es la capa basica que va en cualquier mapa la primera
-                    url_template="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png", # el mapa que usamos, en este caso el de CartoDB
+                    url_template=url_mapa, # el mapa que usamos, en este caso el de CartoDB
                     on_image_error=lambda e: print("TileLayer Error") # en caso de que salte error avisamos por la consola
                 ),
                 self.marker_layer_user,

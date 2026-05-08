@@ -13,7 +13,6 @@ class GPSService:
         self.yo = None # el propio usuario
         self.grupos = None # los grupos a los que pertenece el usuario
         self.miembros_grupos = [] # una lista de los miembros de todos los grupos a los que pertenece el usuario
-        self.datos_miembros_cache = {} # diccionario para manejar los nombres y colores de los miembros para poder pintarlos en el mapa
         self.datos_usuario = { # lo mismo pero con los datos del propio usuario, lo inicializamos de forma estandar
             "nombre" : "", 
             "color" : "#1A6AFE"
@@ -31,6 +30,9 @@ class GPSService:
 
     # funcion para cargar los datos del usuario antes de iniciar el gps
     async def iniciar_usuario(self):
+        self.yo = None # reseteamos los datos por si acaso se ha cerrado sesion y se vuelve a iniciar con otro usuario
+        self.grupos = None 
+        self.miembros_grupos = []
         self.yo = await self.page.shared_preferences.get("id_usuario")
         await self.cargar_datos_usuario() # en esta funcion solo esta la informacion susceptible de cambiar en el marcador del mapa
 
@@ -125,11 +127,9 @@ class GPSService:
                 lon = ubicacion_miembro["data"].get("longitud")
                 timestamp = ubicacion_miembro["data"].get("timestamp")
 
-                if miembro not in self.datos_miembros_cache: # comprobamos si el miembro esta en la cache
-                    nombre_miembro = self.db.child("usuarios").child(miembro).child("nombre").get(self.token).val()
-                    color_miembro = self.db.child("usuarios").child(miembro).child("color_avatar").get(self.token).val()
-                    self.datos_miembros_cache[miembro] = {"nombre" : nombre_miembro, "color": color_miembro} # si no esta obtenemos sus datos de firebase para dibujar el marcador
-                datos_miembro = self.datos_miembros_cache[miembro] # en cualquier caso obtenemos asi el nombre y el color que seran enviados al mapa
+                nombre_miembro = self.db.child("usuarios").child(miembro).child("nombre").get(self.token).val()
+                color_miembro = self.db.child("usuarios").child(miembro).child("color_avatar").get(self.token).val()
+                datos_miembro = {"nombre" : nombre_miembro, "color": color_miembro} # obtenemos sus datos de firebase para dibujar el marcador
 
                 if lat and lon and timestamp:
                     # metemos los datos en la cola creada para que no haya problemas con los hilos, es el event loop quien mete los datos a la cola cuando es seguro hacerlo

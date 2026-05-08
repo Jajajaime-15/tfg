@@ -8,7 +8,7 @@ class VistaPerfil:
         self.page = page
         self.controlador = controlador
         self.controlador.vista = self
-
+        
         # botón para los ajustes
         self.btn_ajustes = ft.IconButton(
             visible=True, 
