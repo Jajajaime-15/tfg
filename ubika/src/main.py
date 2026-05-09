@@ -29,8 +29,7 @@ async def main(page: ft.Page):
     page.add(vista_carga.vista())
     page.update()
     await asyncio.sleep(2) # tiempo de espera para que se vea la vista de carga
-
-
+    
     # arrancamos Firebase
     fb_service = FirebaseService(page)
 
