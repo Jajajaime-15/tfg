@@ -1,12 +1,11 @@
-import flet as ft
 import asyncio
 
-class GroupController:
-    def __init__(self,page,wrapper):
+class GruposController:
+    def __init__(self, page, grupos_service):
         self.page = page
-        self.wrapper = wrapper
+        self.grupos_service = grupos_service
 
-    async def crear_grupo (self,nombre,integrante,mensaje):
+    async def crear_grupo(self, nombre, integrante, mensaje):
         mensaje.value = ""
         self.page.update()
 
@@ -14,26 +13,22 @@ class GroupController:
 
         if not all (datos):
             mensaje.value = "Todos los campos son obligatorios"
+            mensaje.color = "red"
         else:
-            creado, aviso = await self.wrapper.crear_grupo(nombre.value, integrante.value)
+            creado, aviso = await self.grupos_service.crear_grupo(nombre.value, integrante.value)
             if creado:
-                # provisional para confirmar en pantalla el registro
                 mensaje.value = "Grupo creado correctamente"
                 mensaje.color = "green"
                 self.page.update()
-                await asyncio.sleep(2) # POR QUE? PONED AUNQUE SEA UN COMENTARIO PARA SABER POR QUE SE HACE ESTO
-                await self.page.push_route("/grupos")
-                '''# uso de snack_bar para mostrar el aviso de registrado y que desaparezca solo NO ME APARECE
-                self.page.snack_bar = ft.SnackBar(ft.Text("Grupo creado correctamente"))
-                self.page.snack_bar.open = True'''
+                await asyncio.sleep(2) # esperamos para que el usuario tenga tiempo de leer el mensaje
+                await self.page.push_route("/home")
             else:
                 mensaje.value = f"Error al crear grupo: {aviso}"
                 mensaje.color = "red"
 
-
         self.page.update()
 
-    async def eliminar_grupo (self,nombre_grupo,mensaje):
+    async def eliminar_grupo(self, nombre_grupo, mensaje):
         print(f"GroupController.eliminar_grupo llamado con: {nombre_grupo}")  # PRINT DEBUG
         mensaje.value = ""
         self.page.update()
@@ -48,7 +43,7 @@ class GroupController:
             mensaje.value = "El nombre del grupo es obligatorio"
             mensaje.color = "red"
         else:
-            borrado, aviso = await self.wrapper.eliminar_grupo(nombre)
+            borrado, aviso = await self.grupos_service.eliminar_grupo(nombre)
             if borrado:
                 mensaje.value = "Grupo eliminado correctamente"
                 mensaje.color = "green"
@@ -58,10 +53,9 @@ class GroupController:
                 mensaje.value = f"Error al eliminar grupo: {aviso}"
                 mensaje.color = "red"
 
+        self.page.update()    
 
-            self.page.update()    
-
-    async def editar_grupo (self,nombre_grupo_actual, nuevo_nombre_grupo, mensaje):
+    async def editar_grupo(self, nombre_grupo_actual, nuevo_nombre_grupo, mensaje):
         mensaje.value = ""
         self.page.update()
 
@@ -79,30 +73,29 @@ class GroupController:
         if not nombre_actual or not nombre_nuevo:
             mensaje.value = "El nombre del grupo es obligatorio"
             mensaje.color = "red"
+            self.page.update()     
+            return False 
+        
+        editado, aviso = await self.grupos_service.editar_grupo(nombre_actual, nombre_nuevo)
+        if editado:
+            mensaje.value = "Grupo editado correctamente"
+            mensaje.color = "green"
+            self.page.update()
+            await asyncio.sleep(1.5)
+            mensaje.value = ""  
+            self.page.update() 
+            return True
         else:
-            editado, aviso = await self.wrapper.editar_grupo(nombre_actual, nombre_nuevo)
-            if editado:
-                mensaje.value = "Grupo editado correctamente"
-                mensaje.color = "green"
-                self.page.update()
-                await asyncio.sleep(1.5)
-                mensaje.value = ""  
-                return True
-            else:
-                mensaje.value = f"Error al editar grupo: {aviso}"
-                mensaje.color = "red"
-                return False
-
-
-        self.page.update()     
-        return False       
-
+            mensaje.value = f"Error al editar grupo: {aviso}"
+            mensaje.color = "red"
+            self.page.update() 
+            return False
         
     async def mostrar_grupos(self, mensaje):
         mensaje.value = ""
         self.page.update()
         
-        datos_grupo, integrantes, emails, aviso = await self.wrapper.mostrar_grupos()
+        datos_grupo, integrantes, emails, aviso = await self.grupos_service.mostrar_grupos()
         
         if aviso is False:
             mensaje.value = f"Error: {integrantes}"
@@ -120,29 +113,26 @@ class GroupController:
         self.page.update()
         return datos_grupo, integrantes, emails
     
-    
     async def anyadir_participante(self, nombre_grupo, nuevo_integrante, mensaje):
         mensaje.value = ""
         self.page.update()
         
-        nombre_integrante = nuevo_integrante
-        datos = [nombre_grupo, nombre_integrante]
+        datos = [nombre_grupo, nuevo_integrante]
 
         if not all (datos):
             mensaje.value = "Todos los campos son obligatorios"
+            mensaje.color = "red"
         else:
-            anyadido, aviso = await self.wrapper.anyadir_participante(nombre_grupo, nombre_integrante)
+            anyadido, aviso = await self.grupos_service.anyadir_participante(nombre_grupo, nuevo_integrante)
             if anyadido:
-                # provisional para confirmar en pantalla el registro
                 mensaje.value = "Participante añadido correctamente"
                 mensaje.color = "green"
                 self.page.update()
                 await asyncio.sleep(2)
-                #await self.page.push_route("/")
+                mensaje.value = ""
             else:
-                mensaje.value = f"Error al crear grupo: {aviso}"
+                mensaje.value = f"Error al añadir participante: {aviso}"
                 mensaje.color = "red"
-
 
         self.page.update()    
 
@@ -150,13 +140,13 @@ class GroupController:
         mensaje.value = ""
         self.page.update()
         
-        eliminado, aviso = await self.wrapper.eliminar_participante(nombre_grupo, email_integrante)
-        
+        eliminado, aviso = await self.grupos_service.eliminar_participante(nombre_grupo, email_integrante)
         if eliminado:
             mensaje.value = "Integrante eliminado correctamente"
             mensaje.color = "green"
             self.page.update()
             await asyncio.sleep(2)
+            mensaje.value = ""
         else:
             mensaje.value = f"Error al eliminar integrante: {aviso}"
             mensaje.color = "red"

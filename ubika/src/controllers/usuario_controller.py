@@ -94,7 +94,7 @@ class UsuarioController:
     async def ajustes(self, e):
         # guardamos en memoria 2 que es la posición de Perfil en nuestra vista principal para así cuando demos a volver nos vuelva a perfil
         self.page.index_navegacion = 2 # no usamos shared_preferences porque solo se recuerda mientras que la sesion este activa, si cerramos la aplicacion desde la vista que sea siempre al abrirla vuelve a aparecer la principal con grupos
-        await self.page.push_route("/settings")
+        await self.page.push_route("/ajustes")
 
     # funcion para seleccionar el color y guardarlo
     async def seleccionar_color(self, e):

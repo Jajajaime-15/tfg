@@ -42,4 +42,3 @@ class VistaCarga:
             expand=True,
             bgcolor=ft.Colors.BLACK if self.page.theme_mode == ft.ThemeMode.DARK else ft.Colors.WHITE
         )
-

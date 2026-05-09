@@ -1,15 +1,17 @@
-import flet as ft # type: ignore
+import flet as ft
 from services.ajustes_service import AjustesService
 from services.auth_service import AuthService
 from services.firebase_service import FirebaseService
 from services.usuario_service import UsuarioService
 from services.gps_service import GPSService
+from services.grupos_service import GruposService
 from controllers.auth_controller import AuthController
 from controllers.usuario_controller import UsuarioController
 from controllers.ajustes_controller import AjustesController
 from controllers.mapa_controller import MapaController
+from controllers.grupos_controller import GruposController
 from router import Router
-from views.carga import VistaCarga
+from views.carga_view import VistaCarga
 import asyncio # lo necesitamos para poder ver la carga
 
 async def main(page: ft.Page):
@@ -38,19 +40,20 @@ async def main(page: ft.Page):
     usuario_service = UsuarioService(page, fb_service, auth_service)
     ajustes_service = AjustesService(page, fb_service, auth_service)
     gps_service = GPSService(page, fb_service)
+    grupos_service = GruposService(page, fb_service)
 
     # controladores
     auth_controller = AuthController(page, auth_service)
     ajustes_controller = AjustesController(page, ajustes_service, usuario_service)
     usuario_controller = UsuarioController(page, usuario_service)
     mapa_controller = MapaController(page, gps_service)
+    grupos_controller = GruposController(page, grupos_service)
 
     # arrancamos el archivo de las rutas y conectamos con la funcion de cambio de ruta del router
-    router = Router(page, auth_controller, ajustes_controller, usuario_controller, mapa_controller)
+    router = Router(page, auth_controller, ajustes_controller, usuario_controller, mapa_controller, grupos_controller)
     page.router = router # al cerrar sesion reseteamos el router
     page.on_route_change = router.cambiar_ruta
     page.on_view_pop = router.volver_atras # evento de flet que hace que se ejecute la función de volver atras usando la navegacion del movil
-
 
     # comprobamos si hay algun usuario que haya iniciado sesion ya
     id_usuario = await auth_service.usuario_conectado()
@@ -67,43 +70,3 @@ async def main(page: ft.Page):
 
 if __name__ == "__main__":
     ft.run(main, assets_dir="assets")
-import flet as ft
-from services.grupo_service import Wrapper as WrapperGrupo
-from services.usuario_service import Wrapper as WrapperUsuario
-from controllers.user_controller import UserController
-from router import Router
-
-async def main(page: ft.Page):
-    page.title = "PROYECTO TFG"
-    page.window_width = 400
-    page.window_height = 700
-    page.bgcolor = "white"
-
-    # arrancamos Firebase
-    wrapper_grupos = WrapperGrupo(page)
-    await wrapper_grupos.cargar_datos_usuario()
-    wrapper_usuarios = WrapperUsuario(page)
-    user_controller = UserController(page,wrapper_usuarios)
-    # Cerramos la sesión al arrancar para que siempre aparezca el login SOLO PARA PRUEBAS
-    #await wrapper.cerrar_sesion() 
-    # o limpiamos los datos guardados en el dispositivo
-    #await page.shared_preferences.clear()
-    
-    # arrancamos el archivo de las rutas
-    router = Router(page,wrapper_usuarios, wrapper_grupos)
-    # conectamos con la funcion de cambio de ruta del router (route_change)
-    page.on_route_change = router.route_change
-
-    # comprobamos si hay un usuario logueado ya
-    id_usuario = await wrapper_usuarios.usuario_conectado()
-    if id_usuario:
-        print("USUARIO INICIADO") # PRINT PARA PROBAR QUE SE QUEDA INICIADA LA SESION
-        page.route = "/" # esta ruta será la de grupos
-    else:
-        page.route = "/" # ruta de login (principal)
-
-    await router.route_change(None) # cargamos la primera vista
-    page.update()
-
-if __name__ == "__main__":
-    ft.run(main, view=ft.AppView.WEB_BROWSER,assets_dir="../assets")

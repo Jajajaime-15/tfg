@@ -1,7 +1,7 @@
 import flet as ft
 
 class VistaCrearGrupo:
-    def __init__(self, page,controlador):
+    def __init__(self, page, controlador):
         self.page = page
         self.controlador = controlador
 
@@ -41,24 +41,21 @@ class VistaCrearGrupo:
             on_click=self.crear_grupo
         )
 
-    async def volver(self,e):
-        self.page.go("/grupos")
+    async def volver(self, e):
+        self.page.go("/home")
 
     async def crear_grupo(self, e):
-        # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
-        self.btn_crear_grupo.disabled = True
+        self.btn_crear_grupo.disabled = True # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
         self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
         self.page.update()
 
-        # llamamos a la función para crear un grupo
-        await self.controlador.crear_grupo(
+        await self.controlador.crear_grupo( # llamamos a la función para crear un grupo
             self.nombre_grupo_input,
             self.nombre_integrante_input,
             self.mensaje_error
         )
 
-        # activamos de nuevo el botón
-        self.btn_crear_grupo.disabled = False
+        self.btn_crear_grupo.disabled = False # activamos de nuevo el botón
         self.page.update()
 
     # función para crear la vista que se mostrará en la pantalla
@@ -67,16 +64,13 @@ class VistaCrearGrupo:
             content=ft.Column(
                 [
                     ft.Row(
-                         [self.btn_volver],
-                         alignment=ft.MainAxisAlignment.START
+                        [self.btn_volver],
+                        alignment=ft.MainAxisAlignment.START
                     ),
                     ft.Container(
-                         content=ft.Text("CREAR GRUPO", size=30, weight="bold"),
-                         margin=ft.margin.only(
-                              top=20, # espacio desde arriba
-                              bottom=40 # espacio hacia abajo, hacia los campos
-                         ),
-                         alignment=ft.Alignment(0, 0)
+                        content=ft.Text("CREAR GRUPO", size=30, weight="bold"),
+                        margin=ft.margin.only(top=20, bottom=40),
+                        alignment=ft.Alignment(0,0)
                     ),
                     self.nombre_grupo_input,
                     self.nombre_integrante_input,
@@ -88,5 +82,5 @@ class VistaCrearGrupo:
                 spacing=20
             ),
             expand=True,
-            alignment=ft.Alignment(0, 0),
+            alignment=ft.Alignment(0,0),
         )
