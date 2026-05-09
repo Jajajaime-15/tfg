@@ -17,7 +17,7 @@ class VistaGrupos:
 
         self.btn_crear_grupos = ft.ElevatedButton(
             content=ft.Text("Añadir grupo"),
-            icon=ft.CupertinoIcons.PLUS,
+            icon=ft.Icons.ADD,
             bgcolor="#1A6AFE",
             color="white",
             width=200,

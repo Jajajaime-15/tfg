@@ -1,32 +1,8 @@
 import flet as ft
 from flet import TextField
-
-
-
-def plus_Button(on_click=None, width=150, disabled=False, loading=False):
-    boton = ft.Button(
-        content=ft.Icon(ft.CupertinoIcons.PLUS_CIRCLE_FILL),
-        disabled=disabled or loading,
-        on_click=on_click if not disabled and not loading else None,
-    )
-    return boton
-
-def delete_Button(on_click=None, width=150, disabled=False, loading=False):
-    boton = ft.Button(
-        content=ft.Icon(ft.CupertinoIcons.DELETE),
-        disabled=disabled or loading,
-        on_click=on_click if not disabled and not loading else None,
-    )
-    return boton
-
-def edit_Button(on_click=None, width=150, disabled=False, loading=False):
-    boton = ft.Button(
-        content=ft.Icon(ft.Icons.EDIT),
-        disabled=disabled or loading,
-        on_click=on_click if not disabled and not loading else None,
-    )
-    return boton
-
+from components.plus_button import plus_Button
+from components.delete_button import delete_Button
+from components.edit_button import edit_Button
 
 def tarjeta_grupos(nombre_grupo, miembros=None, 
                    emails = None, on_click_tarjeta=None, 
@@ -93,6 +69,7 @@ def tarjeta_grupos(nombre_grupo, miembros=None,
     # Textfield de nombre 
     nombre_edit_field = TextField(
         value=nombre_grupo,
+        color=ft.Colors.BLACK,
         width=200,
         text_align=ft.TextAlign.CENTER,
         border_radius=5,
