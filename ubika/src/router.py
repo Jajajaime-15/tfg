@@ -21,6 +21,24 @@ class Router:
             "/home": (VistaPrincipal,(controlador_user, controlador_mapa)) # vista principal después de hacer login con grupos (Julio)
         }
 
+    # funcion para el boton de volver atras de la barra de navegación del movil
+    async def volver_atras(self, e):
+        e.prevent_default = True # con esto bloqueamos a que flet haga el pop automático por su cuenta y se oblique ha hacer según se indique en nuestro route
+        # de registro > perfil
+        if self.page.route == "/registro":
+            await self.page.go_async("/")
+            return
+        # de ajustes > login
+        if self.page.route == "/settings":
+            await self.page.go_async("/home")
+            return 
+        # de Vista Principal (Grupos, Mapa o Perfil) > minimizamos la aplicacion
+        if self.page.route == "/home":
+            return 
+        # de login > minimizamos la aplicacion
+        if self.page.route == "/":
+            return
+
     # funcion para evitar que si se cierra sesion y se inicie de nuevo con otro usuario no nos cargue los datos del anterior
     def reset_vistas(self):
         self.vista_principal = None
@@ -59,8 +77,6 @@ class Router:
             # creamos la vista física y la añadimos a la pila de navegación para mostrarla
             self.page.views.append(ft.View(route=ruta, controls=[pantalla.vista()], padding=0))
 
-        self.page.update()
-
         # sincronizamos los datos y los cargamos
         if vista_clase == VistaPrincipal:
             await self.controlador_user.service.sincronizar() # sincronizamos si se ha cambiado algo en otro dispositivo
@@ -69,3 +85,5 @@ class Router:
         elif vista_clase == VistaAjustes:
             await self.controlador_user.service.sincronizar()
             await self.controlador_settings.cargar_ajustes()
+    
+        self.page.update()

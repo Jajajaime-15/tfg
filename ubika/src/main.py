@@ -14,28 +14,6 @@ async def main(page: ft.Page):
     page.title = "UBIKA"
     page.window_width = 400
     page.window_height = 700
-    
-    # funcion para el boton de volver atras de la barra de navegación del movil
-    async def volver_atras(e):
-        e.prevent_default = True # con esto bloqueamos a que flet haga el pop automático por su cuenta y se oblique ha hacer según se indique en nuestro route
-        # de registro > perfil
-        if page.route == "/registro":
-            page.route = "/"
-            await page.push_route("/") 
-            return
-        # de ajustes > login
-        if page.route == "/settings":
-            page.route = "/home"
-            await page.push_route("/home")
-            return 
-        # de Vista Principal (Grupos, Mapa o Perfil) > minimizamos la aplicacion
-        if page.route == "/home":
-            return 
-        # de login > minimizamos la aplicacion
-        if page.route == "/":
-            return
-
-    page.on_view_pop = volver_atras # evento de flet que hace que se ejecute la función de volver atras usando la navegacion del movil
 
     # cargamos el tema que está guardado
     tema_guardado = await page.shared_preferences.get("tema")
@@ -43,7 +21,9 @@ async def main(page: ft.Page):
         page.theme_mode = ft.ThemeMode.DARK
     else:
         page.theme_mode = ft.ThemeMode.LIGHT
-        
+    
+    page.update()
+
     # arrancamos Firebase
     fb_service = FirebaseService(page)
 
@@ -62,7 +42,9 @@ async def main(page: ft.Page):
     # arrancamos el archivo de las rutas y conectamos con la funcion de cambio de ruta del router
     router = Router(page, auth_controller, ajustes_controller, usuario_controller, mapa_controller)
     page.router = router # al cerrar sesion reseteamos el router
-    page.on_route_change = router.cambiar_ruta 
+    page.on_route_change = router.cambiar_ruta
+    page.on_view_pop = router.volver_atras # evento de flet que hace que se ejecute la función de volver atras usando la navegacion del movil
+
 
     # comprobamos si hay algun usuario que haya iniciado sesion ya
     id_usuario = await auth_service.usuario_conectado()
