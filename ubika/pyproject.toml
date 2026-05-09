@@ -31,6 +31,10 @@ company = "Equipo TFG"
 copyright = "Copyright (C) 2023-2026 by Flet"
 permissions = ["location"]
 
+[tool.flet.splash]
+color = "#FFFFFF"
+dark_color = "#000000"
+
 [tool.flet.app]
 path = "src"
 

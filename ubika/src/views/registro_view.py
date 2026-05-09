@@ -46,7 +46,8 @@ class VistaRegistro:
             hint="Repite tu contraseña",
             icono=ft.Icons.LOCK_RESET,
             password=True,
-            reveal=True
+            reveal=True,
+            accion=self.controlador.registrar_usuario
         )
         
         self.mensaje_error = ft.Text(value="", color="red", weight="bold")
@@ -63,32 +64,40 @@ class VistaRegistro:
     # función para crear la vista que se mostrará en la pantalla
     def vista(self):
         return ft.Container(
+            padding=ft.padding.only(top=40, left=20, right=20, bottom=20),
+            expand = True,
             content=ft.Column(
                 [
                     ft.Row(
                         [self.btn_volver],
                         alignment=ft.MainAxisAlignment.START
                     ),
-                    ft.Container(
-                        content=ft.Text("REGISTRO", size=30, weight="bold"),
-                        margin=ft.Margin.only(
-                            top=20, # espacio desde arriba
-                            bottom=40 # espacio hacia abajo, hacia los campos
-                        ),
-                        alignment=ft.Alignment(0, 0)
+
+                    ft.Column(
+                        [
+                            ft.Container(
+                                content=ft.Text("REGISTRO", size=30, weight="bold"),
+                                margin=ft.Margin.only(
+                                    top=10, # espacio desde arriba
+                                    bottom=30 # espacio hacia abajo, hacia los campos
+                                ), alignment=ft.Alignment(0, 0)
+                            ),
+                            self.nombre_input,
+                            self.telefono_input,
+                            self.email_input,
+                            self.psw_input,
+                            self.psw_confirmar,
+                            ft.Container(height=10),
+                            self.btn_registrar,
+                            self.mensaje_error,
+                        ],
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                        alignment=ft.MainAxisAlignment.CENTER,
+                        spacing=15,
+                        scroll=ft.ScrollMode.AUTO,
+                        expand=True
                     ),
-                    self.nombre_input,
-                    self.telefono_input,
-                    self.email_input,
-                    self.psw_input,
-                    self.psw_confirmar,
-                    self.btn_registrar,
-                    self.mensaje_error,
                 ],
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                alignment=ft.MainAxisAlignment.CENTER,
-                spacing=20
-            ),
-            expand=True,
-            alignment=ft.Alignment(0, 0),
+                spacing = 0
+            )
         )

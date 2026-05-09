@@ -13,17 +13,19 @@ class UsuarioService:
     async def actualizar_datos(self, datos_actualizados):
         try:
             self.id_usuario = await self.page.shared_preferences.get("id_usuario")
-            self.token = await self.page.shared_preferences.get("token")
+            # cogemos el token del auth_service
+            token_actual = await self.auth_s.coger_token()
 
             try:
-                self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, self.token)
+                self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, token_actual)
             except Exception as e:
                 error_str = str(e).upper()
                 if "ID_TOKEN" in error_str or "EXPIRED" in error_str or "INVALID" in error_str:
                     print("Token caducado.")
                     if await self.auth_s.actualizar_sesion(): # llamamos a la funcion para actualizar el token
-                        self.token = await self.page.shared_preferences.get("token")
-                        self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, self.token)
+                        # volvemos a intentarlo con el token nuevo
+                        token_nuevo = await self.auth_s.coger_token()
+                        self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, token_nuevo)
                         print("Datos actualizados.")
                     else:
                         print("Sesion expirada, vuelve a iniciar sesión")

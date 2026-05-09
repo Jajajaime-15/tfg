@@ -4,11 +4,41 @@ REGLAS PARA CONFIGURAR EN FIREBASE EN REALTIME: (las iré modificando a raiz ava
   "rules": {
     "usuarios": {
       "$uid": {
-        // Solo el usuario autenticado puede leer sus propios datos
+        // reglas del perfil: solo puede leerlo y editarlo el dueño
         ".read": "auth != null && auth.uid === $uid",
-        // Solo el usuario autenticado puede escribir en su propio nodo
         ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+		"ubicaciones": {
+      "$uid": {
+        // reglas para la ubicación
+        // solo el dueño y los miembros que estan en el mismo grupo ven la ubicación
+        ".read": "auth != null && (auth.uid === $uid || root.child('miembros_grupos').child(auth.uid).parent().child($uid).exists())",
+        // Solo el dueño escribe su propia ubicación
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "grupos": {
+      "$grupo_id": {
+        // Solo los miembros del grupo pueden leer los datos del grupo (nombre, lista de miembros)
+        ".read": "auth != null && data.child('miembros').hasChild(auth.uid)",
+        // Para crear un grupo, debes estar logueado. Para editarlo, ser miembro.
+        ".write": "auth != null && (!data.exists() || data.child('miembros').hasChild(auth.uid))",
+        "miembros": {
+          "$member_id": {
+            // Un miembro puede invitar a otro (escribir su ID) si ya está dentro
+            ".write": "auth != null && (data.parent().hasChild(auth.uid) || !data.parent().exists())"
+          }
+        }
+      }
+    },
+    "invitaciones": {
+      "$invitacion_id": {
+        // Cualquiera logueado puede crear una invitación (para enviar el correo)
+        // Pero solo el destinatario (por email o ID) podría aceptarla
+        ".read": "auth != null",
+        ".write": "auth != null"
       }
     }
   }
-} 
+}

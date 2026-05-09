@@ -110,6 +110,12 @@ class AuthService:
             print(f"Error al enviar el correo:{e}")
             return False, str(e)
     
+    # funcion para que los servicios cojan el token actual
+    async def coger_token(self):
+        # cogemos el guardado en el dispositivo porque es el último/actual
+        self.token = await self.page.shared_preferences.get("token")
+        return self.token
+    
     # funcion de actualizar sesion pidiendo a Firebase un nuevo Token
     async def actualizar_sesion(self):
         try:
@@ -120,8 +126,9 @@ class AuthService:
                 nuevo = self.auth.refresh(token_refresh)
                 # actualizamos el token
                 self.token = nuevo["idToken"]
-                await self.page.shared_preferences.set("token",self.token)
-                print("Token actualizado")
+                await self.page.shared_preferences.set("token",self.token) # guardamos el nuevo token
+                if "refreshToken" in nuevo: # y si el refresh_token ha cambiado tambien lo guardamos
+                    await self.page.shared_preferences.set("refresh_token",nuevo["refreshToken"])
                 return True
             return False
         except Exception as e:
