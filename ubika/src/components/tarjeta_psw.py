@@ -2,7 +2,7 @@ import flet as ft # type: ignore
 from components.input_texto import InputTexto
 from components.boton_principal import BotonPrincipal
 
-class CardPassword(ft.Card):
+class TarjetaPsw(ft.Card):
     def __init__(self,controlador):
         super().__init__()
         self.controlador = controlador
@@ -46,8 +46,6 @@ class CardPassword(ft.Card):
     def cerrar(self, e):
         self.visible = False
         # dejamos los campos limpios para que cuando se vuelva a abrir estén vacios
-        # RECUERDO QUE EN UN CONTROLLER TMB HACES LIMPIEZA, AUNQUE SEA EN ACCIONES DIFERENTES QUIZAS RENTA UNA FUNCION SEPARADA QUE SE LLAME LIMPIAR Y SE USE EN VARIOS APARTADOS
-        # ESTO PODRIA IR EN UNA CARPETA NUEVA LLAMADA UTILS, PERO CLARO ESTO SERIA UN CASO QUIZAS DEMASIADO CONCRETO, VALORALO
         self.psw_nueva.value = "" 
         self.psw_confirmar.value = ""
         self.mensaje_error.value = ""

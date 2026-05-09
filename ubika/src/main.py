@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 from services.ajustes_service import AjustesService
 from services.auth_service import AuthService
 from services.firebase_service import FirebaseService
@@ -9,6 +9,8 @@ from controllers.usuario_controller import UsuarioController
 from controllers.ajustes_controller import AjustesController
 from controllers.mapa_controller import MapaController
 from router import Router
+from views.carga import VistaCarga
+import asyncio # lo necesitamos para poder ver la carga
 
 async def main(page: ft.Page):
     page.title = "UBIKA"
@@ -22,7 +24,12 @@ async def main(page: ft.Page):
     else:
         page.theme_mode = ft.ThemeMode.LIGHT
     
+    # mostramos la vista de carga mientras se inicializan los servicios y controladores
+    vista_carga = VistaCarga(page)
+    page.add(vista_carga.vista())
     page.update()
+    await asyncio.sleep(2) # tiempo de espera para que se vea la vista de carga
+
 
     # arrancamos Firebase
     fb_service = FirebaseService(page)

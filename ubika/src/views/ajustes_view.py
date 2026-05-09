@@ -1,5 +1,5 @@
 import flet as ft # type: ignore
-from components.card_password import CardPassword
+from components.tarjeta_psw import TarjetaPsw
 from components.titulos import TituloSeccion
 from components.boton_link import BotonLink
 
@@ -8,7 +8,7 @@ class VistaAjustes:
         self.page = page
         self.controlador = controlador
         self.controlador.vista = self
-        self.tarjeta_psw = CardPassword(self.controlador)
+        self.tarjeta_psw = TarjetaPsw(self.controlador)
 
         self.btn_volver = ft.IconButton(
             icon=ft.Icons.ARROW_BACK_IOS_NEW,
