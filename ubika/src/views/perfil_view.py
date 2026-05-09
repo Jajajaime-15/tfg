@@ -1,5 +1,4 @@
-import flet as ft # type: ignore
-import asyncio
+import flet as ft
 from components.boton_principal import BotonPrincipal
 from components.input_texto import InputTexto
 
@@ -99,7 +98,7 @@ class VistaPerfil:
         )
 
     # funcion que crea el boton para el color creando un icono para elegirlo
-    def crear_boton_color(self,nombre,color_valor):
+    def crear_boton_color(self, nombre, color_valor):
         return ft.IconButton(
             icon=ft.Icons.CIRCLE,
             icon_color=color_valor,
@@ -120,7 +119,6 @@ class VistaPerfil:
         self.page.update()
 
     def vista(self):
-        
         return ft.Container(
             padding=20,
             expand=True, # para ajustar a cualquier dispositivo
