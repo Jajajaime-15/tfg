@@ -35,13 +35,13 @@ async def main(page: ft.Page):
 
     # servicios
     auth_service = AuthService(page, fb_service)
-    usuario_service = UsuarioService(page, fb_service, auth_service)
-    ajustes_service = AjustesService(page, fb_service, auth_service)
+    usuario_service = UsuarioService(page, fb_service)
+    ajustes_service = AjustesService(page, fb_service)
     gps_service = GPSService(page, fb_service)
 
     # controladores
     auth_controller = AuthController(page, auth_service)
-    ajustes_controller = AjustesController(page, ajustes_service, usuario_service)
+    ajustes_controller = AjustesController(page, ajustes_service, usuario_service, auth_service)
     usuario_controller = UsuarioController(page, usuario_service)
     mapa_controller = MapaController(page, gps_service)
 

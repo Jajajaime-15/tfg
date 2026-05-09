@@ -12,11 +12,10 @@ class UsuarioService:
     async def actualizar_datos(self, datos_actualizados):
         try:
             self.id_usuario = await self.page.shared_preferences.get("id_usuario")
-            # cogemos el token del auth_service
-            token_actual = await self.auth_s.coger_token()
+            self.token = await self.page.shared_preferences.get("token")
 
             try:
-                self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, token_actual)
+                self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, self.token)
             except Exception as e:
                 # al dar error comprobamos si es problema del token
                 nuevo_token = await self.fb.comprobar_error(e)
@@ -39,10 +38,11 @@ class UsuarioService:
         
     # funcion para que se sincronice con los datos que hay firebase 
     async def sincronizar (self):
+
         try:
             self.id_usuario = await self.page.shared_preferences.get("id_usuario")
             self.token = await self.page.shared_preferences.get("token")
-
+            # self.token = "token_inventado_para_fallar" # esta linea es para comprobar que funciona el refresh token
             if self.id_usuario and self.token:
                 try:
                     infor = self.db.child("usuarios").child(self.id_usuario).get(self.token).val()   
