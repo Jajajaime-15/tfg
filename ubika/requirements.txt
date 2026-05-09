@@ -1,5 +1,5 @@
-python-dotenv
-pyrebase4
+python-dotenv==1.2.2
+pyrebase4==4.9.0
 flet==0.80.5 
 flet-cli==0.80.5 
 flet-desktop==0.80.5 

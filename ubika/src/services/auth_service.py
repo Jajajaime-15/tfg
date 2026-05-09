@@ -109,3 +109,22 @@ class AuthService:
         except Exception as e:
             print(f"Error al enviar el correo:{e}")
             return False, str(e)
+    
+    # funcion de actualizar sesion pidiendo a Firebase un nuevo Token
+    async def actualizar_sesion(self):
+        try:
+            # recuperamos el refresh_token del dispositivo
+            token_refresh = await self.page.shared_preferences.get("refresh_token")
+            # pedimos a firebase el token nuevo
+            if token_refresh:
+                nuevo = self.auth.refresh(token_refresh)
+                # actualizamos el token
+                self.token = nuevo["idToken"]
+                await self.page.shared_preferences.set("token",self.token)
+                print("Token actualizado")
+                return True
+            return False
+        except Exception as e:
+            print(f"No se pudo actualizar la sesion:{e}")
+            return False
+        

@@ -12,10 +12,11 @@ class UsuarioService:
     async def actualizar_datos(self, datos_actualizados):
         try:
             self.id_usuario = await self.page.shared_preferences.get("id_usuario")
-            self.token = await self.page.shared_preferences.get("token")
+            # cogemos el token del auth_service
+            token_actual = await self.auth_s.coger_token()
 
             try:
-                self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, self.token)
+                self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, token_actual)
             except Exception as e:
                 # al dar error comprobamos si es problema del token
                 nuevo_token = await self.fb.comprobar_error(e)
