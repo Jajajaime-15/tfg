@@ -1,10 +1,9 @@
 import json
 
 class AjustesService:
-    def __init__(self, page, firebase_service, auth_service):
+    def __init__(self, page, firebase_service):
         self.page = page
         self.fb = firebase_service
-        self.auth_s = auth_service
         self.auth = firebase_service.auth
         self.db = firebase_service.db
         self.id_usuario = None
@@ -22,21 +21,21 @@ class AjustesService:
             print("Contraseña actualizada")
             return True, "Contraseña actualizada"
         except Exception as e:
+            nuevo_token = await self.fb.comprobar_error(e) # comprobamos si es error de token
+            if nuevo_token:
+                try:
+                    # volvemos a intentarlo con el nuevo token
+                    self.auth.change_password(nuevo_token,nueva_psw)
+                    print("Contraseña actualizada despues de actualizar")
+                    return True, "Contraseña actualizada"
+                except Exception as e2:
+                    print(f"Error despues de actualizar: {e2}")
+                    return False, "Sesicón caducada, tienes que volver a iniciar"
+                
             mensaje = str(e).upper()
             if "CREDENTIAL_TOO_OLD" in mensaje or "SENSITIVE_OPERATION" in mensaje:
-                print("Sesión caducada, vuelve a logearte")
-                return False, "Sesión caducada, vuelve a iniciar"
-            # si el token está caducado, refrescamos el token
-            if await self.auth_s.actualizar_sesion():
-                try:
-                    self.token = await self.page.shared_preferences.get("token")
-                    self.auth.change_password(self.token,nueva_psw)
-                    print("Contraseña actualizada")
-                    return True, "Contraseña actualizada"
-                except:
-                    print("Sesión caducada, vuelve a logearte")
-                    return False, "Sesión caducada, vuelve a iniciar"
-            return False, str(e)
+                print("Sesión caducada, vuelve a iniciar")
+                return False, str(e)
         
     # funcion para eliminar la cuenta y los datos de dicha cuenta
     async def borrar_cuenta(self):
@@ -48,36 +47,35 @@ class AjustesService:
             grupos_guardados = await self.page.shared_preferences.get("grupos")
             grupos = json.loads(grupos_guardados) if grupos_guardados else {} 
             if self.id_usuario and self.token:
-                # borramos toda la informacion de la base de datos (de Realtime)
-                self.db.child("usuarios").child(self.id_usuario).remove(self.token)
-                # borramos la última posición guardada del usuario en todos los grupos para que no se quede marcada al eliminar la cuenta
-                if grupos:
-                    for id_grupo in grupos.keys():
-                        self.db.child("ubicaciones").child(id_grupo).child(self.id_usuario).remove(self.token)
-                # borramos el usuario de Authentication
-                self.auth.delete_user_account(self.token)
-                # una vez eliminado cerramos sesión
-                await self.auth_s.cerrar_sesion()
-                print("Cuenta eliminada")
-                return True, "La cuenta ha sido eliminada"
-            print ("No hay una sesión activa")
-            return False, "No hay una sesión activa"
-        except Exception as e:
-            mensaje = str(e).upper()
-            if "CREDENTIAL_TOO_OLD" in mensaje or "SENSITIVE_OPERATION" in mensaje:
-                print("Sesión caducada, vuelve a logearte")
-                return False, "Sesión caducada, vuelve a iniciar"
-            if await self.auth_s.actualizar_sesion():
                 try:
-                    self.token = await self.page.shared_preferences.get("token")
+                    # borramos toda la informacion de la base de datos (de Realtime)
                     self.db.child("usuarios").child(self.id_usuario).remove(self.token)
+                    # borramos la última posición guardada del usuario en todos los grupos para que no se quede marcada al eliminar la cuenta
                     if grupos:
                         for id_grupo in grupos.keys():
                             self.db.child("ubicaciones").child(id_grupo).child(self.id_usuario).remove(self.token)
+                    # borramos el usuario de Authentication
                     self.auth.delete_user_account(self.token)
+                    # una vez eliminado cerramos sesión HACE FALTA? NO SE SALE DIRECTAMENTE?
                     await self.auth_s.cerrar_sesion()
-                    return True, "La cuenta ha sido eliminada"
-                except:
-                    print("Sesión caducada, vuelve a logearte")
-                    return False, "Sesión caducada, vuelve a iniciar"
+                except Exception as e:
+                    # si da error miramos si es de token
+                    nuevo_token = await self.fb.comprobar_error(e)
+                    if nuevo_token:
+                        self.db.child("usuarios").child(self.id_usuario).remove(nuevo_token)
+                        if grupos:
+                            for id_grupo in grupos.keys():
+                                self.db.child("ubicaciones").child(id_grupo).child(self.id_usuario).remove(nuevo_token)
+                        self.auth.delete_user_account(nuevo_token)
+                    else:
+                        raise e # devolvemos el error
+                print("Cuenta eliminada")
+                return True, "Cuenta eliminada"
+            return False, "No hay sesion activa"
+        except Exception as e:
+            mensaje = str(e).upper()
+            if "CREDENTIAL_TOO_OLD" in mensaje or "SENSITIVE_OPERATION" in mensaje:
+                print("Se necesita iniciar sesion de nuevo")
+                return False, "Sesión caducada, vuelve a iniciar"
+            
             return False, str(e)
