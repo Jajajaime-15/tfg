@@ -26,11 +26,13 @@ class Router:
         e.prevent_default = True # con esto bloqueamos a que flet haga el pop automático por su cuenta y se oblique ha hacer según se indique en nuestro route
         # de registro > perfil
         if self.page.route == "/registro":
-            await self.page.go_async("/")
+            self.page.route = "/"
+            await self.page.push_route("/")
             return
         # de ajustes > login
         if self.page.route == "/settings":
-            await self.page.go_async("/home")
+            self.page.route = "/home"
+            await self.page.push_route("/home")
             return 
         # de Vista Principal (Grupos, Mapa o Perfil) > minimizamos la aplicacion
         if self.page.route == "/home":
