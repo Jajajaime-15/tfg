@@ -1,6 +1,6 @@
-import flet as ft # type: ignore
+import flet as ft
 
-# botones como login, registrarse....
+# para botones como login, registrarse o cualquier funcionalidad principal requerida
 class BotonPrincipal(ft.ElevatedButton):
     def __init__(self, texto, icono, accion,ancho=200, color_fondo="#1A6AFE", color_texto="white"):
         super().__init__()

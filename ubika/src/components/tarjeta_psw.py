@@ -1,4 +1,4 @@
-import flet as ft # type: ignore
+import flet as ft
 from components.input_texto import InputTexto
 from components.boton_principal import BotonPrincipal
 

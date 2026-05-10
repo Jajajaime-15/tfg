@@ -11,11 +11,11 @@ def BotonEditar(on_click=None, width=150, disabled=False, loading=False):
 import flet as ft
 
 class BotonEditar(ft.ElevatedButton):
-    def __init__(self, accion, colof_fondo="#1A6AFE", color_texto="white", ancho=150, deshabilitado=False):
+    def __init__(self, accion, color_fondo="#1A6AFE", color_texto="white", ancho=150, deshabilitado=False):
         super().__init__()
         self.content = ft.Icon(ft.Icons.EDIT)
         self.on_click = accion
-        self.bgcolor = colof_fondo
+        self.bgcolor = color_fondo
         self.color = color_texto
         self.width = ancho
         self.height = ancho

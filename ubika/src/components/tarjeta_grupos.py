@@ -254,11 +254,10 @@ def tarjeta_grupos(nombre_grupo, miembros=None,
 
 '''
 
-import flet as ft # type: ignore
+import flet as ft 
 from components.boton_agregar import BotonAgregar
 from components.boton_eliminar import BotonEliminar
 from components.boton_editar import BotonEditar
-from components.input_texto import InputTexto
 
 class TarjetaGrupo(ft.Container):
     def __init__(self, nombre_grupo, miembros=None, emails=None, on_agregar=None, on_editar=None, on_eliminar=None, 

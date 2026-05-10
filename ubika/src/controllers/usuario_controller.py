@@ -1,4 +1,3 @@
-import flet as ft # type: ignore
 import asyncio
 
 class UsuarioController:

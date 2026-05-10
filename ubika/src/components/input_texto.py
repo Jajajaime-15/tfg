@@ -1,4 +1,4 @@
-import flet as ft # type: ignore
+import flet as ft 
 
 # campos de texto
 class InputTexto(ft.TextField):

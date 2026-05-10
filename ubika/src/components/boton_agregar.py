@@ -8,7 +8,7 @@ def BotonAgregar(on_click=None, width=150, disabled=False, loading=False):
     )
     return boton'''
 
-import flet as ft # type: ignore
+import flet as ft
 
 class BotonAgregar(ft.ElevatedButton):
     def __init__(self, accion, ancho=150, color_fondo="#1A6AFE", color_texto="white", deshabilitado=False):

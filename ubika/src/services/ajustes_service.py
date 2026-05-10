@@ -12,13 +12,11 @@ class AjustesService:
 
     # funcion para cambiar la contraseña estando conectado    
     async def cambiar_psw(self, nueva_psw):
-        try:
+        try: # obtenemos el token si no está en memoria
             self.token = await self.page.shared_preferences.get("token")
-            # obtenemos el token si no está en memoria
             if not self.token:
                 return False, "Token caducado"            
-            # actualizamos la contraseña
-            self.auth.change_password(self.token, nueva_psw)
+            self.auth.change_password(self.token, nueva_psw) # actualizamos la contraseña
             print("Contraseña actualizada")
             return True, "Contraseña actualizada"
         except Exception as e:
@@ -44,20 +42,18 @@ class AjustesService:
         try:
             self.id_usuario = await self.page.shared_preferences.get("id_usuario")
             self.token = await self.page.shared_preferences.get("token")
-            # obtenemos el grupo o grupos al que pertenece
-            grupos_guardados = await self.page.shared_preferences.get("grupos")
+            grupos_guardados = await self.page.shared_preferences.get("grupos") # obtenemos los grupos a los que pertenece
             grupos = json.loads(grupos_guardados) if grupos_guardados else {} 
+
             if self.id_usuario and self.token:
-                # borramos toda la informacion de la base de datos (de Realtime)
-                self.db.child("usuarios").child(self.id_usuario).remove(self.token)
+                self.db.child("usuarios").child(self.id_usuario).remove(self.token) # borramos toda la informacion de la base de datos
                 # borramos la última posición guardada del usuario en todos los grupos para que no se quede marcada al eliminar la cuenta
                 if grupos:
                     for id_grupo in grupos.keys():
                         self.db.child("ubicaciones").child(id_grupo).child(self.id_usuario).remove(self.token)
-                # borramos el usuario de Authentication
-                self.auth.delete_user_account(self.token)
-                # una vez eliminado cerramos sesión
-                await self.auth_s.cerrar_sesion()
+
+                self.auth.delete_user_account(self.token) # borramos el usuario de Authentication
+                await self.auth_s.cerrar_sesion() # una vez eliminado cerramos sesión
                 print("Cuenta eliminada")
                 return True, "La cuenta ha sido eliminada"
             print ("No hay una sesión activa")
@@ -81,4 +77,3 @@ class AjustesService:
                     print("Sesión caducada, vuelve a logearte")
                     return False, "Sesión caducada, vuelve a iniciar"
             return False, str(e)
-        

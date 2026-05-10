@@ -1,4 +1,4 @@
-import flet as ft # type: ignore
+import flet as ft
 from components.tarjeta_psw import TarjetaPsw
 from components.titulos import TituloSeccion
 from components.boton_link import BotonLink
@@ -44,7 +44,7 @@ class VistaAjustes:
             on_change = self.controlador.compartir_ubicacion
         )
         
-    # funcion que muetra la tarjeta
+    # funcion que muestra la tarjeta
     def mostrar_tarjeta_psw(self):
         self.tarjeta_psw.visible = True
         self.page.update()
@@ -67,8 +67,7 @@ class VistaAjustes:
         )
 
         self.page.overlay.append(self.dialogo_confirmacion)
-        # abrimos el dialogo
-        self.dialogo_confirmacion.open=True
+        self.dialogo_confirmacion.open=True # abrimos el dialogo
         self.page.update()
 
     # funcion que cierra el AlertDialog

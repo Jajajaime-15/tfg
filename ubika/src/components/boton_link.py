@@ -1,6 +1,6 @@
-import flet as ft # type: ignore
+import flet as ft
 
-# enlaces re registrarse o recuperar contraseña
+# para los enlaces de registrarse o recuperar contraseña
 class BotonLink(ft.TextButton):
     def __init__(self, texto, accion):
         super().__init__()

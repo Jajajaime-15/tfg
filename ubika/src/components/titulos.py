@@ -1,6 +1,6 @@
-import flet as ft # type: ignore
+import flet as ft
 
-# titulos que se uisa por ejemplo en ajustes
+# titulos que se usa por ejemplo en ajustes
 class TituloSeccion(ft.Text):
     def __init__(self, texto, tamanio=16, color="#1A6AFE"):
         super().__init__()

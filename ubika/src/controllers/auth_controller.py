@@ -1,4 +1,3 @@
-import flet as ft # type: ignore
 import asyncio
 
 class AuthController:
@@ -7,7 +6,7 @@ class AuthController:
         self.service = auth_service
         self.vista = vista
 
-    async def registrar_usuario (self, e):
+    async def registrar_usuario(self, e):
         self.vista.mensaje_error.value = ""
         self.vista.mensaje_error.color = "red"
         self.page.update()
@@ -55,7 +54,7 @@ class AuthController:
 
         self.page.update()
 
-    async def conectarse (self, e):
+    async def conectarse(self, e):
         self.vista.mensaje_error.value = ""
         self.vista.mensaje_error.color = "red"
         self.page.update()

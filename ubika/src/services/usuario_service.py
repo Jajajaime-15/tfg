@@ -13,8 +13,7 @@ class UsuarioService:
     async def actualizar_datos(self, datos_actualizados):
         try:
             self.id_usuario = await self.page.shared_preferences.get("id_usuario")
-            # cogemos el token del auth_service
-            token_actual = await self.auth_s.coger_token()
+            token_actual = await self.auth_s.coger_token() # cogemos el token del auth_service
 
             try:
                 self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, token_actual)
@@ -45,7 +44,7 @@ class UsuarioService:
             return False, str(e)
         
     # funcion para que se sincronice con los datos que hay firebase 
-    async def sincronizar (self):
+    async def sincronizar(self):
         try:
             self.id_usuario = await self.page.shared_preferences.get("id_usuario")
             self.token = await self.page.shared_preferences.get("token")
@@ -59,14 +58,12 @@ class UsuarioService:
                         print("Intentando refrescar token...")
                         if await self.auth_s.actualizar_sesion():
                             self.token = await self.page.shared_preferences.get("token")
-                            # Segundo intento con el nuevo token
-                            infor = self.db.child("usuarios").child(self.id_usuario).get(self.token).val()
+                            infor = self.db.child("usuarios").child(self.id_usuario).get(self.token).val() # Segundo intento con el nuevo token
                         else:
                             print("No se pudo recuperar la sesión activa.")
                             return
                 if infor:
-                    # diccionario de las cosas que queremos guardar en el dispositivo
-                    datos_a_guardar = {
+                    datos_a_guardar = { # diccionario de las cosas que queremos guardar en el dispositivo
                         "nombre": infor.get("nombre", ""),
                         "apellidos": infor.get("apellidos", ""),
                         "email": infor.get("email", ""),

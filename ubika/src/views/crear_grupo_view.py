@@ -36,7 +36,7 @@ class VistaCrearGrupo:
         )
 
     async def volver(self, e):
-        self.page.go("/home")
+        await self.page.push_route("/home")
 
     async def crear_grupo(self, e):
         self.btn_crear_grupo.disabled = True # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase

@@ -12,4 +12,4 @@ class FirebaseService:
             self.token = None
             print("Conectado a firebase") # print para comprobar que no hay problema a la hora de conectarse
         except Exception as e:
-            print("Error al conectarse a firebase")
+            print(f"Error al conectarse a firebase: {e}")
