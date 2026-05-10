@@ -190,7 +190,7 @@ class GruposService:
             print(f"Error al mostrar grupos: {e}")
             return [], [], [], False
             
-    async def anyadir_participante(self, nombre_grupo, nuevo_integrante):
+    async def agregar_participante(self, nombre_grupo, nuevo_integrante):
         try:
             await self.cargar_datos_usuario() # Cargar datos del usuario
 

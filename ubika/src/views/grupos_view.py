@@ -1,5 +1,7 @@
 import flet as ft
-from components.tarjeta_grupos import tarjeta_grupos
+from components.tarjeta_grupos import TarjetaGrupo
+from components.boton_principal import BotonPrincipal
+from components.titulos import TituloSeccion
 
 class VistaGrupos:
     def __init__(self, page, grupos_controller):
@@ -9,18 +11,18 @@ class VistaGrupos:
         self.integrantes = None
         self.emails = None
         self.centro = ft.Container(expand=True)
+        self.grupos_controller.vista = self # vinculamos la vista con el controller
 
-        self.btn_crear_grupos = ft.ElevatedButton(
-            content=ft.Text("Añadir grupo"),
-            icon=ft.Icons.ADD,
-            bgcolor="#1A6AFE",
-            color="white",
-            width=200,
-            on_click=self.crear_grupo
+        self.btn_crear_grupos = BotonPrincipal(
+            texto="Añadir grupo",
+            icono=ft.Icons.ADD,
+            ancho=200,
+            accion=self.crear_grupo
         )
 
         self.mensaje_error = ft.Text(value="", color="red", weight="bold")
-
+        self.page.run_task(self.actualizar_tarjetas_grupos) # se cargan los datos al crear la vista
+        
     def manejador_tarjeta(self, grupo_nombre):
         async def manejador(e):
             self.grupo_seleccionado = grupo_nombre # Seleccionar el grupo para operaciones mas adelante como eliminar o actualizar el nombre
@@ -68,8 +70,7 @@ class VistaGrupos:
     def editar_grupo_desde_tarjeta(self, nombre_actual, nuevo_nombre, callback_ui=None):
         if nuevo_nombre is None: # Si nuevo_nombre es None es porque entró en modo edicion
             return
-        
-        # Resto del código para guardar cambios
+
         self.btn_crear_grupos.disabled = True
         self.mensaje_error.value = ""
         self.page.update()
@@ -92,14 +93,13 @@ class VistaGrupos:
             
         self.page.run_task(realizar_edicion)
 
-    def anyadir_integrante_desde_tarjeta(self, nombre_grupo, integrante_field):
-        # Funcion para manejar el click en el botón anyadir desde la tarjeta del grupo
+    def agregar_integrante_desde_tarjeta(self, nombre_grupo, integrante_field):
+        # Funcion para manejar el click en el botón agregar desde la tarjeta del grupo
         nombre_integrante = integrante_field.value # Extraer el valor del TextField
         
         # Validar que no esté vacío
         if not nombre_integrante or nombre_integrante.strip() == "":
-            integrante_field.error_text = "El nombre del integrante no puede estar vacío"
-            integrante_field.value = ""
+            integrante_field.error_text = "Email obligatorio"
             self.page.update()
             return
         
@@ -108,7 +108,7 @@ class VistaGrupos:
         integrante_field.value = ""
         
         self.page.run_task(
-            self.grupos_controller.anyadir_participante,
+            self.grupos_controller.agregar_participante,
             nombre_grupo,
             nombre_integrante,
             self.mensaje_error
@@ -116,71 +116,43 @@ class VistaGrupos:
 
     async def actualizar_tarjetas_grupos(self):
         await self.obtener_info_grupos()
-
-        self.centro.content = ft.Row(
-            expand=True,
-            spacing=10,
-            scroll=ft.ScrollMode.AUTO,
-            controls=[
-                ft.Container(
-                    tarjeta_grupos(
-                        grupos, 
-                        self.integrantes[i] if self.integrantes and i < len(self.integrantes) else [], 
-                        self.emails[i] if self.emails and i < len(self.emails) else [],
-                        on_click_tarjeta=self.manejador_tarjeta(grupos),
-                        on_click_anyadir=self.anyadir_integrante_desde_tarjeta,
-                        on_click_eliminar=self.eliminar_grupo_desde_tarjeta,
-                        on_click_editar=self.editar_grupo_desde_tarjeta,
-                        on_click_eliminar_integrante=self.eliminar_integrante_desde_tarjeta,
-                    ),
-                )
-                for i, grupos in enumerate(self.datos_grupo or [])
-            ],
-        )
+        self.centro.content = self.generar_fila_grupos() # refrescamos el contenido del centro
         self.page.update()
 
-    def vista(self):
-        # Construir el contenido inicial del centro (grupos)
-        contenido_centro = ft.Row(
+    # funcion que crea la fila horizontal de las tarjetas de grupos
+    def generar_fila_grupos(self):
+        return ft.Row(
             expand=True,
-            spacing=10,
-            scroll=ft.ScrollMode.AUTO,
+            spacing=15,
+            scroll=ft.ScrollMode.ADAPTIVE,
             controls=[
-                ft.Container(
-                    tarjeta_grupos(
-                        grupos, 
-                        self.integrantes[i] if self.integrantes else "", 
-                        self.emails[i] if self.emails and i < len(self.emails) else [],
-                        on_click_tarjeta=self.manejador_tarjeta(grupos),
-                        on_click_anyadir=self.anyadir_integrante_desde_tarjeta,
-                        on_click_eliminar=self.eliminar_grupo_desde_tarjeta,
-                        on_click_editar=self.editar_grupo_desde_tarjeta,
-                        on_click_eliminar_integrante=self.eliminar_integrante_desde_tarjeta,
-                    ),
+                TarjetaGrupo(
+                    nombre_grupo=grupo, 
+                    miembros=self.integrantes[i] if self.integrantes and i < len(self.integrantes) else [], 
+                    emails=self.emails[i] if self.emails and i < len(self.emails) else [],
+                    on_agregar=self.agregar_integrante_desde_tarjeta,
+                    on_eliminar=self.eliminar_grupo_desde_tarjeta,
+                    on_editar=self.editar_grupo_desde_tarjeta,
+                    on_eliminar_integrante=self.eliminar_integrante_desde_tarjeta,
+                    on_click_tarjeta=self.manejador_tarjeta(grupo)
                 )
-                for i, grupos in enumerate(self.datos_grupo or [])
+                for i, grupo in enumerate(self.datos_grupo or [])
             ],
         )
-
-        self.centro.content = contenido_centro
+    
+    def vista(self):
+        self.centro.content = self.generar_fila_grupos() 
 
         return ft.Container(
             expand=True,
-            bgcolor=ft.Colors.WHITE,
-            border_radius=ft.BorderRadius.all(20),
             padding=20,
-            shadow=ft.BoxShadow(
-                blur_radius=15,
-                color=ft.Colors.with_opacity(0.3, ft.Colors.BLACK), 
-                offset=ft.Offset(3, 3)
-            ),
             content=ft.Column(
                 expand=True,
                 controls=[
                     # Fila superior con formulario
                     ft.Container(
                         content=ft.Row([
-                            ft.Text("Mis Grupos", size=40, weight="bold", color="BLACK"),
+                            TituloSeccion(texto="Mis Grupos", tamanio=40),
                         ],
                         alignment=ft.MainAxisAlignment.CENTER,
                         expand=True,),

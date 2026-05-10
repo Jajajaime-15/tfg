@@ -1,4 +1,7 @@
 import flet as ft
+from components.input_texto import InputTexto
+from components.boton_principal import BotonPrincipal
+from components.titulos import TituloSeccion
 
 class VistaCrearGrupo:
     def __init__(self, page, controlador):
@@ -12,33 +15,24 @@ class VistaCrearGrupo:
             on_click=self.volver
         )
 
-        self.nombre_grupo_input = ft.TextField(
+        self.nombre_grupo_input = InputTexto(
             label="Nombre Del Grupo",
-            hint_text="Introduce el nombre del grupo",
-            prefix_icon=ft.CupertinoIcons.PERSON,
-            focused_border_color="#1A6AFE",
-            width=300,
-            border_radius=10
+            hint="Introduce el nombre del grupo",
+            icono=ft.Icons.PERSON,
         )
 
-        self.nombre_integrante_input = ft.TextField(
+        self.nombre_integrante_input = InputTexto(
             label="Nombre Del Integrante",
-            hint_text="Introduce el email del integrante",
-            prefix_icon=ft.CupertinoIcons.PERSON,
-            focused_border_color="#1A6AFE",
-            width=300,
-            border_radius=10
+            hint="Introduce el email del integrante",
+            icono=ft.Icons.EMAIL,
         )
         
         self.mensaje_error = ft.Text(value="", color="red", weight="bold")
 
-        self.btn_crear_grupo = ft.ElevatedButton(
-            content=ft.Text("Crear Grupo"),
-            icon=ft.Icons.APP_REGISTRATION,
-            bgcolor="#1A6AFE",
-            color="white",
-            width=200,
-            on_click=self.crear_grupo
+        self.btn_crear_grupo = BotonPrincipal(
+            texto="Crear Grupo",
+            icono=ft.Icons.APP_REGISTRATION,
+            accion=self.crear_grupo
         )
 
     async def volver(self, e):
@@ -67,11 +61,7 @@ class VistaCrearGrupo:
                         [self.btn_volver],
                         alignment=ft.MainAxisAlignment.START
                     ),
-                    ft.Container(
-                        content=ft.Text("CREAR GRUPO", size=30, weight="bold"),
-                        margin=ft.margin.only(top=20, bottom=40),
-                        alignment=ft.Alignment(0,0)
-                    ),
+                    TituloSeccion(texto="CREAR GRUPO", tamanio=30),
                     self.nombre_grupo_input,
                     self.nombre_integrante_input,
                     self.btn_crear_grupo,

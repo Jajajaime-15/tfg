@@ -19,7 +19,7 @@ class VistaPrincipal:
         
         self.vista_mapa = VistaMapa(self.page, self.controlador_mapa) # para que el mapa cargue desde la apertura de la vista principal de navegacion
         self.vista_perfil = None # dejamos en None para que solo esté en memoria cuando se entre en perfil
-        self.vista_grupos = None 
+        self.vista_grupos = None # dejamos en None para que solo esté en memoria cuando se entre en grupos
         
         self.inferior = ft.NavigationBar( # barra de navegacion de los botones de abajo con grupos (home), mapa y perfil
             selected_index=self.index_inicio,  # recuperamos el indice

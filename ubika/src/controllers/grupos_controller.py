@@ -1,9 +1,10 @@
 import asyncio
 
 class GruposController:
-    def __init__(self, page, grupos_service):
+    def __init__(self, page, grupos_service, vista=None):
         self.page = page
         self.grupos_service = grupos_service
+        self.vista = vista
 
     async def crear_grupo(self, nombre, integrante, mensaje):
         mensaje.value = ""
@@ -21,6 +22,9 @@ class GruposController:
                 mensaje.color = "green"
                 self.page.update()
                 await asyncio.sleep(2) # esperamos para que el usuario tenga tiempo de leer el mensaje
+                # actualizamos la vista con el nuevo grupo
+                if self.vista:
+                    await self.vista.actualizar_tarjetas_grupos()
                 await self.page.push_route("/home")
             else:
                 mensaje.value = f"Error al crear grupo: {aviso}"
@@ -48,6 +52,9 @@ class GruposController:
                 mensaje.value = "Grupo eliminado correctamente"
                 mensaje.color = "green"
                 self.page.update()
+                # refrescamos las tarjetas
+                if self.vista:
+                    await self.vista.actualizar_tarjetas_grupos()
                 mensaje.value = ""  
             else:
                 mensaje.value = f"Error al eliminar grupo: {aviso}"
@@ -82,8 +89,7 @@ class GruposController:
             mensaje.color = "green"
             self.page.update()
             await asyncio.sleep(1.5)
-            mensaje.value = ""  
-            self.page.update() 
+            mensaje.value = ""
             return True
         else:
             mensaje.value = f"Error al editar grupo: {aviso}"
@@ -101,7 +107,7 @@ class GruposController:
             mensaje.value = f"Error: {integrantes}"
             mensaje.color = "red"
             self.page.update()
-            return [], []  # Retornar listas vacías en caso de error
+            return [], [], []  # Retornar listas vacías en caso de error
         
         if datos_grupo:
             mensaje.value = ""
@@ -113,7 +119,7 @@ class GruposController:
         self.page.update()
         return datos_grupo, integrantes, emails
     
-    async def anyadir_participante(self, nombre_grupo, nuevo_integrante, mensaje):
+    async def agregar_participante(self, nombre_grupo, nuevo_integrante, mensaje):
         mensaje.value = ""
         self.page.update()
         
@@ -123,13 +129,15 @@ class GruposController:
             mensaje.value = "Todos los campos son obligatorios"
             mensaje.color = "red"
         else:
-            anyadido, aviso = await self.grupos_service.anyadir_participante(nombre_grupo, nuevo_integrante)
+            anyadido, aviso = await self.grupos_service.agregar_participante(nombre_grupo, nuevo_integrante)
             if anyadido:
                 mensaje.value = "Participante añadido correctamente"
                 mensaje.color = "green"
                 self.page.update()
                 await asyncio.sleep(2)
-                mensaje.value = ""
+                # refrescamos la vista para que aparezca el nuevo miembro en la tarjeta
+                if self.vista:
+                    await self.vista.actualizar_tarjetas_grupos()
             else:
                 mensaje.value = f"Error al añadir participante: {aviso}"
                 mensaje.color = "red"
@@ -146,7 +154,9 @@ class GruposController:
             mensaje.color = "green"
             self.page.update()
             await asyncio.sleep(2)
-            mensaje.value = ""
+            # refrescamos la vista para que desaparezca el miembro eliminado
+            if self.vista:
+                await self.vista.actualizar_tarjetas_grupos()
         else:
             mensaje.value = f"Error al eliminar integrante: {aviso}"
             mensaje.color = "red"
