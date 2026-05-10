@@ -41,6 +41,7 @@ class VistaPrincipal:
             if not self.vista_grupos: # la primera vez que se abre
                 self.vista_grupos = VistaGrupos(self.page, self.controlador_grupos)
             self.centro.content = self.vista_grupos.vista()
+            self.page.run_task(self.vista_grupos.actualizar_tarjetas_grupos)
         elif indice == 1: # mapa
             self.centro.content = self.vista_mapa.vista()
         elif indice == 2: # perfil

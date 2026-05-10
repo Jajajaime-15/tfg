@@ -21,7 +21,6 @@ class VistaGrupos:
         )
 
         self.mensaje_error = ft.Text(value="", color="red", weight="bold")
-        self.page.run_task(self.actualizar_tarjetas_grupos) # se cargan los datos al crear la vista
         
     def manejador_tarjeta(self, grupo_nombre):
         async def manejador(e):
@@ -30,7 +29,7 @@ class VistaGrupos:
         return manejador    
 
     async def crear_grupo(self, e):
-        self.page.go("/crear_grupo")
+        await self.page.push_route("/crear_grupo")
     
     async def obtener_info_grupos(self):
         self.datos_grupo, self.integrantes, self.emails = await self.grupos_controller.mostrar_grupos(self.mensaje_error)

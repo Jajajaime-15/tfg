@@ -283,7 +283,7 @@ class TarjetaGrupo(ft.Container):
         self.btn_guardar = ft.IconButton(ft.Icons.SAVE, visible=False, on_click=self.guardar_edicion)
         self.btn_cancelar = ft.IconButton(ft.Icons.CLOSE, visible=False, on_click=self.cancelar_edicion)
         self.btn_editar = BotonEditar(accion=self.entrar_modo_edicion, ancho=40)
-        self.btn_agregar = BotonAgregar(accion=self.on_plus_click, ancho=40, deshabilitado=False)
+        self.btn_agregar = BotonAgregar(accion=self.agregar, ancho=40, deshabilitado=False)
         self.btn_agregar.visible = False
         
         self.width = width
@@ -319,7 +319,7 @@ class TarjetaGrupo(ft.Container):
                     controls=[
                         self.btn_agregar,
                         self.btn_editar,
-                        BotonEliminar(accion=self.on_delete_click, ancho=40),
+                        BotonEliminar(accion=self.eliminar, ancho=40),
                     ],
                     alignment=ft.MainAxisAlignment.END,
                 ),
@@ -396,11 +396,11 @@ class TarjetaGrupo(ft.Container):
     def cancelar_edicion(self, e):
         self.salir_modo_edicion()
 
-    def on_plus_click(self, e):
+    def agregar(self, e):
         if self.on_agregar:
             self.on_agregar(self.current_nombre, self.integrante)
 
-    def on_delete_click(self, e):
+    def eliminar(self, e):
         if self.on_eliminar:
             self.on_eliminar(self.current_nombre)
 

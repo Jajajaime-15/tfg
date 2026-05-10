@@ -37,17 +37,11 @@ class GruposController:
         mensaje.value = ""
         self.page.update()
 
-        # Si nombre_grupo es un objeto o string
-        if hasattr(nombre_grupo, 'value'):
-            nombre = nombre_grupo.value
-        else:
-            nombre = nombre_grupo
-
-        if not nombre:
+        if not nombre_grupo:
             mensaje.value = "El nombre del grupo es obligatorio"
             mensaje.color = "red"
         else:
-            borrado, aviso = await self.grupos_service.eliminar_grupo(nombre)
+            borrado, aviso = await self.grupos_service.eliminar_grupo(nombre_grupo)
             if borrado:
                 mensaje.value = "Grupo eliminado correctamente"
                 mensaje.color = "green"
@@ -66,24 +60,13 @@ class GruposController:
         mensaje.value = ""
         self.page.update()
 
-        # Verificar si nombre_grupo es un objeto o string
-        if hasattr(nombre_grupo_actual, 'value'):
-            nombre_actual = nombre_grupo_actual.value
-        else:
-            nombre_actual = nombre_grupo_actual
-
-        if hasattr(nuevo_nombre_grupo, 'value'):
-            nombre_nuevo = nuevo_nombre_grupo.value
-        else:
-            nombre_nuevo = nuevo_nombre_grupo    
-
-        if not nombre_actual or not nombre_nuevo:
+        if not nombre_grupo_actual or not nuevo_nombre_grupo:
             mensaje.value = "El nombre del grupo es obligatorio"
             mensaje.color = "red"
             self.page.update()     
             return False 
         
-        editado, aviso = await self.grupos_service.editar_grupo(nombre_actual, nombre_nuevo)
+        editado, aviso = await self.grupos_service.editar_grupo(nombre_grupo_actual, nuevo_nombre_grupo)
         if editado:
             mensaje.value = "Grupo editado correctamente"
             mensaje.color = "green"
