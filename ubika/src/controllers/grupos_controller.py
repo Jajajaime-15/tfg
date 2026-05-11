@@ -33,7 +33,6 @@ class GruposController:
         self.page.update()
 
     async def eliminar_grupo(self, nombre_grupo, mensaje):
-        print(f"GroupController.eliminar_grupo llamado con: {nombre_grupo}")  # PRINT DEBUG
         mensaje.value = ""
         self.page.update()
 
@@ -51,7 +50,7 @@ class GruposController:
                     await self.vista.actualizar_tarjetas_grupos()
                 mensaje.value = ""  
             else:
-                mensaje.value = f"Error al eliminar grupo: {aviso}"
+                mensaje.value = f"No puedes eliminar el grupo si no eres el administrador"
                 mensaje.color = "red"
 
         self.page.update()    
@@ -122,7 +121,7 @@ class GruposController:
                 if self.vista:
                     await self.vista.actualizar_tarjetas_grupos()
             else:
-                mensaje.value = f"Error al añadir participante: {aviso}"
+                mensaje.value = f"Error al añadir integrante en el grupo"
                 mensaje.color = "red"
 
         self.page.update()    
@@ -141,7 +140,7 @@ class GruposController:
             if self.vista:
                 await self.vista.actualizar_tarjetas_grupos()
         else:
-            mensaje.value = f"Error al eliminar integrante: {aviso}"
+            mensaje.value = f"No puedes eliminar al integrante si no eres el administrador del grupo"
             mensaje.color = "red"
         
         self.page.update()

@@ -47,10 +47,22 @@ class GruposService:
             try:
                 self.todos_los_grupos_usuarios = self.db.child("usuarios").child(self.id_usuario).child("grupos").get(self.token).val()
                 self.todos_los_usuarios = self.db.child("usuarios").get(self.token).val()
+                await self.actualizar_grupos_preferences()
             except Exception as e:
                 print(f"Error al cargar datos del usuario: {e}")
         else:
             print("No se pudo cargar el ID de usuario o el token")    
+
+    async def actualizar_grupos_preferences(self):
+        try:
+            if self.todos_los_grupos_usuarios is None:
+                grupos_actualizados = {}
+            else:
+                grupos_actualizados = self.todos_los_grupos_usuarios
+            
+            await self.page.shared_preferences.set("grupos", json.dumps(grupos_actualizados))
+        except Exception as e:
+            print(f"Error al sincronizar grupos: {e}")        
 
     async def crear_grupo(self, nombre_grupo, integrante):
         try:
@@ -82,13 +94,28 @@ class GruposService:
             id_grupo = resultado["name"]  
             
             ruta_admin = f"usuarios/{self.id_usuario}/grupos"
-            grupos_admin = self.db.child(ruta_admin).get(self.token).val()
+            grupos_admin = await self.page.shared_preferences.get("grupos")
+
+            if grupos_admin is None:
+                print("No hay grupos guardados en shared_preferences")
+                return [], [], [], False
+            
+            # Si es string pasar a JSON
+            if isinstance(grupos_admin, str):
+                try:
+                    grupos_admin = json.loads(grupos_admin)
+                except:
+                    grupos_admin = {}
             
             if not grupos_admin or not isinstance(grupos_admin, dict): # Si no hay grupos o no es diccionario lo creamos como un diccionario vacío
                 grupos_admin = {}
+
+                
             
             grupos_admin[id_grupo] = True # Añadir el nuevo grupo sin borrar los anteriores
             self.db.child(ruta_admin).update(grupos_admin, self.token)
+
+            await self.page.shared_preferences.set("grupos", json.dumps(grupos_admin))
             
             # Actualizar los grupos del nuevo integrante
             ruta_integrante = f"usuarios/{id_nuevo_integrante}/grupos"
@@ -156,13 +183,22 @@ class GruposService:
             usuarios = self.db.child("usuarios").get(self.token).val()
             emails_usuarios = []
 
-            for id_usuario, datos_usuario in usuarios.items():
-                if id_usuario == self.id_usuario:
-                    grupos_dentro_usuarios = datos_usuario.get("grupos", {})
-                    if isinstance(grupos_dentro_usuarios, str):
-                        grupos_dentro_usuarios = {} 
-                    elif grupos_dentro_usuarios is None:
-                        grupos_dentro_usuarios = {}
+            grupos_dentro_usuarios = await self.page.shared_preferences.get("grupos")
+        
+            if grupos_dentro_usuarios is None:
+                print("No hay grupos guardados en shared_preferences")
+                return [], [], [], False
+            
+            # Si es string pasar a JSON
+            if isinstance(grupos_dentro_usuarios, str):
+                try:
+                    grupos_dentro_usuarios = json.loads(grupos_dentro_usuarios)
+                except:
+                    grupos_dentro_usuarios = {}
+
+            # Asegurar que es un diccionario
+            if not isinstance(grupos_dentro_usuarios, dict):
+                grupos_dentro_usuarios = {}        
 
             for id_grupo, datos_grupo in grupos.items():
                 if id_grupo in grupos_dentro_usuarios:
