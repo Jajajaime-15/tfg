@@ -21,7 +21,7 @@ class GruposController:
                 mensaje.value = "Grupo creado correctamente"
                 mensaje.color = "green"
                 self.page.update()
-                await asyncio.sleep(2) # esperamos para que el usuario tenga tiempo de leer el mensaje
+                await asyncio.sleep(1.5) # esperamos para que el usuario tenga tiempo de leer el mensaje
                 # actualizamos la vista con el nuevo grupo
                 if self.vista:
                     await self.vista.actualizar_tarjetas_grupos()

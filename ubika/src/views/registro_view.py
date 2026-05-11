@@ -50,7 +50,7 @@ class VistaRegistro:
             accion=self.controlador.registrar_usuario
         )
 
-        # self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=False)
 
         self.btn_registrar = BotonPrincipal(
             texto="Registrarse",
@@ -89,7 +89,7 @@ class VistaRegistro:
                             self.psw_confirmar,
                             ft.Container(height=10),
                             self.btn_registrar,
-                            # self.mensaje_error,
+                            self.mensaje_error,
                         ],
                         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                         alignment=ft.MainAxisAlignment.CENTER,

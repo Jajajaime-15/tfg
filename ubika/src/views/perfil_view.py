@@ -89,7 +89,7 @@ class VistaPerfil:
             expand=True
         )
 
-        # self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=False)
 
         self.btn_guardar = BotonPrincipal(
             texto="Guardar cambios",
@@ -160,7 +160,7 @@ class VistaPerfil:
                 ft.Row([
                     ft.Column([
                         self.btn_guardar,
-                        # self.mensaje_error
+                        self.mensaje_error
                         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
                 ], alignment=ft.MainAxisAlignment.CENTER)
             ], scroll=ft.ScrollMode.AUTO, 

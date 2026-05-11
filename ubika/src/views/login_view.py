@@ -31,7 +31,7 @@ class VistaLogin:
             accion=self.controlador.conectarse
         )
 
-        # self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=False)
 
         self.btn_entrar = BotonPrincipal(
             texto="Iniciar Sesión",
@@ -64,7 +64,7 @@ class VistaLogin:
                     self.btn_entrar,
                     self.btn_registro,
                     self.btn_recuperar,
-                    # self.mensaje_error,
+                    self.mensaje_error,
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 alignment=ft.MainAxisAlignment.CENTER,

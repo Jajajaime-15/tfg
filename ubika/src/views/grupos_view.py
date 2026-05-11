@@ -21,7 +21,7 @@ class VistaGrupos:
             accion=self.crear_grupo
         )
 
-        # self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=False)
 
     def manejador_tarjeta(self, grupo_nombre):
         async def manejador(e):
@@ -41,12 +41,12 @@ class VistaGrupos:
         print(f"Eliminando integrante: {email_integrante} del grupo: {nombre_grupo}")
 
         self.btn_crear_grupos.disabled = True
-        # self.mensaje_error.value = ""
+        self.mensaje_error.value = ""
         self.page.update()
 
         # creamos un proceso asíncrono para la eliminacion
         async def eliminacion():
-            exito = await self.grupos_controller.eliminar_participante(nombre_grupo, email_integrante, self.mensaje_error) # llamamos al controlador para realizar el borrado del miembro
+            exito = await self.grupos_controller.eliminar_participante(nombre_grupo, email_integrante) # llamamos al controlador para realizar el borrado del miembro
             if not exito: # si no se realiza nada
                 await asyncio.sleep(2)
 
@@ -74,14 +74,14 @@ class VistaGrupos:
             return
 
         self.btn_crear_grupos.disabled = True
-        # self.mensaje_error.value = ""
+        self.mensaje_error.value = ""
         self.page.update()
 
         async def realizar_edicion():
             exito = await self.grupos_controller.editar_grupo(
                 nombre_actual, 
                 nuevo_nombre, 
-                # self.mensaje_error
+                self.mensaje_error
             )
 
             if callback_ui:
@@ -113,7 +113,7 @@ class VistaGrupos:
             self.grupos_controller.agregar_participante,
             nombre_grupo,
             nombre_integrante,
-            # self.mensaje_error
+            self.mensaje_error
         )
 
     async def actualizar_tarjetas_grupos(self):
@@ -151,7 +151,7 @@ class VistaGrupos:
         self.page.update()
 
         async def salir():
-            await self.grupos_controller.abandonar_grupo (grupo,self.mensaje_error)
+            await self.grupos_controller.abandonar_grupo (grupo)
             await self.actualizar_tarjetas_grupos()
             self.page.update()
 
@@ -176,7 +176,7 @@ class VistaGrupos:
                     ], alignment=ft.MainAxisAlignment.CENTER),
 
                     ft.Divider(height=20, color="transparent"), 
-                    # self.mensaje_error,
+                    self.mensaje_error,
 
                     ft.Container(
                         content=self.centro,

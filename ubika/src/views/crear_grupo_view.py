@@ -27,7 +27,7 @@ class VistaCrearGrupo:
             icono=ft.Icons.EMAIL,
         )
 
-        # self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=False)
 
         self.btn_crear_grupo = BotonPrincipal(
             texto="Crear Grupo",
@@ -40,7 +40,7 @@ class VistaCrearGrupo:
 
     async def crear_grupo(self, e):
         self.btn_crear_grupo.disabled = True # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
-        # self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
+        self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
         self.page.update()
 
         await self.controlador.crear_grupo( # llamamos a la función para crear un grupo
@@ -55,22 +55,36 @@ class VistaCrearGrupo:
     # función para crear la vista que se mostrará en la pantalla
     def vista(self):
         return ft.Container(
-            content=ft.Column(
-                [
-                    ft.Row(
-                        [self.btn_volver],
-                        alignment=ft.MainAxisAlignment.START
-                    ),
-                    TituloSeccion(texto="CREAR GRUPO", tamanio=30),
-                    self.nombre_grupo_input,
-                    self.nombre_integrante_input,
-                    self.btn_crear_grupo,
-                    # self.mensaje_error,
-                ],
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                alignment=ft.MainAxisAlignment.CENTER,
-                spacing=20
-            ),
+            padding=20,
             expand=True,
-            alignment=ft.Alignment(0,0),
+            content=ft.Stack(
+                [
+                    # --- CAPA 1: La flecha de volver (siempre arriba a la izquierda) ---
+                    ft.Column(
+                        [
+                            ft.Divider(height=30, color="transparent"),
+                            ft.Row([self.btn_volver], alignment=ft.MainAxisAlignment.START),
+                        ],
+                    ),
+                    
+                    # --- CAPA 2: El formulario en el centro total ---
+                    ft.Container(
+                        content=ft.Column(
+                            [
+                                TituloSeccion(texto="CREAR GRUPO", tamanio=30),
+                                self.nombre_grupo_input,
+                                self.nombre_integrante_input,
+                                self.btn_crear_grupo,
+                                self.mensaje_error,
+                            ],
+                            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                            alignment=ft.MainAxisAlignment.CENTER,
+                            spacing=20,
+                            tight=True, # Importante para que el centro sea real
+                        ),
+                        alignment=ft.Alignment(0, 0),
+                        expand=True,
+                    ),
+                ]
+            ),
         )
