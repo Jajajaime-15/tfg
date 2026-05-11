@@ -12,7 +12,7 @@ class VistaCrearGrupo:
             visible=True, 
             icon=ft.Icons.ARROW_BACK_IOS,
             icon_color="#1A6AFE",
-            on_click=self.volver
+            on_click=lambda _: self.page.go("/home")
         )
 
         self.nombre_grupo_input = InputTexto(
@@ -52,22 +52,12 @@ class VistaCrearGrupo:
         self.btn_crear_grupo.disabled = False # activamos de nuevo el botón
         self.page.update()
 
-    # función para crear la vista que se mostrará en la pantalla
     def vista(self):
         return ft.Container(
             padding=20,
             expand=True,
             content=ft.Stack(
                 [
-                    # --- CAPA 1: La flecha de volver (siempre arriba a la izquierda) ---
-                    ft.Column(
-                        [
-                            ft.Divider(height=30, color="transparent"),
-                            ft.Row([self.btn_volver], alignment=ft.MainAxisAlignment.START),
-                        ],
-                    ),
-                    
-                    # --- CAPA 2: El formulario en el centro total ---
                     ft.Container(
                         content=ft.Column(
                             [
@@ -80,10 +70,20 @@ class VistaCrearGrupo:
                             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                             alignment=ft.MainAxisAlignment.CENTER,
                             spacing=20,
-                            tight=True, # Importante para que el centro sea real
+                            tight=True,
                         ),
                         alignment=ft.Alignment(0, 0),
                         expand=True,
+                    ),
+                    ft.Column(
+                        [
+                            ft.Divider(height=30, color="transparent"),
+                            ft.Row(
+                                [self.btn_volver], 
+                                alignment=ft.MainAxisAlignment.START
+                            ),
+                        ],
+                        tight=True,
                     ),
                 ]
             ),
