@@ -174,16 +174,6 @@ class TarjetaGrupo(ft.Container):
         if self.on_eliminar_integrante:
             self.on_eliminar_integrante(e, self.current_nombre, email)
 
-            # refrescamos la lista de miembros localmente para que el cambio en la vista sea instantaneo
-            if email in self.emails:
-                indice = self.emails.index(email)
-                self.emails.pop(indice)
-                self.miembros.pop(indice)
-            
-            # volvemos a dibujar la lista
-            self.actualizar_controles_miembros()
-            self.update()
-
     def abandonar(self, e):
         if self.on_abandonar:
             self.on_abandonar(self.current_nombre)

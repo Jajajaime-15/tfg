@@ -130,17 +130,24 @@ class GruposController:
         mensaje.value = ""
         self.page.update()
         
+        await self.grupos_service.cargar_datos_usuario()
+
+        # comprobamos primero si somos el propio usuario
+        if email_integrante.lower().strip() ==self.grupos_service.id_usuario.lower().strip():
+            mensaje.value = "No puedes eliminarte a ti mismo del grupo. Usa la opción 'Salir del grupo'."
+            mensaje.color = "orange" # Usamos naranja para una advertencia de lógica
+            self.page.update()
+            await asyncio.sleep(1.5)
+            return False
+        
+        # si no es el propio usuario realizamos la eliminacion
         eliminado, aviso = await self.grupos_service.eliminar_participante(nombre_grupo, email_integrante)
+        
         if eliminado:
             mensaje.value = "Integrante eliminado correctamente"
             mensaje.color = "green"
-            self.page.update()
-            await asyncio.sleep(2)
-            # refrescamos la vista para que desaparezca el miembro eliminado
-            if self.vista:
-                await self.vista.actualizar_tarjetas_grupos()
         else:
-            mensaje.value = f"No puedes eliminar al integrante si no eres el administrador del grupo"
+            mensaje.value = aviso # mostramos el mensaje que viene desde el service
             mensaje.color = "red"
         
         self.page.update()
@@ -153,17 +160,18 @@ class GruposController:
         if not grupo:
             mensaje.value = "No se ha encontrado el grupo"
             mensaje.color = "red"
+            self.page.update()
+            return False
+
+        exito, aviso = await self.grupos_service.abandonar_grupo(grupo)
+        if exito:
+            mensaje.value = "Has salido del grupo"
+            mensaje.color = "green"
+            self.page.update()
+            await asyncio.sleep(1.5)
+            return True
         else:
-            exito, aviso = await self.grupos_service.abandonar_grupo(grupo)
-            if exito:
-                mensaje.value = "Has salido del grupo"
-                mensaje.color = "green"
-                self.page.update()
-                await asyncio.sleep(1.5)
-                if self.vista:
-                    await self.vista.actualizar_tarjetas_grupos()
-            else:
-                mensaje.value = f"Error al salir del grupo: {aviso}"
-                mensaje.color = "red"
-                
-        self.page.update()
+            mensaje.value = f"Error al salir del grupo: {aviso}"
+            mensaje.color = "red"
+            self.page.update()
+            return False

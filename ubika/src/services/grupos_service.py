@@ -110,13 +110,11 @@ class GruposService:
             if not grupos_admin or not isinstance(grupos_admin, dict): # Si no hay grupos o no es diccionario lo creamos como un diccionario vacío
                 grupos_admin = {}
 
-                
-            
             grupos_admin[id_grupo] = True # Añadir el nuevo grupo sin borrar los anteriores
             self.db.child(ruta_admin).update(grupos_admin, self.token)
 
             await self.page.shared_preferences.set("grupos", json.dumps(grupos_admin))
-            
+
             # Actualizar los grupos del nuevo integrante
             ruta_integrante = f"usuarios/{id_nuevo_integrante}/grupos"
             grupos_integrante = self.db.child(ruta_integrante).get(self.token).val()
@@ -131,7 +129,7 @@ class GruposService:
         except Exception as e:
             print(f"Error al crear grupo: {e}")
             return False, str(e)
-        
+
     async def eliminar_grupo(self, nombre_grupo):
         try:
             await self.cargar_datos_usuario() # Cargar datos del usuario
@@ -276,37 +274,30 @@ class GruposService:
     async def eliminar_participante(self, nombre_grupo, email_integrante):
         try:
             await self.cargar_datos_usuario() # Cargar datos del usuario
-                        
-            id_grupo_encontrar, datos_grupo_encontrar = await self.grupos_del_usuario_admin(nombre_grupo) # Buscar el ID del grupo por nombre y verificar que sea admin
             
-            # Verificar que sea admin
-            if datos_grupo_encontrar.get("admin") != self.id_usuario:
-                return False, "Solo el administrador puede eliminar participantes"
+            # buscamos el grupo y comrpobamos si somos o no admin [0]-admin [1]-no admin
+            resultado = await self.grupos_del_usuario_admin(nombre_grupo)
+            if resultado[0] is False:
+                return False, resultado[1]
             
+            id_grupo_encontrar, datos_grupo_encontrar = resultado
+
             # Obtener miembros
             miembros = datos_grupo_encontrar.get("miembros", {})
-            
-            if not isinstance(miembros, dict):
-                miembros = {}
-            
             usuarios = self.db.child("usuarios").get(self.token).val()
-            id_integrante_eliminar = None
-            for id_usuario, datos_usuario in usuarios.items():
-                if datos_usuario.get("email") == email_integrante:
-                    id_integrante_eliminar = id_usuario
-                    break
+
+            # buscamos el id del miembro que queremos eliminar
+            lista_ids = [id for id, datos in usuarios.items() if datos.get("email") == email_integrante]
+            id_integrante_eliminar = lista_ids[0] if lista_ids else None
+
+            if not id_integrante_eliminar: # comprobamos que existe el id
+                return False, f"No se encontró el usuario {email_integrante}"
+            if id_integrante_eliminar == self.id_usuario: # comrpobamos que no seamos el admin
+                return False, "Operación no permitida: El administrador no puede eliminarse a sí mismo."
+            if id_integrante_eliminar not in miembros: # comprobamos si sigue el id en los miembros del grupo
+                return False, "El usuario ya no pertenece a este grupo"
             
-            if not id_integrante_eliminar:
-                return False, f"No se encontró el integrante '{email_integrante}'"
-            
-            # No permitir eliminar al admin
-            if id_integrante_eliminar == self.id_usuario:
-                return False, "No puedes eliminarte a ti mismo del grupo"
-            
-            # Eliminar del diccionario de miembros
-            if id_integrante_eliminar not in miembros:
-                return False, "El integrante no está en el grupo"
-            
+            # eliminamos en firebase
             del miembros[id_integrante_eliminar]
             self.db.child(f"grupos/{id_grupo_encontrar}").update({"miembros": miembros}, self.token) # Actualizar en Firebase
             ruta_usuario = f"usuarios/{id_integrante_eliminar}/grupos/{id_grupo_encontrar}" 
