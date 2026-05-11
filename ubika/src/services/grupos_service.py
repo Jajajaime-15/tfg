@@ -19,10 +19,10 @@ class GruposService:
                 return todos_los_grupos
             else:
                 print(f"No se encontraron grupos")
-                return []
+                return {}
         except Exception as e:
             print(f"Error al buscar grupos del usuario: {e}")
-            return []
+            return {}
         
     async def grupos_del_usuario_admin(self, nombre_grupo):
         try:
@@ -188,7 +188,7 @@ class GruposService:
         
             if grupos_dentro_usuarios is None:
                 print("No hay grupos guardados en shared_preferences")
-                return [], [], [], False
+                return [], [], [], [], False
             
             # Si es string pasar a JSON
             if isinstance(grupos_dentro_usuarios, str):
@@ -318,7 +318,7 @@ class GruposService:
             return False, str(e)
 
     # funcion para salir del grupo si no eres admin
-    async def abandonar_grupo(self,grupo):
+    async def abandonar_grupo(self, grupo):
         try:
             await self.cargar_datos_usuario()
             encontrar_id_grupo = None
