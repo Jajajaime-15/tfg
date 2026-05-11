@@ -43,9 +43,9 @@ class TarjetaGrupo(ft.Container):
 
         self.width = width
         self.bgcolor = ft.Colors.with_opacity(0.6, "#F0F4F8")
-        self.padding = 15
+        self.padding = 30
         self.border_radius = 15
-        self.shadow = ft.BoxShadow(spread_radius=1, blur_radius=15, color=ft.Colors.with_opacity(0.15, ft.Colors.BLACK), offset=ft.Offset(0, 5))
+        self.shadow = ft.BoxShadow(spread_radius=-1, blur_radius=8, color=ft.Colors.with_opacity(0.12, ft.Colors.BLACK), offset=ft.Offset(4, 4))
         self.border = ft.border.all(0.5, ft.Colors.with_opacity(0.2, ft.Colors.WHITE))
         self.content = self.crear_vista() # creamos la vista
         self.actualizar_controles_miembros() # actualizamos
@@ -75,7 +75,7 @@ class TarjetaGrupo(ft.Container):
                 ft.Row([self.integrante, self.btn_agregar], alignment=ft.MainAxisAlignment.CENTER), # fila agregar nuevo miembro
 
                 ft.Divider(height=10),
-                ft.Container(content=self.columna_miembros, height=150), # contenedor con la list ade miembros
+                ft.Container(content=self.columna_miembros, height=200), # contenedor con la list ade miembros
                 ft.Divider(height=10),
                 
                 fila_admin if self.es_admin else fila_miembro # se comprueba que rol tiene el usuario en el grupo

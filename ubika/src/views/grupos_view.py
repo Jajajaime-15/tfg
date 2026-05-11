@@ -122,8 +122,9 @@ class VistaGrupos:
     def generar_fila_grupos(self):
         return ft.Row(
             expand=True,
-            spacing=15,
+            spacing=20,
             scroll=ft.ScrollMode.ADAPTIVE,
+            alignment=ft.MainAxisAlignment.CENTER,
             controls=[
                 TarjetaGrupo(
                     nombre_grupo=grupo,
@@ -149,30 +150,31 @@ class VistaGrupos:
     
     def vista(self):
         self.centro.content = self.generar_fila_grupos() 
-
+        self.centro.alignment = ft.Alignment(0, 0)
         return ft.Container(
-            expand=True,
             padding=20,
+            expand=True,
             content=ft.Column(
-                expand=True,
                 controls=[
-                    # Fila superior con formulario
-                    ft.Container(
-                        content=ft.Row([
-                            TituloSeccion(texto="Mis Grupos", color="", tamanio=40),
-                        ],
-                        alignment=ft.MainAxisAlignment.CENTER,
-                        expand=True,),
-                    ),
-                    ft.Row(
-                        controls=[
-                            self.btn_crear_grupos,
-                        ],
-                        alignment=ft.MainAxisAlignment.END,
-                    ),
+                    ft.Row([
+                        TituloSeccion(texto="MIS GRUPOS", color="", tamanio=25),
+                    ], alignment=ft.MainAxisAlignment.CENTER),
+
+                    ft.Divider(height=5, color="transparent"),
+
+                    ft.Row([
+                        self.btn_crear_grupos
+                    ], alignment=ft.MainAxisAlignment.CENTER),
+
+                    ft.Divider(height=20, color="transparent"), 
                     self.mensaje_error,
-                    ft.Container(expand=True, content=self.centro), # Centro dinámico (expande para ocupar el espacio)
+
+                    ft.Container(
+                        content=self.centro,
+                        # padding=ft.padding.symmetric(vertical=10),
+                    ),
                 ],
-                spacing=10,
-            ),
+                scroll=ft.ScrollMode.AUTO,
+                horizontal_alignment=ft.CrossAxisAlignment.STRETCH
+            )
         )

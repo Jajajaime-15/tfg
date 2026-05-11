@@ -18,6 +18,7 @@ async def main(page: ft.Page):
     page.title = "UBIKA"
     page.window_width = 400
     page.window_height = 700
+    page.padding = 0 # eliminamos el borde alrededor de la vista carga
 
     # cargamos el tema que está guardado
     tema_guardado = await page.shared_preferences.get("tema")
