@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 from components.tarjeta_psw import TarjetaPsw
 from components.titulos import TituloSeccion
 from components.boton_link import BotonLink
@@ -14,6 +14,7 @@ class VistaAjustes:
             icon=ft.Icons.ARROW_BACK_IOS_NEW,
             on_click=lambda _: self.page.go("/home")
         )
+
         self.titulo = ft.Text("Ajustes", size=25, weight="bold")
 
         self.btn_tema = ft.IconButton(
@@ -43,7 +44,7 @@ class VistaAjustes:
             active_color="#1A6AFE",
             on_change = self.controlador.compartir_ubicacion
         )
-        
+
     # funcion que muestra la tarjeta
     def mostrar_tarjeta_psw(self):
         self.tarjeta_psw.visible = True
@@ -93,7 +94,7 @@ class VistaAjustes:
                         ft.Container(expand=True),
                         self.btn_tema
                     ]),
-                    
+
                     ft.Divider(height=20, color="transparent"),
 
                     TituloSeccion("Privacidad"),
@@ -103,7 +104,7 @@ class VistaAjustes:
                         ft.Container(expand=True),
                         self.ubicacion
                     ]),
-                    
+
                     ft.Divider(height=20, color="transparent"),
 
                     TituloSeccion("Seguridad"),
@@ -121,7 +122,7 @@ class VistaAjustes:
                         ft.Icon(ft.Icons.LOGOUT_ROUNDED, color="#1A6AFE"),
                         self.btn_cerrar_sesion
                     ]),
-                    
+
                     ft.Row([
                         ft.Icon(ft.Icons.PERSON_REMOVE_OUTLINED, color="red"),
                         self.btn_eliminar_cuenta

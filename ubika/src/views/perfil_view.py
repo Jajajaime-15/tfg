@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 from components.boton_principal import BotonPrincipal
 from components.input_texto import InputTexto
 
@@ -7,7 +7,7 @@ class VistaPerfil:
         self.page = page
         self.controlador = controlador
         self.controlador.vista = self
-        
+
         # botón para los ajustes
         self.btn_ajustes = ft.IconButton(
             visible=True, 
@@ -64,7 +64,7 @@ class VistaPerfil:
         # cabecera del perfil con nombre y correo del usuario
         self.usuario = ft.Text(size=20, weight="bold")
         self.email = ft.Text(size=14, color="grey")
-        
+
         self.nombre_input = InputTexto(
             label="Nombre Completo",
             expand=True
@@ -89,8 +89,8 @@ class VistaPerfil:
             expand=True
         )
 
-        self.mensaje_error = ft.Text(value="", color="red", weight="bold")
-        
+        # self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+
         self.btn_guardar = BotonPrincipal(
             texto="Guardar cambios",
             icono=ft.Icons.SAVE_AS,
@@ -127,11 +127,10 @@ class VistaPerfil:
                     ft.Text("MI PERFIL", size=25, weight="bold"),
                     self.btn_ajustes
                 ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-            
+
                 ft.Divider(height=10, color="transparent"), # linea divisoria transparente para que no se muestre
                 ft.Row([
                     ft.Column([
-                        # dejo pendiente un hueco para el avatar (PDTE. DE VER COMO CONFIGURAR QUE SE PUEDA CAMBIAR)
                         self.contenedor_avatar,
                         self.usuario,
                         self.email,
@@ -161,7 +160,7 @@ class VistaPerfil:
                 ft.Row([
                     ft.Column([
                         self.btn_guardar,
-                        self.mensaje_error
+                        # self.mensaje_error
                         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
                 ], alignment=ft.MainAxisAlignment.CENTER)
             ], scroll=ft.ScrollMode.AUTO, 

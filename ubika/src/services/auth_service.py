@@ -64,7 +64,7 @@ class AuthService:
         except Exception as e:
             print(f"Error al iniciar sesión: {e}")
             return False, str(e)
-    
+
     # funcion para no pedir iniciar sesion cada vez que se abra la aplicacion
     async def usuario_conectado(self):
         try:
@@ -77,7 +77,7 @@ class AuthService:
         except:
             print("Error al recuperar usuario")
             return None
-    
+
     # función para cerrar la sesión de un usuario
     async def cerrar_sesion(self):
         try:
@@ -106,7 +106,7 @@ class AuthService:
         except Exception as e:
             print(f"Error al enviar el correo:{e}")
             return False, str(e)
-    
+
     # funcion para que los servicios cojan el token actual
     async def coger_token(self):
         self.token = await self.page.shared_preferences.get("token") # cogemos el guardado en el dispositivo porque es el último/actual

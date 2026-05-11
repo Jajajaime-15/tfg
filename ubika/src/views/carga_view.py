@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 
 class VistaCarga:
     def __init__(self, page):

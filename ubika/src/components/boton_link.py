@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 
 # para los enlaces de registrarse o recuperar contraseña
 class BotonLink(ft.TextButton):

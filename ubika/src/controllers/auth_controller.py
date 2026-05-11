@@ -17,7 +17,7 @@ class AuthController:
                 self.vista.psw_input.value,
                 self.vista.psw_confirmar.value,
                 self.vista.telefono_input.value]
-        
+
         # comprobamos que estén todos los campos rellenos 
         if not all (datos): # el all nos ayuda a comprobar todos los campos en vez de ir uno a uno
             self.vista.mensaje_error.value = "Todos los campos son obligatorios"
@@ -80,7 +80,7 @@ class AuthController:
                     self.vista.mensaje_error.value = "Demasiados intentos, intentalo más tarde"
                 else:
                     self.vista.mensaje_error.value = "Error al conectarse"
-                    
+
                 # limpiamos el campo de la contraseña y dejamos el focus ahí tras saltar un error    
                 self.vista.psw_input.value = ""
                 await self.vista.psw_input.focus()

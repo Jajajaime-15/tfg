@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 
 # este botón es para cualquier accion que usemos que solo sea con icono (guardar, editar, cancelar...)
 class BotonAcciones(ft.IconButton):

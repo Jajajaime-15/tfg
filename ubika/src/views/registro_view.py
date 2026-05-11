@@ -20,7 +20,7 @@ class VistaRegistro:
             hint="Introduce tu nombre",
             icono=ft.Icons.PERSON
         )
-        
+
         self.telefono_input = InputTexto(
             label="Teléfono",
             hint="Introduce tu teléfono",
@@ -32,7 +32,7 @@ class VistaRegistro:
             hint="Introduce tu email",
             icono=ft.Icons.MAIL
         )
-        
+
         self.psw_input = InputTexto(
             label="Contraseña",
             hint="Mínimo 8 caracteres",
@@ -49,8 +49,8 @@ class VistaRegistro:
             reveal=True,
             accion=self.controlador.registrar_usuario
         )
-        
-        self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+
+        # self.mensaje_error = ft.Text(value="", color="red", weight="bold")
 
         self.btn_registrar = BotonPrincipal(
             texto="Registrarse",
@@ -89,7 +89,7 @@ class VistaRegistro:
                             self.psw_confirmar,
                             ft.Container(height=10),
                             self.btn_registrar,
-                            self.mensaje_error,
+                            # self.mensaje_error,
                         ],
                         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                         alignment=ft.MainAxisAlignment.CENTER,

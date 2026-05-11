@@ -5,7 +5,7 @@ class UsuarioController:
         self.page = page
         self.service = usuario_service
         self.vista = vista
-        
+
     async def cargar_perfil(self):
         await self.service.sincronizar() # sincronizamos los datos del usuario por si acaso cada vez que se carga el perfil
         # cogemos los datos que estan guardados en el dispositivo
@@ -23,7 +23,7 @@ class UsuarioController:
         self.vista.telefono_input.value = telefono
         self.vista.pais_input.value = pais
         self.vista.localidad_input.value = localidad
-        
+
         # extraemos la primera letra del nombre y la ponemos en mayusculas para el avatar
         if nombre and len(nombre.strip()) > 0: # evitamos que de error si el nombre llega vacío
             self.vista.inicial_texto.value = nombre[0].upper()

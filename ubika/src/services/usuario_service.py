@@ -32,7 +32,7 @@ class UsuarioService:
                 else:
                     print("Error en firebase")
                     raise e
-                
+
             # guardamos los datos en el dispositivo    
             for clave, valor in datos_actualizados.items():
                 val_str = str(valor).lower() if isinstance(valor, bool) else str(valor) # convertimos todo a str porque shared preferences no adminte booleanos ni diccionarios
@@ -42,7 +42,7 @@ class UsuarioService:
         except Exception as e:
             print(f"Error al actualizar: {e}")
             return False, str(e)
-        
+
     # funcion para que se sincronice con los datos que hay firebase 
     async def sincronizar(self):
         try:
@@ -77,7 +77,7 @@ class UsuarioService:
                     # sincronizamos los grupos en el caso de que tenga
                     if "grupos" in infor:
                         datos_a_guardar["grupos"] = json.dumps(infor.get("grupos", {}))
-                        
+
                     # guardamos todo a la vez
                     for clave, valor in datos_a_guardar.items():
                         await self.page.shared_preferences.set(clave, str(valor))

@@ -64,7 +64,7 @@ class GruposController:
             mensaje.color = "red"
             self.page.update()     
             return False 
-        
+
         editado, aviso = await self.grupos_service.editar_grupo(nombre_grupo_actual, nuevo_nombre_grupo)
         if editado:
             mensaje.value = "Grupo editado correctamente"
@@ -78,33 +78,33 @@ class GruposController:
             mensaje.color = "red"
             self.page.update() 
             return False
-        
+
     async def mostrar_grupos(self, mensaje):
         mensaje.value = ""
         self.page.update()
-        
+
         datos_grupo, integrantes, emails, id_admins, aviso = await self.grupos_service.mostrar_grupos()
-        
+
         if aviso is False:
             mensaje.value = f"Error: {integrantes}"
             mensaje.color = "red"
             self.page.update()
             return [], [], [], []  # Retornar listas vacías en caso de error
-        
+
         if datos_grupo:
             mensaje.value = ""
             mensaje.color = "green"
         else:
             mensaje.value = "Todavia no perteneces a ningún grupo"
             mensaje.color = "orange"
-        
+
         self.page.update()
         return datos_grupo, integrantes, emails, id_admins
-    
+
     async def agregar_participante(self, nombre_grupo, nuevo_integrante, mensaje):
         mensaje.value = ""
         self.page.update()
-        
+
         datos = [nombre_grupo, nuevo_integrante]
 
         if not all (datos):
@@ -139,20 +139,20 @@ class GruposController:
             self.page.update()
             await asyncio.sleep(1.5)
             return False
-        
+
         # si no es el propio usuario realizamos la eliminacion
         eliminado, aviso = await self.grupos_service.eliminar_participante(nombre_grupo, email_integrante)
-        
+
         if eliminado:
             mensaje.value = "Integrante eliminado correctamente"
             mensaje.color = "green"
         else:
             mensaje.value = aviso # mostramos el mensaje que viene desde el service
             mensaje.color = "red"
-        
+
         self.page.update()
         return eliminado
-    
+
     async def abandonar_grupo(self, grupo, mensaje):
         mensaje.value = ""
         self.page.update()
@@ -175,6 +175,6 @@ class GruposController:
             mensaje.color = "red"
             self.page.update()
             return False
-    
+
     def obtener_id(self):
         return self.grupos_service.id_usuario

@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 
 # titulos que se usa por ejemplo en ajustes
 class TituloSeccion(ft.Text):

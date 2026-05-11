@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 from components.input_texto import InputTexto
 from components.boton_principal import BotonPrincipal
 from components.titulos import TituloSeccion
@@ -26,8 +26,8 @@ class VistaCrearGrupo:
             hint="Introduce el email del integrante",
             icono=ft.Icons.EMAIL,
         )
-        
-        self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+
+        # self.mensaje_error = ft.Text(value="", color="red", weight="bold")
 
         self.btn_crear_grupo = BotonPrincipal(
             texto="Crear Grupo",
@@ -40,7 +40,7 @@ class VistaCrearGrupo:
 
     async def crear_grupo(self, e):
         self.btn_crear_grupo.disabled = True # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
-        self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
+        # self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
         self.page.update()
 
         await self.controlador.crear_grupo( # llamamos a la función para crear un grupo
@@ -65,7 +65,7 @@ class VistaCrearGrupo:
                     self.nombre_grupo_input,
                     self.nombre_integrante_input,
                     self.btn_crear_grupo,
-                    self.mensaje_error,
+                    # self.mensaje_error,
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 alignment=ft.MainAxisAlignment.CENTER,

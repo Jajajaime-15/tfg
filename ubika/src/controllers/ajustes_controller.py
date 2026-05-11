@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 import asyncio
 import json
 
@@ -95,17 +95,17 @@ class AjustesController:
                                     on_click=lambda _: self.cerrar_dialogo())
                     ]
             self.page.update()
-            
+
     async def cerrar_sesion(self, e):
         await self.service.auth_s.cerrar_sesion() # cerramos la sesion con firebase
-        
+
         self.usuario_s.id_usuario = None
         self.usuario_s.token = None
         self.service.id_usuario = None
         self.service.token = None
 
         self.page.router.reset_vistas() # llamamos a la funcion que resetea la vista
-        
+
         self.page.index_navegacion = 0 # reseteamos para que al volver a iniciar sesion aparezca grupos
         self.page.go("/") # abre el login una vez cerrada la sesión
 
@@ -151,7 +151,7 @@ class AjustesController:
             else:
                 self.vista.btn_tema.icon = ft.Icons.LIGHT_MODE
                 self.vista.btn_tema.tooltip = "Cambiar tema a modo oscuro"
-            
+
             # comprobamos si estamos en windows o en movil
             android = self.page.platform == ft.PagePlatform.ANDROID
             if android == False: # si no estamos en movil

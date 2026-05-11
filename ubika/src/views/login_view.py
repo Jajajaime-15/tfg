@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 from components.boton_principal import BotonPrincipal
 from components.input_texto import InputTexto
 from components.boton_link import BotonLink
@@ -21,7 +21,7 @@ class VistaLogin:
             hint="Introduce tu email",
             icono=ft.Icons.MAIL,
         )
-        
+
         self.psw_input = InputTexto(
             label="Contraseña",
             hint="Introduce tu contraseña",
@@ -30,8 +30,8 @@ class VistaLogin:
             icono=ft.Icons.LOCK,
             accion=self.controlador.conectarse
         )
-        
-        self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+
+        # self.mensaje_error = ft.Text(value="", color="red", weight="bold")
 
         self.btn_entrar = BotonPrincipal(
             texto="Iniciar Sesión",
@@ -64,7 +64,7 @@ class VistaLogin:
                     self.btn_entrar,
                     self.btn_registro,
                     self.btn_recuperar,
-                    self.mensaje_error,
+                    # self.mensaje_error,
                 ],
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 alignment=ft.MainAxisAlignment.CENTER,

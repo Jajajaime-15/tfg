@@ -35,7 +35,7 @@ class AjustesService:
                     print("Sesión caducada, vuelve a logearte")
                     return False, "Sesión caducada, vuelve a iniciar"
             return False, str(e)
-        
+
     # funcion para eliminar la cuenta y los datos de dicha cuenta
     async def borrar_cuenta(self):
         grupos = {}

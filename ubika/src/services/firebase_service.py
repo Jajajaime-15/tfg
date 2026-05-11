@@ -1,4 +1,4 @@
-import pyrebase # para firebase en python
+import pyrebase # para firebase en python # type: ignore
 from database.config import config # las claves que tenemos en el .env
 
 class FirebaseService:

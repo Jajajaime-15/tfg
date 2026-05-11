@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft# type: ignore
 
 # para botones como login, registrarse o cualquier funcionalidad principal requerida
 class BotonPrincipal(ft.ElevatedButton):

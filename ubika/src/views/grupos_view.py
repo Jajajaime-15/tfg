@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 from components.tarjeta_grupos import TarjetaGrupo
 from components.boton_principal import BotonPrincipal
 from components.titulos import TituloSeccion
@@ -21,8 +21,8 @@ class VistaGrupos:
             accion=self.crear_grupo
         )
 
-        self.mensaje_error = ft.Text(value="", color="red", weight="bold")
-        
+        # self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+
     def manejador_tarjeta(self, grupo_nombre):
         async def manejador(e):
             self.grupo_seleccionado = grupo_nombre # Seleccionar el grupo para operaciones mas adelante como eliminar o actualizar el nombre
@@ -31,7 +31,7 @@ class VistaGrupos:
 
     async def crear_grupo(self, e):
         await self.page.push_route("/crear_grupo")
-    
+
     async def obtener_info_grupos(self):
         self.datos_grupo, self.integrantes, self.emails, self.ids_admins = await self.grupos_controller.mostrar_grupos(self.mensaje_error)
         self.btn_crear_grupos.disabled = False # activamos de nuevo el botón
@@ -39,11 +39,11 @@ class VistaGrupos:
 
     def eliminar_integrante_desde_tarjeta(self, e, nombre_grupo, email_integrante):
         print(f"Eliminando integrante: {email_integrante} del grupo: {nombre_grupo}")
-        
+
         self.btn_crear_grupos.disabled = True
-        self.mensaje_error.value = ""
+        # self.mensaje_error.value = ""
         self.page.update()
-        
+
         # creamos un proceso asíncrono para la eliminacion
         async def eliminacion():
             exito = await self.grupos_controller.eliminar_participante(nombre_grupo, email_integrante, self.mensaje_error) # llamamos al controlador para realizar el borrado del miembro
@@ -74,46 +74,46 @@ class VistaGrupos:
             return
 
         self.btn_crear_grupos.disabled = True
-        self.mensaje_error.value = ""
+        # self.mensaje_error.value = ""
         self.page.update()
 
         async def realizar_edicion():
             exito = await self.grupos_controller.editar_grupo(
                 nombre_actual, 
                 nuevo_nombre, 
-                self.mensaje_error
+                # self.mensaje_error
             )
-            
+
             if callback_ui:
                 callback_ui(exito)
-            
+
             if exito:
                 await self.actualizar_tarjetas_grupos()
 
             self.btn_crear_grupos.disabled = False  
             self.page.update()   
-            
+
         self.page.run_task(realizar_edicion)
 
     def agregar_integrante_desde_tarjeta(self, nombre_grupo, integrante_field):
         # Funcion para manejar el click en el botón agregar desde la tarjeta del grupo
         nombre_integrante = integrante_field.value # Extraer el valor del TextField
-        
+
         # Validar que no esté vacío
         if not nombre_integrante or nombre_integrante.strip() == "":
             integrante_field.error_text = "Email obligatorio"
             self.page.update()
             return
-        
+
         # Limpiar errores y el valor del TextField para la proxima vez
         integrante_field.error_text = None
         integrante_field.value = ""
-        
+
         self.page.run_task(
             self.grupos_controller.agregar_participante,
             nombre_grupo,
             nombre_integrante,
-            self.mensaje_error
+            # self.mensaje_error
         )
 
     async def actualizar_tarjetas_grupos(self):
@@ -145,7 +145,7 @@ class VistaGrupos:
                 for i, grupo in enumerate(self.datos_grupo or [])
             ],
         )
-    
+
     def abandonar_grupo(self, grupo):
         self.mensaje_error.value = ""
         self.page.update()
@@ -157,7 +157,6 @@ class VistaGrupos:
 
         self.page.run_task(salir)
 
-    
     def vista(self):
         self.centro.content = self.generar_fila_grupos() 
         self.centro.alignment = ft.Alignment(0, 0)
@@ -177,7 +176,7 @@ class VistaGrupos:
                     ], alignment=ft.MainAxisAlignment.CENTER),
 
                     ft.Divider(height=20, color="transparent"), 
-                    self.mensaje_error,
+                    # self.mensaje_error,
 
                     ft.Container(
                         content=self.centro,

@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 from views.perfil_view import VistaPerfil
 from views.mapa_view import VistaMapa
 from views.grupos_view import VistaGrupos
@@ -14,13 +14,13 @@ class VistaPrincipal:
             expand=True, 
             padding=ft.Padding.only(top=45, left=0, right=0, bottom=0)
         )
-        
+
         self.index_inicio = getattr(self.page, "index_navegacion", 0) # guardamos el indice (en el caso de volver para atras desde ajustes volvemos a home pero recordamos que estabamos en perfil)
-        
+
         self.vista_mapa = VistaMapa(self.page, self.controlador_mapa) # para que el mapa cargue desde la apertura de la vista principal de navegacion
         self.vista_perfil = None # dejamos en None para que solo esté en memoria cuando se entre en perfil
         self.vista_grupos = None # dejamos en None para que solo esté en memoria cuando se entre en grupos
-        
+
         self.inferior = ft.NavigationBar( # barra de navegacion de los botones de abajo con grupos (home), mapa y perfil
             selected_index=self.index_inicio,  # recuperamos el indice
             bgcolor=ft.Colors.TRANSPARENT, # fondo transparente

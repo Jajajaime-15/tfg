@@ -1,4 +1,4 @@
-import flet as ft 
+import flet as ft # type: ignore
 from components.boton_acciones import BotonAcciones
 
 class TarjetaGrupo(ft.Container):
@@ -25,7 +25,7 @@ class TarjetaGrupo(ft.Container):
 
         # definimos los componentes uno a uno
         self.columna_miembros = ft.Column(spacing=5, scroll=ft.ScrollMode.AUTO) # columna de los miembros
-        
+
         self.grupo = ft.Text(nombre_grupo, size=20, color="black", weight="bold") # nombre del grupo
 
         self.editar_nombre_grupo = ft.TextField(value=nombre_grupo, width=150, height=40, color="black", visible=False, border=ft.InputBorder.UNDERLINE, text_size=16) # campo editar nombre de grupo
@@ -71,7 +71,7 @@ class TarjetaGrupo(ft.Container):
                 ft.Row([ # fila con el total de miembros
                     ft.Text(f"Miembros: {len(self.miembros)}", size=18, color="black", weight="bold")
                 ], alignment=ft.MainAxisAlignment.CENTER),
-                
+
                 ft.Row([self.integrante, self.btn_agregar], alignment=ft.MainAxisAlignment.CENTER), # fila agregar nuevo miembro
 
                 ft.Divider(height=10),
@@ -89,12 +89,12 @@ class TarjetaGrupo(ft.Container):
 
         for i, miembro in enumerate(self.miembros):
             email_m = self.emails[i] if i < len(self.emails) else ""
-            
+
             contenido = ft.Column(
                 controls=[ft.Text(miembro, size=16, color="black", weight="w500"),
                         ], spacing=0, tight=True, expand=True
             )
-            
+
             if self.modo_edicion and email_m:
                 contenido.controls.append(ft.Text(email_m, size=12, color="blue700"))
 
