@@ -64,7 +64,7 @@ class VistaRegistro:
     # función para crear la vista que se mostrará en la pantalla
     def vista(self):
         return ft.Container(
-            padding=ft.padding.only(top=40, left=20, right=20, bottom=20),
+            padding=ft.Padding.only(top=40, left=20, right=20, bottom=20),
             expand = True,
             content=ft.Column(
                 [

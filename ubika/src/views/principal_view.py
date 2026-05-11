@@ -12,7 +12,7 @@ class VistaPrincipal:
 
         self.centro = ft.Container( # el contenedor del centro lo ajustamos para que no quede pegado arriba del todo
             expand=True, 
-            padding=ft.padding.only(top=45, left=0, right=0, bottom=0)
+            padding=ft.Padding.only(top=45, left=0, right=0, bottom=0)
         )
         
         self.index_inicio = getattr(self.page, "index_navegacion", 0) # guardamos el indice (en el caso de volver para atras desde ajustes volvemos a home pero recordamos que estabamos en perfil)

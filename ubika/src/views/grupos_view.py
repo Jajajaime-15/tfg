@@ -181,7 +181,7 @@ class VistaGrupos:
 
                     ft.Container(
                         content=self.centro,
-                        padding=ft.padding.symmetric(vertical=10),
+                        padding=ft.Padding.symmetric(vertical=10),
                     ),
                 ],
                 scroll=ft.ScrollMode.AUTO,
