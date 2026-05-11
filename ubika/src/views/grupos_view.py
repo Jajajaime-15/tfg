@@ -2,6 +2,7 @@ import flet as ft
 from components.tarjeta_grupos import TarjetaGrupo
 from components.boton_principal import BotonPrincipal
 from components.titulos import TituloSeccion
+import asyncio
 
 class VistaGrupos:
     def __init__(self, page, grupos_controller):
@@ -43,15 +44,17 @@ class VistaGrupos:
         self.mensaje_error.value = ""
         self.page.update()
         
-        self.page.run_task(
-            self.grupos_controller.eliminar_participante,
-            nombre_grupo,
-            email_integrante,
-            self.mensaje_error
-        )
-        
-        self.btn_crear_grupos.disabled = False
-        self.page.update()
+        # creamos un proceso asíncrono para la eliminacion
+        async def eliminacion():
+            exito = await self.grupos_controller.eliminar_participante(nombre_grupo, email_integrante, self.mensaje_error) # llamamos al controlador para realizar el borrado del miembro
+            if not exito: # si no se realiza nada
+                await asyncio.sleep(2)
+
+            await self.actualizar_tarjetas_grupos() # volvemos a cargar las tarjetas de los grupos
+            self.btn_crear_grupos.disabled = False
+            self.page.update()
+
+        self.page.run_task(eliminacion) 
 
     def eliminar_grupo_desde_tarjeta(self, nombre_grupo):
         self.btn_crear_grupos.disabled = True # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
@@ -147,6 +150,7 @@ class VistaGrupos:
         self.mensaje_error.value = ""
         self.page.update()
         self.page.run_task(self.grupos_controller.abandonar_grupo, grupo,self.mensaje_error)
+
     
     def vista(self):
         self.centro.content = self.generar_fila_grupos() 
@@ -171,7 +175,7 @@ class VistaGrupos:
 
                     ft.Container(
                         content=self.centro,
-                        # padding=ft.padding.symmetric(vertical=10),
+                        padding=ft.padding.symmetric(vertical=10),
                     ),
                 ],
                 scroll=ft.ScrollMode.AUTO,
