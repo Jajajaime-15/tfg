@@ -32,7 +32,7 @@ class VistaGrupos:
         await self.page.push_route("/crear_grupo")
     
     async def obtener_info_grupos(self):
-        self.datos_grupo, self.integrantes, self.emails = await self.grupos_controller.mostrar_grupos(self.mensaje_error)
+        self.datos_grupo, self.integrantes, self.emails, self.ids_admins = await self.grupos_controller.mostrar_grupos(self.mensaje_error)
         self.btn_crear_grupos.disabled = False # activamos de nuevo el botón
         self.page.update()    
 
@@ -126,18 +126,26 @@ class VistaGrupos:
             scroll=ft.ScrollMode.ADAPTIVE,
             controls=[
                 TarjetaGrupo(
-                    nombre_grupo=grupo, 
+                    nombre_grupo=grupo,
+                    id_usuario=self.grupos_controller.grupos_service.id_usuario, #
+                    id_admin_grupo=self.ids_admins[i] if self.ids_admins and i < len(self.ids_admins) else None, #
                     miembros=self.integrantes[i] if self.integrantes and i < len(self.integrantes) else [], 
                     emails=self.emails[i] if self.emails and i < len(self.emails) else [],
                     on_agregar=self.agregar_integrante_desde_tarjeta,
                     on_eliminar=self.eliminar_grupo_desde_tarjeta,
                     on_editar=self.editar_grupo_desde_tarjeta,
+                    on_abandonar = self.abandonar_grupo,
                     on_eliminar_integrante=self.eliminar_integrante_desde_tarjeta,
                     on_click_tarjeta=self.manejador_tarjeta(grupo)
                 )
                 for i, grupo in enumerate(self.datos_grupo or [])
             ],
         )
+    
+    def abandonar_grupo(self, grupo):
+        self.mensaje_error.value = ""
+        self.page.update()
+        self.page.run_task(self.grupos_controller.abandonar_grupo, grupo,self.mensaje_error)
     
     def vista(self):
         self.centro.content = self.generar_fila_grupos() 
@@ -151,7 +159,7 @@ class VistaGrupos:
                     # Fila superior con formulario
                     ft.Container(
                         content=ft.Row([
-                            TituloSeccion(texto="Mis Grupos", tamanio=40),
+                            TituloSeccion(texto="Mis Grupos", color="", tamanio=40),
                         ],
                         alignment=ft.MainAxisAlignment.CENTER,
                         expand=True,),
