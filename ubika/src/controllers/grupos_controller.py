@@ -95,7 +95,7 @@ class GruposController:
             mensaje.value = ""
             mensaje.color = "green"
         else:
-            mensaje.value = "No tienes grupos aún"
+            mensaje.value = "Todavia no perteneces a ningún grupo"
             mensaje.color = "orange"
         
         self.page.update()

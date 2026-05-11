@@ -13,6 +13,7 @@ class GruposService:
         self.todos_los_usuarios = None
 
     async def buscar_grupos(self):
+        #Funcion para buscar todos los grupos y reutilizarla en el resto de funciones
         try:
             todos_los_grupos = self.db.child("grupos").get(self.token).val() # Obtener todos los grupos
             if todos_los_grupos:
@@ -25,6 +26,7 @@ class GruposService:
             return {}
         
     async def grupos_del_usuario_admin(self, nombre_grupo):
+        #Funcion donde buscamos los y devolvemos los grupos del usuario es admin
         try:
             id_grupo_encontrar = None
             datos_grupo_encontrar = None
@@ -40,6 +42,7 @@ class GruposService:
             return False, str(e)
 
     async def cargar_datos_usuario(self):
+        # Función donde refrescamos los datos del usuario
         self.id_usuario = await self.page.shared_preferences.get("id_usuario")
         self.token = await self.page.shared_preferences.get("token")
 
@@ -54,6 +57,7 @@ class GruposService:
             print("No se pudo cargar el ID de usuario o el token")    
 
     async def actualizar_grupos_preferences(self):
+        # Función donde actualizamos la información de shared_preferences para que aparezca al cambiar de usuario
         try:
             if self.todos_los_grupos_usuarios is None:
                 grupos_actualizados = {}
@@ -65,6 +69,7 @@ class GruposService:
             print(f"Error al sincronizar grupos: {e}")        
 
     async def crear_grupo(self, nombre_grupo, integrante):
+        # Función donde creamos los grupos 
         try:
             await self.cargar_datos_usuario()  # Cargar datos del usuario
             
@@ -133,6 +138,7 @@ class GruposService:
             return False, str(e)
         
     async def eliminar_grupo(self, nombre_grupo):
+        # Función donde eliminamos los grupos
         try:
             await self.cargar_datos_usuario() # Cargar datos del usuario
             
@@ -156,6 +162,7 @@ class GruposService:
             return False, str(e)
 
     async def editar_grupo(self, nombre_grupo, nuevo_nombre_grupo):
+        # Función donde editamos los grupos
         try:
             await self.cargar_datos_usuario() # Cargar datos del usuario
             
@@ -170,6 +177,7 @@ class GruposService:
             return False, str(e)    
 
     async def mostrar_grupos(self):
+        # Función para mostrar grupos
         nombres_grupos = []  
         integrantes_con_nombres = [] 
         grupos_dentro_usuarios = {}
@@ -230,6 +238,7 @@ class GruposService:
             return [], [], [], [], False
             
     async def agregar_participante(self, nombre_grupo, nuevo_integrante):
+        # Función para añadir participante al grupo
         try:
             await self.cargar_datos_usuario() # Cargar datos del usuario
 
@@ -274,6 +283,7 @@ class GruposService:
             return False, str(e)
         
     async def eliminar_participante(self, nombre_grupo, email_integrante):
+        # Función para eliminar integrantes del grupo
         try:
             await self.cargar_datos_usuario() # Cargar datos del usuario
                         
@@ -319,6 +329,7 @@ class GruposService:
 
     # funcion para salir del grupo si no eres admin
     async def abandonar_grupo(self, grupo):
+        # Función para abandonar el grupo en el que no eres usuario.
         try:
             await self.cargar_datos_usuario()
             encontrar_id_grupo = None
