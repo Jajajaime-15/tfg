@@ -83,13 +83,13 @@ class GruposController:
         mensaje.value = ""
         self.page.update()
         
-        datos_grupo, integrantes, emails, aviso = await self.grupos_service.mostrar_grupos()
+        datos_grupo, integrantes, emails, id_admins, aviso = await self.grupos_service.mostrar_grupos()
         
         if aviso is False:
             mensaje.value = f"Error: {integrantes}"
             mensaje.color = "red"
             self.page.update()
-            return [], [], []  # Retornar listas vacías en caso de error
+            return [], [], [], []  # Retornar listas vacías en caso de error
         
         if datos_grupo:
             mensaje.value = ""
@@ -99,7 +99,7 @@ class GruposController:
             mensaje.color = "orange"
         
         self.page.update()
-        return datos_grupo, integrantes, emails
+        return datos_grupo, integrantes, emails, id_admins
     
     async def agregar_participante(self, nombre_grupo, nuevo_integrante, mensaje):
         mensaje.value = ""
@@ -144,4 +144,26 @@ class GruposController:
             mensaje.color = "red"
         
         self.page.update()
-        return eliminado    
+        return eliminado
+    
+    async def abandonar_grupo(self, grupo, mensaje):
+        mensaje.value = ""
+        self.page.update()
+
+        if not grupo:
+            mensaje.value = "No se ha encontrado el grupo"
+            mensaje.color = "red"
+        else:
+            exito, aviso = await self.grupos_service.abandonar_grupo(grupo)
+            if exito:
+                mensaje.value = "Has salido del grupo"
+                mensaje.color = "green"
+                self.page.update()
+                await asyncio.sleep(1.5)
+                if self.vista:
+                    await self.vista.actualizar_tarjetas_grupos()
+            else:
+                mensaje.value = f"Error al salir del grupo: {aviso}"
+                mensaje.color = "red"
+                
+        self.page.update()

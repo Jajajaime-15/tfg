@@ -172,8 +172,9 @@ class GruposService:
     async def mostrar_grupos(self):
         nombres_grupos = []  
         integrantes_con_nombres = [] 
-        grupos_dentro_usuarios = None
+        grupos_dentro_usuarios = {}
         emails_usuarios_por_grupo = []
+        id_admins = []
 
         try:
             await self.cargar_datos_usuario() # Cargar datos del usuario
@@ -200,31 +201,33 @@ class GruposService:
             if not isinstance(grupos_dentro_usuarios, dict):
                 grupos_dentro_usuarios = {}        
 
-            for id_grupo, datos_grupo in grupos.items():
-                if id_grupo in grupos_dentro_usuarios:
-                    nombres_grupos.append(datos_grupo.get("nombre", "Sin nombre"))
-                    
-                    # Obtener integrantes
-                    nombres_integrantes = []
-                    emails_usuarios = [] 
-                    miembros = datos_grupo.get("miembros", {})
-                    
-                    if isinstance(miembros, dict):
-                        for id_integrante in miembros.keys():
-                            nombre_usuario = usuarios[id_integrante].get("nombre", id_integrante)
-                            email_usuario = usuarios[id_integrante].get("email", id_integrante)
-                            nombres_integrantes.append(nombre_usuario)
-                            emails_usuarios.append(email_usuario)
-                    
-                    integrantes_con_nombres.append(nombres_integrantes)
-                    emails_usuarios_por_grupo.append(emails_usuarios)
+            if grupos: # comprobamos que existen grupos
+                for id_grupo, datos_grupo in grupos.items():
+                    if id_grupo in grupos_dentro_usuarios:
+                        nombres_grupos.append(datos_grupo.get("nombre", "Sin nombre"))
+                        id_admins.append(datos_grupo.get("admin", ""))
+
+                        # Obtener integrantes
+                        nombres_integrantes = []
+                        emails_usuarios = [] 
+                        miembros = datos_grupo.get("miembros", {})
+                        
+                        if isinstance(miembros, dict):
+                            for id_integrante in miembros.keys():
+                                nombre_usuario = usuarios[id_integrante].get("nombre", id_integrante)
+                                email_usuario = usuarios[id_integrante].get("email", id_integrante)
+                                nombres_integrantes.append(nombre_usuario)
+                                emails_usuarios.append(email_usuario)
+                        
+                        integrantes_con_nombres.append(nombres_integrantes)
+                        emails_usuarios_por_grupo.append(emails_usuarios)
             
             if not nombres_grupos:
-                return [], [], [], False
-            return nombres_grupos, integrantes_con_nombres, emails_usuarios_por_grupo, True
+                return [], [], [], [], True
+            return nombres_grupos, integrantes_con_nombres, emails_usuarios_por_grupo, id_admins, True
         except Exception as e:
             print(f"Error al mostrar grupos: {e}")
-            return [], [], [], False
+            return [], [], [], [], False
             
     async def agregar_participante(self, nombre_grupo, nuevo_integrante):
         try:
@@ -312,4 +315,40 @@ class GruposService:
             return True, "Integrante eliminado correctamente"
         except Exception as e:
             print(f"Error al eliminar participante: {e}")
-            return False, str(e)    
+            return False, str(e)
+
+    # funcion para salir del grupo si no eres admin
+    async def abandonar_grupo(self,grupo):
+        try:
+            await self.cargar_datos_usuario()
+            encontrar_id_grupo = None
+            encontrar_datos = None
+            todos_los_grupos = await self.buscar_grupos()
+            encontrado = False
+
+            if todos_los_grupos:
+                for id_grupo, datos_grupo in todos_los_grupos.items():
+                    if not encontrado:
+                        if datos_grupo.get("nombre") == grupo:
+                            encontrar_id_grupo = id_grupo
+                            encontrar_datos = datos_grupo
+                            encontrado = True
+            if not encontrado:
+                return False, f"El grupo {grupo} no se ha encontrado"
+            
+            # quitamos al usuario de la lista de miembros del grupo
+            miembros = encontrar_datos.get("miembros", {})
+            if isinstance(miembros, str):
+                miembros = {}
+            if self.id_usuario in miembros:
+                del miembros[self.id_usuario]
+                self.db.child(f"grupos/{encontrar_id_grupo}/miembros").set(miembros, self.token) # actualizamos la informacion del grupo en firebase
+            
+            # quitamos el grupo de la lista de grupos del usuario
+            mi_grupo = f"usuarios/{self.id_usuario}/grupos/{encontrar_id_grupo}"
+            self.db.child(mi_grupo).remove(self.token)
+
+            return True, f"Has salido del grupo {grupo}"
+        except Exception as e:
+            print(f"Error al salir del grupo: {e}")
+            return False, str(e)
