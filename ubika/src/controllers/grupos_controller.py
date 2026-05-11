@@ -175,3 +175,6 @@ class GruposController:
             mensaje.color = "red"
             self.page.update()
             return False
+    
+    def obtener_id(self):
+        return self.grupos_service.id_usuario

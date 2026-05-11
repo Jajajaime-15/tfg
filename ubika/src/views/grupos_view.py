@@ -131,8 +131,8 @@ class VistaGrupos:
             controls=[
                 TarjetaGrupo(
                     nombre_grupo=grupo,
-                    id_usuario=self.grupos_controller.grupos_service.id_usuario, #
-                    id_admin_grupo=self.ids_admins[i] if self.ids_admins and i < len(self.ids_admins) else None, #
+                    id_usuario=self.grupos_controller.obtener_id(),
+                    id_admin_grupo=self.ids_admins[i] if self.ids_admins and i < len(self.ids_admins) else None, 
                     miembros=self.integrantes[i] if self.integrantes and i < len(self.integrantes) else [], 
                     emails=self.emails[i] if self.emails and i < len(self.emails) else [],
                     on_agregar=self.agregar_integrante_desde_tarjeta,
@@ -149,7 +149,13 @@ class VistaGrupos:
     def abandonar_grupo(self, grupo):
         self.mensaje_error.value = ""
         self.page.update()
-        self.page.run_task(self.grupos_controller.abandonar_grupo, grupo,self.mensaje_error)
+
+        async def salir():
+            await self.grupos_controller.abandonar_grupo (grupo,self.mensaje_error)
+            await self.actualizar_tarjetas_grupos()
+            self.page.update()
+
+        self.page.run_task(salir)
 
     
     def vista(self):
