@@ -25,6 +25,7 @@ class VistaCrearGrupo:
             label="Nombre Del Integrante",
             hint="Introduce el email del integrante",
             icono=ft.Icons.EMAIL,
+            accion=self.crear_grupo
         )
 
         self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=False)

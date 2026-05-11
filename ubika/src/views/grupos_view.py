@@ -46,7 +46,7 @@ class VistaGrupos:
 
         # creamos un proceso asíncrono para la eliminacion
         async def eliminacion():
-            exito = await self.grupos_controller.eliminar_participante(nombre_grupo, email_integrante) # llamamos al controlador para realizar el borrado del miembro
+            exito = await self.grupos_controller.eliminar_participante(nombre_grupo, email_integrante,self.mensaje_error) # llamamos al controlador para realizar el borrado del miembro
             if not exito: # si no se realiza nada
                 await asyncio.sleep(2)
 
@@ -151,7 +151,7 @@ class VistaGrupos:
         self.page.update()
 
         async def salir():
-            await self.grupos_controller.abandonar_grupo (grupo)
+            await self.grupos_controller.abandonar_grupo (grupo, self.mensaje_error)
             await self.actualizar_tarjetas_grupos()
             self.page.update()
 

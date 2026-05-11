@@ -28,8 +28,8 @@ class TarjetaGrupo(ft.Container):
 
         self.grupo = ft.Text(nombre_grupo, size=20, color="black", weight="bold") # nombre del grupo
 
-        self.editar_nombre_grupo = ft.TextField(value=nombre_grupo, width=150, height=40, color="black", visible=False, border=ft.InputBorder.UNDERLINE, text_size=16) # campo editar nombre de grupo
-        self.integrante = ft.TextField(width=150, height=40, color="black", hint_text="Email del integrante", visible=False, border=ft.InputBorder.UNDERLINE, text_size=16) # campo agregar miembro
+        self.editar_nombre_grupo = ft.TextField(value=nombre_grupo, width=150, height=40, color="black", visible=False, border=ft.InputBorder.UNDERLINE, text_size=16, on_submit=self.guardar_edicion) # campo editar nombre de grupo
+        self.integrante = ft.TextField(width=150, height=40, color="black", hint_text="Email del integrante", visible=False, border=ft.InputBorder.UNDERLINE, text_size=16, on_submit=self.agregar) # campo agregar miembro
 
         self.btn_guardar = BotonAcciones(ft.Icons.SAVE,  accion=self.guardar_edicion, tooltip="Guardar cambios", visible=False)
         self.btn_cancelar = BotonAcciones(ft.Icons.CLOSE, accion=self.cancelar_edicion, tooltip="Cancelar", color_icono="red", visible=False)
