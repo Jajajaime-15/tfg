@@ -22,13 +22,13 @@ class VistaCrearGrupo:
         )
 
         self.nombre_integrante_input = InputTexto(
-            label="Nombre Del Integrante",
+            label="Email Del Integrante",
             hint="Introduce el email del integrante",
             icono=ft.Icons.EMAIL,
             accion=self.crear_grupo
         )
 
-        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=False)
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=True)
 
         self.btn_crear_grupo = BotonPrincipal(
             texto="Crear Grupo",

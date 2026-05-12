@@ -21,7 +21,7 @@ class VistaGrupos:
             accion=self.crear_grupo
         )
 
-        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=False)
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=True)
 
     def manejador_tarjeta(self, grupo_nombre):
         async def manejador(e):
