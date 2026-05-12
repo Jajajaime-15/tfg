@@ -12,7 +12,7 @@ class VistaCrearGrupo:
             visible=True, 
             icon=ft.Icons.ARROW_BACK_IOS,
             icon_color="#1A6AFE",
-            on_click=lambda _: self.page.go("/home")
+            on_click=self.volver
         )
 
         self.nombre_grupo_input = InputTexto(

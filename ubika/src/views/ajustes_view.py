@@ -12,7 +12,7 @@ class VistaAjustes:
 
         self.btn_volver = ft.IconButton(
             icon=ft.Icons.ARROW_BACK_IOS_NEW,
-            on_click=lambda _: self.page.go("/home")
+            on_click=self.volver
         )
 
         self.titulo = ft.Text("Ajustes", size=25, weight="bold")
@@ -44,6 +44,9 @@ class VistaAjustes:
             active_color="#1A6AFE",
             on_change = self.controlador.compartir_ubicacion
         )
+
+    async def volver(self, e):
+        await self.page.push_route("/home")
 
     # funcion que muestra la tarjeta
     def mostrar_tarjeta_psw(self):

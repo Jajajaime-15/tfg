@@ -21,7 +21,7 @@ class TarjetaPsw(ft.Card):
             accion = self.guardar
         )
 
-        # self.mensaje_error = ft.Text(value="",color="red",weight="bold")
+        self.mensaje_error = ft.Text(value="",color="red",weight="bold")
 
         self.content=ft.Container(
             padding=20,
@@ -31,7 +31,7 @@ class TarjetaPsw(ft.Card):
                 ft.Text("Cambiar Contraseña", size=18, weight="bold"),
                 self.psw_nueva,
                 self.psw_confirmar,
-                # self.mensaje_error,
+                self.mensaje_error,
                 ft.Row([
                     ft.TextButton("CANCELAR", on_click=self.cerrar),
                     BotonPrincipal(
@@ -50,7 +50,7 @@ class TarjetaPsw(ft.Card):
         # dejamos los campos limpios para que cuando se vuelva a abrir estén vacios
         self.psw_nueva.value = "" 
         self.psw_confirmar.value = ""
-        # self.mensaje_error.value = ""
+        self.mensaje_error.value = ""
         self.update()
 
     # funcion que hace de puente para guardar
