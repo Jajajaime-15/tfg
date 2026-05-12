@@ -141,6 +141,8 @@ class GruposService:
             await self.cargar_datos_usuario() # Cargar datos del usuario
 
             id_grupo_encontrar, datos_grupo_encontrar = await self.grupos_del_usuario_admin(nombre_grupo) # Buscar el grupo
+            if not id_grupo_encontrar:
+                return False, datos_grupo_encontrar
 
             miembros = datos_grupo_encontrar.get("miembros", {}) # Obtener la lista de miembros
 
