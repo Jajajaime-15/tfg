@@ -1,6 +1,7 @@
-import flet as ft # type: ignore
+import flet as ft# type: ignore
 from components.input_texto import InputTexto
 from components.boton_principal import BotonPrincipal
+from utils.mostrar_avisos import mostrar_aviso
 
 class TarjetaPsw(ft.Card):
     def __init__(self,controlador):
@@ -8,18 +9,26 @@ class TarjetaPsw(ft.Card):
         self.controlador = controlador
         self.visible = False # esta tarjeta/componente no aparece hasta que no se ejecuta la funcion de cambiar contraseña
 
+        self.psw_actual = InputTexto(
+            label = "Contraseña actual",
+            password = True,
+            reveal = True
+        )
+
         self.psw_nueva = InputTexto(
             label = "Nueva contraseña",
             password = True,
             reveal = True
         )
+
         self.psw_confirmar = InputTexto(
             label = "Confirmar contraseña",
             password = True,
             reveal = True,
             accion = self.guardar
         )
-        self.mensaje_error = ft.Text(value="",color="red",weight="bold")
+
+        self.mensaje_error = ft.Text(value="",color="red",weight="bold",visible=True)
 
         self.content=ft.Container(
             padding=20,
@@ -27,6 +36,7 @@ class TarjetaPsw(ft.Card):
             border_radius=15,
             content=ft.Column([
                 ft.Text("Cambiar Contraseña", size=18, weight="bold"),
+                self.psw_actual,
                 self.psw_nueva,
                 self.psw_confirmar,
                 self.mensaje_error,
@@ -48,7 +58,7 @@ class TarjetaPsw(ft.Card):
         # dejamos los campos limpios para que cuando se vuelva a abrir estén vacios
         self.psw_nueva.value = "" 
         self.psw_confirmar.value = ""
-        self.mensaje_error.value = ""
+        mostrar_aviso(self.page,self,"")
         self.update()
 
     # funcion que hace de puente para guardar

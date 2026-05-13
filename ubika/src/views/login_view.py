@@ -21,7 +21,7 @@ class VistaLogin:
             hint="Introduce tu email",
             icono=ft.Icons.MAIL,
         )
-        
+
         self.psw_input = InputTexto(
             label="Contraseña",
             hint="Introduce tu contraseña",
@@ -30,8 +30,8 @@ class VistaLogin:
             icono=ft.Icons.LOCK,
             accion=self.controlador.conectarse
         )
-        
-        self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=True)
 
         self.btn_entrar = BotonPrincipal(
             texto="Iniciar Sesión",

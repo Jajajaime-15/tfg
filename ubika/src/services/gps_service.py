@@ -1,5 +1,5 @@
-import flet as ft # para flet
-import flet_geolocator as ftg # para la geolocalizacion
+import flet as ft # para flet # type: ignore
+import flet_geolocator as ftg # para la geolocalizacion # type: ignore
 from threading import Thread # para los hilos
 import asyncio
 import json
@@ -78,14 +78,14 @@ class GPSService:
         if self.grupos and self.page.platform == ft.PagePlatform.ANDROID: # para que solo escriba en Firebase desde el móvil, ya que escritorio no escribe la ubicacion correcta
             for grupo in self.grupos.keys(): # para escribir el cambio de posicion en todos los grupos a los que se pertenezca
                 self.db.child("ubicaciones").child(grupo).child(self.yo).set(loc, self.token) # si se cambia la posicion la escribimos en la base de datos
-        
+
         if self.actualizar_marcador_usuario: # solo en caso de que exista
             self.page.run_task(self.actualizar_usuario, latitud, longitud, timestamp) # llamamos a la corrutina para poder actualizar los datos que se cambien en el usuario
 
     # funcion para solicitar que se active el permiso de ubicacion si no esta activado en la aplicacion
     async def permitir_ubicacion(self, geo):
         permiso_localizacion = await geo.get_permission_status() # comprobamos si esta habilitado el permiso de localizacion en el dispositivo
-        
+
         if (permiso_localizacion != ftg.GeolocatorPermissionStatus.ALWAYS) and (permiso_localizacion != ftg.GeolocatorPermissionStatus.WHILE_IN_USE): # en caso de NO estar habilitado
             await geo.request_permission() # solicitamos permiso
             permiso_localizacion = await geo.get_permission_status() # comprobamos de nuevo
@@ -93,7 +93,7 @@ class GPSService:
             if (permiso_localizacion != ftg.GeolocatorPermissionStatus.ALWAYS) and (permiso_localizacion != ftg.GeolocatorPermissionStatus.WHILE_IN_USE):
                 self.page.add(ft.Text(f"Permisos de localización no habilitados"))
                 return False # avisamos de que no han sido habilitados y hacemos que no se siga ejecutando la funcion
-        
+
         return True # en caso de SI estar habilitado
     
     # funcion para obtener la posicion inicial del usuario
@@ -116,9 +116,9 @@ class GPSService:
                     self.db.child("ubicaciones").child(grupo).child(self.yo).set(loc, self.token) # para escribir los valores debemos marcar el nivel dentro de los json con los 'child' y 'set'
         except Exception as e:
             self.page.add(ft.Text(f"Error escritura Firebase: {e}"))
-        
+
         return latitud, longitud, timestamp
-    
+
     # funcion callback para usar el cambio de la ubicacion en los miembros de los grupos a los que pertenece el usuario
     def callback_miembro(self, miembro): # para identificar que miembro es
         def cambio_ubicacion_miembro(ubicacion_miembro): 
@@ -135,7 +135,7 @@ class GPSService:
                     # metemos los datos en la cola creada para que no haya problemas con los hilos, es el event loop quien mete los datos a la cola cuando es seguro hacerlo
                     self.bucle.call_soon_threadsafe(self.cola_miembros.put_nowait, (miembro, datos_miembro, lat, lon, timestamp)) 
         return cambio_ubicacion_miembro
-    
+
     # listener para recibir cada vez que haya un cambio en la ubicacion de un miembro de los grupos a los que pertenece el usuario, se inicia cada stream en un hilo para no bloquear el event loop
     def listener_ubicacion_miembros(self, miembro):
         if self.grupos:
@@ -187,9 +187,9 @@ class GPSService:
 
         if not await self.permitir_ubicacion(geo): # solicitamos el permiso de ubicacion
             return # para salir del programa si no se han concedido los permisos de ubicacion
-        
+
         lat, lon, timestamp = await self.posicion_inicial(geo) # obtenemos la posicion actual del usuario
-        
+
         if self.actualizar_marcador_usuario: 
             self.actualizar_marcador_usuario(self.datos_usuario, lat, lon, timestamp) # llamamos a la funcion del mapa para pintar el marcador propio personalizado con la posicion inicial
 

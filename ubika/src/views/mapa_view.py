@@ -1,5 +1,5 @@
-import flet as ft
-import flet_map as ftm # para el mapa
+import flet as ft # type: ignore
+import flet_map as ftm # para el mapa #type: ignore
 from utils.nominatim import obtener_direccion_legible
 
 class VistaMapa:
@@ -17,7 +17,7 @@ class VistaMapa:
 
         if self.stack: # en caso de que ya exista el stack del mapa creado no creamos de nuevo el mapa
             return self.stack
-        
+
         if self.page.theme_mode == ft.ThemeMode.DARK: # mapa en modo oscuro
             url_mapa = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png"
         else: # mapa en modo claro

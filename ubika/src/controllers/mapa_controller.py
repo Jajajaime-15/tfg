@@ -1,4 +1,4 @@
-import flet as ft
+import flet as ft # type: ignore
 from utils.formatear_timestamp import formatear_timestamp
 
 class MapaController:

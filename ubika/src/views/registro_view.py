@@ -20,7 +20,7 @@ class VistaRegistro:
             hint="Introduce tu nombre",
             icono=ft.Icons.PERSON
         )
-        
+
         self.telefono_input = InputTexto(
             label="Teléfono",
             hint="Introduce tu teléfono",
@@ -32,7 +32,7 @@ class VistaRegistro:
             hint="Introduce tu email",
             icono=ft.Icons.MAIL
         )
-        
+
         self.psw_input = InputTexto(
             label="Contraseña",
             hint="Mínimo 8 caracteres",
@@ -49,8 +49,8 @@ class VistaRegistro:
             reveal=True,
             accion=self.controlador.registrar_usuario
         )
-        
-        self.mensaje_error = ft.Text(value="", color="red", weight="bold")
+
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=True)
 
         self.btn_registrar = BotonPrincipal(
             texto="Registrarse",
@@ -64,7 +64,7 @@ class VistaRegistro:
     # función para crear la vista que se mostrará en la pantalla
     def vista(self):
         return ft.Container(
-            padding=ft.padding.only(top=40, left=20, right=20, bottom=20),
+            padding=ft.Padding.only(top=40, left=20, right=20, bottom=20),
             expand = True,
             content=ft.Column(
                 [

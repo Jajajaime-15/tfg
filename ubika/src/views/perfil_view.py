@@ -1,5 +1,4 @@
 import flet as ft # type: ignore
-import asyncio
 from components.boton_principal import BotonPrincipal
 from components.input_texto import InputTexto
 
@@ -8,7 +7,7 @@ class VistaPerfil:
         self.page = page
         self.controlador = controlador
         self.controlador.vista = self
-        
+
         # botón para los ajustes
         self.btn_ajustes = ft.IconButton(
             visible=True, 
@@ -65,7 +64,7 @@ class VistaPerfil:
         # cabecera del perfil con nombre y correo del usuario
         self.usuario = ft.Text(size=20, weight="bold")
         self.email = ft.Text(size=14, color="grey")
-        
+
         self.nombre_input = InputTexto(
             label="Nombre Completo",
             expand=True
@@ -90,8 +89,8 @@ class VistaPerfil:
             expand=True
         )
 
-        self.mensaje_error = ft.Text(value="", color="red", weight="bold")
-        
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=True)
+
         self.btn_guardar = BotonPrincipal(
             texto="Guardar cambios",
             icono=ft.Icons.SAVE_AS,
@@ -99,7 +98,7 @@ class VistaPerfil:
         )
 
     # funcion que crea el boton para el color creando un icono para elegirlo
-    def crear_boton_color(self,nombre,color_valor):
+    def crear_boton_color(self, nombre, color_valor):
         return ft.IconButton(
             icon=ft.Icons.CIRCLE,
             icon_color=color_valor,
@@ -120,7 +119,6 @@ class VistaPerfil:
         self.page.update()
 
     def vista(self):
-        
         return ft.Container(
             padding=20,
             expand=True, # para ajustar a cualquier dispositivo
@@ -129,18 +127,18 @@ class VistaPerfil:
                     ft.Text("MI PERFIL", size=25, weight="bold"),
                     self.btn_ajustes
                 ], alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-            
+
                 ft.Divider(height=10, color="transparent"), # linea divisoria transparente para que no se muestre
                 ft.Row([
                     ft.Column([
-                        # dejo pendiente un hueco para el avatar (PDTE. DE VER COMO CONFIGURAR QUE SE PUEDA CAMBIAR)
+                        self.mensaje_error,
                         self.contenedor_avatar,
                         self.usuario,
                         self.email,
                     ], horizontal_alignment=ft.CrossAxisAlignment.CENTER,) 
                 ], alignment=ft.MainAxisAlignment.CENTER),
 
-                ft.Divider(height=40, color="black"), # linea divisoria
+                ft.Divider(height=20, color="black"), # linea divisoria
 
                 # diseño de los campos de la información (formulario)
                 ft.Text("Datos Personales", size=16, weight="bold"),
@@ -163,7 +161,6 @@ class VistaPerfil:
                 ft.Row([
                     ft.Column([
                         self.btn_guardar,
-                        self.mensaje_error
                         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
                 ], alignment=ft.MainAxisAlignment.CENTER)
             ], scroll=ft.ScrollMode.AUTO, 

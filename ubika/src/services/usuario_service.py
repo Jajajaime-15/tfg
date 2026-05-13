@@ -35,7 +35,7 @@ class UsuarioService:
         except Exception as e:
             print(f"Error al actualizar: {e}")
             return False, str(e)
-        
+
     # funcion para que se sincronice con los datos que hay firebase 
     async def sincronizar (self):
 
@@ -55,8 +55,7 @@ class UsuarioService:
                         return
 
                 if infor:
-                    # diccionario de las cosas que queremos guardar en el dispositivo
-                    datos_a_guardar = {
+                    datos_a_guardar = { # diccionario de las cosas que queremos guardar en el dispositivo
                         "nombre": infor.get("nombre", ""),
                         "apellidos": infor.get("apellidos", ""),
                         "email": infor.get("email", ""),
@@ -70,7 +69,7 @@ class UsuarioService:
                     # sincronizamos los grupos en el caso de que tenga
                     if "grupos" in infor:
                         datos_a_guardar["grupos"] = json.dumps(infor.get("grupos", {}))
-                        
+
                     # guardamos todo a la vez
                     for clave, valor in datos_a_guardar.items():
                         await self.page.shared_preferences.set(clave, str(valor))

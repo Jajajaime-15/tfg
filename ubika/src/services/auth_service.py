@@ -1,5 +1,4 @@
 from datetime import datetime
-import json
 
 class AuthService:
     def __init__(self, page, firebase_service):
@@ -11,7 +10,7 @@ class AuthService:
         self.token = None
 
     # función para registrar usuarios nuevos
-    async def registrarse (self, nombre, telefono, email, psw):
+    async def registrarse(self, nombre, telefono, email, psw):
         try:
             usuario = self.auth.create_user_with_email_and_password(email,psw)
             self.id_usuario = usuario["localId"]
@@ -26,7 +25,7 @@ class AuthService:
                 "localidad": "", # ''
                 "color_avatar": "#1A6AFE",
                 "compartir_ubicacion": "false",
-                "grupos":{}, # se rellena cuando se tenga una familia # REVISAR ESTO POR LA FORMA EN LA QUE GUARDAMOS LOS GRUPOS, DE LA FORMA ACTUAL SOLO SE PODRIA GUARDAR UNO
+                "grupos": {}, # se rellena cuando se tenga una familia
                 "fecha_registro": datetime.now().strftime("%Y-%m-%d %H:%M:%S") # se usa strtime porque firebase no lee fechas, tiene que ser texto o numeros
             }
             self.db.child("usuarios").child(self.id_usuario).set(info_usuario,self.token) # guardamos la informacion del usuario y el token en la base de datos
@@ -48,15 +47,14 @@ class AuthService:
             return False, str(e)
 
     # función para iniciar sesión con un usuario ya registrado
-    async def iniciar_sesion (self, email, psw):
+    async def iniciar_sesion(self, email, psw):
         try:
             usuario = self.auth.sign_in_with_email_and_password(email, psw)
             self.id_usuario = usuario["localId"]
             self.token = usuario["idToken"]
             refresh_token = usuario["refreshToken"]
 
-            # se guarda lo que se necesita para arrancar la aplicacion y sincronizar 
-            # (el resto se sincroniza al entrar en home con la funcion sincronizar)
+            # se guarda lo que se necesita para arrancar la aplicacion y sincronizar (el resto se sincroniza al entrar en home con la funcion sincronizar)
             await self.page.shared_preferences.set("id_usuario", self.id_usuario)
             await self.page.shared_preferences.set("token", self.token)
             await self.page.shared_preferences.set("refresh_token", refresh_token)
@@ -66,7 +64,7 @@ class AuthService:
         except Exception as e:
             print(f"Error al iniciar sesión: {e}")
             return False, str(e)
-    
+
     # funcion para no pedir iniciar sesion cada vez que se abra la aplicacion
     async def usuario_conectado(self):
         try:
@@ -74,12 +72,12 @@ class AuthService:
             self.token = await self.page.shared_preferences.get("token")
             # comprobamos que el id de usuario es None o una cadena vacía
             if not self.id_usuario or str(self.id_usuario).strip() in ["", "None", "null"]: 
-                    return None
+                return None
             return self.id_usuario
         except:
             print("Error al recuperar usuario")
             return None
-    
+
     # función para cerrar la sesión de un usuario
     async def cerrar_sesion(self):
         try:
@@ -89,8 +87,7 @@ class AuthService:
                 "localidad", "grupos","color_avatar","compartir_ubicacion"
             ]
 
-            # borramos los datos de la sesión pero el tema se mantiene
-            for dato in datos_usuario:
+            for dato in datos_usuario: # borramos los datos de la sesión pero el tema se mantiene
                 await self.page.shared_preferences.remove(dato)
 
             self.id_usuario = None

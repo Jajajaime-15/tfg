@@ -1,6 +1,7 @@
 import flet as ft # type: ignore
 import asyncio
 import json
+from utils.mostrar_avisos import mostrar_aviso
 
 class AjustesController:
     def __init__(self, page, ajustes_service, usuario_service, auth_service,vista = None):
@@ -25,38 +26,42 @@ class AjustesController:
         
         e.control.update() # se actualiza el boton
         self.page.update()
-        print(f"Tema cambiado a: {self.page.theme_mode}")
 
     # funcion que abre el componente CardPassword, valida los datos y llama al wrapper
     async def cambio_psw(self, componente):
-        componente.mensaje_error.value = ""
-        componente.mensaje_error.color = "red"
+        mostrar_aviso(self.page, componente,"")
         componente.update()
 
+        # obtenemos los valores que hay en cada campo
+        actual = componente.psw_actual.value
+        nueva = componente.psw_nueva.value
+        confirmar = componente.psw_confirmar.value
+
         # validaciones para el cambio de contraseña
-        if not componente.psw_nueva.value or not componente.psw_confirmar.value:
-            componente.mensaje_error.value = "Todos los campos son obligatorios"
-        elif componente.psw_nueva.value != componente.psw_confirmar.value:
-            componente.mensaje_error.value = "Las contraseñas no coinciden"
-        elif len(componente.psw_nueva.value) < 8:
-            componente.mensaje_error.value = "La contraseña debe tener mínimo 8 caracteres"
+        if not actual or not nueva or not confirmar:
+            mostrar_aviso(self.page, componente,"Todos los campos son obligatorios")
+        elif nueva != confirmar:
+            mostrar_aviso(self.page, componente,"Las contraseñas no coinciden")
+        elif len(nueva) < 8:
+            mostrar_aviso(self.page, componente,"La contraseña debe tener mínimo 8 caracteres")
+        elif nueva == actual:
+            mostrar_aviso(self.page, componente, "La nueva contraseña debe ser distinta a la actual")
         else:
             exito, aviso = await self.service.cambiar_psw(componente.psw_nueva.value)
             if exito:
-                componente.mensaje_error.value = "Contraseña actualizada correctamente"
-                componente.mensaje_error.color = "green"
+                mostrar_aviso(self.page, componente,"Contraseña actualizada. Inicie sesión de nuevo", color="#1A6AFE")
                 self.page.update()
                 await asyncio.sleep(2)
-                await self.auth_s.cerrar_sesion() # si se ha cambiado la contraseña se cierra la sesion y pide que vuelvas a iniciar
+                await self.cerrar_sesion(None) # si se ha cambiado la contraseña se cierra la sesion y pide que vuelvas a iniciar
                 self.page.go("/")            
             else:
                 error_psw = str(aviso).upper()
-                if "SESION CADUCADA" in error_psw or "SENSITIVE" in error_psw:
-                    componente.mensaje_error.value = "Cierra sesión y vuelve a entrar"
-                elif "WEAK_PASSWORD" in error_psw:
-                    componente.mensaje_error.value = "Contraseña débil"
+                if "WEAK_PASSWORD" in error_psw:
+                    mostrar_aviso(self.page, componente,"La contraseña es muy débil")
+                elif "REQUIRES_RECENT_LOGIN" in error_psw:
+                    mostrar_aviso(self.page, componente,"Por seguridad, cierra sesión y vuelve a entrar")
                 else:
-                    componente.mensaje_error.value = "Error al actualizar. Inténtalo de nuevo"
+                    mostrar_aviso(self.page, componente,"Error de conexión. Vuelve a iniciar sesión")
 
         # limpiamos los campos tras saltar el error
         componente.psw_nueva.value = ""
@@ -98,7 +103,7 @@ class AjustesController:
                                     on_click=lambda _: self.cerrar_dialogo())
                     ]
             self.page.update()
-            
+
     async def cerrar_sesion(self, e):
         await self.auth_s.cerrar_sesion() # cerramos la sesion con firebase
         
@@ -108,7 +113,7 @@ class AjustesController:
         self.service.token = None
 
         self.page.router.reset_vistas() # llamamos a la funcion que resetea la vista
-        
+
         self.page.index_navegacion = 0 # reseteamos para que al volver a iniciar sesion aparezca grupos
         self.page.go("/") # abre el login una vez cerrada la sesión
         
@@ -154,7 +159,7 @@ class AjustesController:
             else:
                 self.vista.btn_tema.icon = ft.Icons.LIGHT_MODE
                 self.vista.btn_tema.tooltip = "Cambiar tema a modo oscuro"
-            
+
             # comprobamos si estamos en windows o en movil
             android = self.page.platform == ft.PagePlatform.ANDROID
             if android == False: # si no estamos en movil

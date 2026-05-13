@@ -40,6 +40,6 @@ class VistaCarga:
                 alignment=ft.MainAxisAlignment.CENTER,
             ),
             expand=True,
+            alignment=ft.Alignment(0, 0),
             bgcolor=ft.Colors.BLACK if self.page.theme_mode == ft.ThemeMode.DARK else ft.Colors.WHITE
         )
-
