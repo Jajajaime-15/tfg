@@ -19,7 +19,7 @@ class GruposController:
             creado, aviso = await self.grupos_service.crear_grupo(nombre.value, integrante.value)
             if creado:
                 mensaje.value = "Grupo creado correctamente"
-                mensaje.color = "green"
+                mensaje.color = "#1A6AFE"
                 self.page.update()
                 await asyncio.sleep(1.5) # esperamos para que el usuario tenga tiempo de leer el mensaje
                 # actualizamos la vista con el nuevo grupo
@@ -43,7 +43,7 @@ class GruposController:
             borrado, aviso = await self.grupos_service.eliminar_grupo(nombre_grupo)
             if borrado:
                 mensaje.value = "Grupo eliminado correctamente"
-                mensaje.color = "green"
+                mensaje.color = "#1A6AFE"
                 self.page.update()
                 # refrescamos las tarjetas
                 if self.vista:
@@ -68,7 +68,7 @@ class GruposController:
         editado, aviso = await self.grupos_service.editar_grupo(nombre_grupo_actual, nuevo_nombre_grupo)
         if editado:
             mensaje.value = "Grupo editado correctamente"
-            mensaje.color = "green"
+            mensaje.color = "#1A6AFE"
             self.page.update()
             await asyncio.sleep(1.5)
             mensaje.value = ""
@@ -96,7 +96,7 @@ class GruposController:
             mensaje.color = "green"
         else:
             mensaje.value = "Todavía no perteneces a ningún grupo"
-            mensaje.color = "orange"
+            mensaje.color = "#1A6AFE"
 
         self.page.update()
         return datos_grupo, integrantes, emails, id_admins
@@ -114,7 +114,7 @@ class GruposController:
             anyadido, aviso = await self.grupos_service.agregar_participante(nombre_grupo, nuevo_integrante)
             if anyadido:
                 mensaje.value = "Participante añadido correctamente"
-                mensaje.color = "green"
+                mensaje.color = "#1A6AFE"
                 self.page.update()
                 await asyncio.sleep(2)
                 # refrescamos la vista para que aparezca el nuevo miembro en la tarjeta
@@ -135,7 +135,7 @@ class GruposController:
         # comprobamos primero si somos el propio usuario
         if email_integrante.lower().strip() ==self.grupos_service.id_usuario.lower().strip():
             mensaje.value = "No puedes eliminarte a ti mismo del grupo. Usa la opción 'Salir del grupo'."
-            mensaje.color = "orange" # Usamos naranja para una advertencia de lógica
+            mensaje.color = "red" # Usamos naranja para una advertencia de lógica
             self.page.update()
             await asyncio.sleep(1.5)
             return False
@@ -145,7 +145,7 @@ class GruposController:
 
         if eliminado:
             mensaje.value = "Integrante eliminado correctamente"
-            mensaje.color = "green"
+            mensaje.color = "#1A6AFE"
         else:
             mensaje.value = aviso # mostramos el mensaje que viene desde el service
             mensaje.color = "red"
@@ -166,7 +166,7 @@ class GruposController:
         exito, aviso = await self.grupos_service.abandonar_grupo(grupo)
         if exito:
             mensaje.value = "Has salido del grupo"
-            mensaje.color = "green"
+            mensaje.color = "#1A6AFE"
             self.page.update()
             await asyncio.sleep(1.5)
             return True

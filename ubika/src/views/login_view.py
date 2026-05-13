@@ -31,7 +31,7 @@ class VistaLogin:
             accion=self.controlador.conectarse
         )
 
-        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=False)
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=True)
 
         self.btn_entrar = BotonPrincipal(
             texto="Iniciar Sesión",

@@ -89,7 +89,7 @@ class VistaPerfil:
             expand=True
         )
 
-        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=False)
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=True)
 
         self.btn_guardar = BotonPrincipal(
             texto="Guardar cambios",
@@ -131,13 +131,14 @@ class VistaPerfil:
                 ft.Divider(height=10, color="transparent"), # linea divisoria transparente para que no se muestre
                 ft.Row([
                     ft.Column([
+                        self.mensaje_error,
                         self.contenedor_avatar,
                         self.usuario,
                         self.email,
                     ], horizontal_alignment=ft.CrossAxisAlignment.CENTER,) 
                 ], alignment=ft.MainAxisAlignment.CENTER),
 
-                ft.Divider(height=40, color="black"), # linea divisoria
+                ft.Divider(height=20, color="black"), # linea divisoria
 
                 # diseño de los campos de la información (formulario)
                 ft.Text("Datos Personales", size=16, weight="bold"),
@@ -160,7 +161,6 @@ class VistaPerfil:
                 ft.Row([
                     ft.Column([
                         self.btn_guardar,
-                        self.mensaje_error
                         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER)
                 ], alignment=ft.MainAxisAlignment.CENTER)
             ], scroll=ft.ScrollMode.AUTO, 

@@ -1,6 +1,7 @@
 import flet as ft# type: ignore
 from components.input_texto import InputTexto
 from components.boton_principal import BotonPrincipal
+from utils.mostrar_avisos import mostrar_aviso
 
 class TarjetaPsw(ft.Card):
     def __init__(self,controlador):
@@ -21,7 +22,7 @@ class TarjetaPsw(ft.Card):
             accion = self.guardar
         )
 
-        self.mensaje_error = ft.Text(value="",color="red",weight="bold")
+        self.mensaje_error = ft.Text(value="",color="red",weight="bold",visible=True)
 
         self.content=ft.Container(
             padding=20,
@@ -50,7 +51,7 @@ class TarjetaPsw(ft.Card):
         # dejamos los campos limpios para que cuando se vuelva a abrir estén vacios
         self.psw_nueva.value = "" 
         self.psw_confirmar.value = ""
-        self.mensaje_error.value = ""
+        mostrar_aviso(self.page,self,"")
         self.update()
 
     # funcion que hace de puente para guardar

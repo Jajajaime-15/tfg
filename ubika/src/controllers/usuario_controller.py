@@ -1,4 +1,5 @@
 import asyncio
+from utils.mostrar_avisos import mostrar_aviso
 
 class UsuarioController:
     def __init__ (self, page, usuario_service, vista=None):
@@ -45,7 +46,7 @@ class UsuarioController:
     
     async def guardar_cambios(self, e):
         self.vista.btn_guardar.disabled = True # bloqueamos el botón para que no se pueda hacer clic mas de una vez
-        self.vista.mensaje_error.value = ""
+        mostrar_aviso(self.page, self.vista,"")
         self.page.update()
 
         # creamos el diccionario con los campos que se pueden modificar
@@ -58,33 +59,31 @@ class UsuarioController:
 
         guardado, aviso = await self.service.actualizar_datos(datos)
         if guardado:
-            self.vista.mensaje_error.value = "Datos actualizados"
-            self.vista.mensaje_error.color = "green"
+            mostrar_aviso(self.page, self.vista,"Perfil actualizado", color="#1A6AFE")
             # actualiza la cabecera si se cambia el apellio
             nombre = self.vista.nombre_input.value
             apellidos = self.vista.apellidos_input.value
             self.vista.usuario.value = f"{nombre} {apellidos}".strip()
             self.page.update()
-            await asyncio.sleep(3) # Esperamos 3 segundos
-            self.vista.mensaje_error.value = ""
+            await asyncio.sleep(1.5) # Esperamos 3 segundos
+            mostrar_aviso(self.page, self.vista,"")
             self.page.update()
         else:
-            self.vista.mensaje_error.color = "red"
             error_guardado = str(aviso).upper()
             if "SESION_EXPIRADA" in error_guardado:
-                self.vista.mensaje_error.value = "Sesión caducada, vuelve a iniciar sesión"
+                mostrar_aviso(self.page, self.vista,"La sesión ha expirado. Por seguridad, vuelve a entrar")
                 self.page.update()
-                await asyncio.sleep(2)
+                await asyncio.sleep(1.5)
                 await self.service.auth_s.cerrar_sesion()
                 self.page.router.reset_vistas() # # llamamos a la funcion que resetea la vista
                 self.page.index_navegacion = 0 # aseguramos que al iniciar sesion entre en grupos
                 self.page.go("/")
             elif "PERMISSION_DENIED" in error_guardado:
-                self.vista.mensaje_error.value = "No tienes permisos para modificar los datos"
+                mostrar_aviso(self.page, self.vista,"Acceso denegado: No tienes permisos para editar este perfil.")
             elif "NETWORK" in error_guardado or "CONNECTION" in error_guardado:
-                self.vista.mensaje_error.value = "Sin conexión."
+                mostrar_aviso(self.page, self.vista,"Error de red. Revisa tu conexión a internet.")
             else:
-                self.vista.mensaje_error.value = "Error al guardar los datos"
+                mostrar_aviso(self.page, self.vista,"Error al guardar los datos")
 
         self.vista.btn_guardar.disabled = False # activamos el botón de nuevo
         self.page.update()

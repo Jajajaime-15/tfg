@@ -50,7 +50,7 @@ class VistaRegistro:
             accion=self.controlador.registrar_usuario
         )
 
-        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=False)
+        self.mensaje_error = ft.Text(value="", color="red", weight="bold", visible=True)
 
         self.btn_registrar = BotonPrincipal(
             texto="Registrarse",

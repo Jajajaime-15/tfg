@@ -1,6 +1,7 @@
 import flet as ft # type: ignore
 import asyncio
 import json
+from utils.mostrar_avisos import mostrar_aviso
 
 class AjustesController:
     def __init__(self, page, ajustes_service, usuario_service, vista = None):
@@ -24,38 +25,35 @@ class AjustesController:
         
         e.control.update() # se actualiza el boton
         self.page.update()
-        print(f"Tema cambiado a: {self.page.theme_mode}")
 
     # funcion que abre el componente CardPassword, valida los datos y llama al wrapper
     async def cambio_psw(self, componente):
-        componente.mensaje_error.value = ""
-        componente.mensaje_error.color = "red"
+        mostrar_aviso(self.page, componente,"")
         componente.update()
 
         # validaciones para el cambio de contraseña
         if not componente.psw_nueva.value or not componente.psw_confirmar.value:
-            componente.mensaje_error.value = "Todos los campos son obligatorios"
+            mostrar_aviso(self.page, componente,"Todos los campos son obligatorios")
         elif componente.psw_nueva.value != componente.psw_confirmar.value:
-            componente.mensaje_error.value = "Las contraseñas no coinciden"
+            mostrar_aviso(self.page, componente,"Las contraseñas no coinciden")
         elif len(componente.psw_nueva.value) < 8:
-            componente.mensaje_error.value = "La contraseña debe tener mínimo 8 caracteres"
+            mostrar_aviso(self.page, componente,"La contraseña debe tener mínimo 8 caracteres")
         else:
             exito, aviso = await self.service.cambiar_psw(componente.psw_nueva.value)
             if exito:
-                componente.mensaje_error.value = "Contraseña actualizada correctamente"
-                componente.mensaje_error.color = "green"
+                mostrar_aviso(self.page, componente,"Contraseña actualizada. Inicie sesión de nuevo", color="#1A6AFE")
                 self.page.update()
                 await asyncio.sleep(2)
-                await self.service.auth_s.cerrar_sesion() # si se ha cambiado la contraseña se cierra la sesion y pide que vuelvas a iniciar
+                await self.cerrar_sesion(None) # si se ha cambiado la contraseña se cierra la sesion y pide que vuelvas a iniciar
                 self.page.go("/")            
             else:
                 error_psw = str(aviso).upper()
                 if "WEAK_PASSWORD" in error_psw:
-                    componente.mensaje_error.value = "La contraseña es muy débil"
+                    mostrar_aviso(self.page, componente,"La contraseña es muy débil")
                 elif "REQUIRES_RECENT_LOGIN" in error_psw:
-                    componente.mensaje_error.value = "Por seguridad, cierra sesión y vuelve a entrar"
+                    mostrar_aviso(self.page, componente,"Por seguridad, cierra sesión y vuelve a entrar")
                 else:
-                    componente.mensaje_error.value = "Error de conexión. Inténtalo de nuevo"
+                    mostrar_aviso(self.page, componente,"Error de conexión. Vuelve a iniciar sesión")
 
         # limpiamos los campos tras saltar el error
         componente.psw_nueva.value = ""
