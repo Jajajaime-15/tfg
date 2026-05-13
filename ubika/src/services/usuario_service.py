@@ -20,8 +20,9 @@ class UsuarioService:
                 # al dar error comprobamos si es problema del token
                 nuevo_token = await self.fb.comprobar_error(e)
                 if nuevo_token:
+                    self.token = nuevo_token
                     # volemos a intentarlo con el nuevo token
-                    self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, nuevo_token)
+                    self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, self.token)
                     print("Datos actualizados")
                 else:
                     raise e # si no es error de token o no se puede refrescar devolvemos el error original
@@ -49,7 +50,8 @@ class UsuarioService:
                 except Exception as e:
                     nuevo_token = await self.fb.comprobar_error(e)
                     if nuevo_token:
-                        infor = self.db.child("usuarios").child(self.id_usuario).get(nuevo_token).val()
+                        self.token = nuevo_token
+                        infor = self.db.child("usuarios").child(self.id_usuario).get(self.token).val()
                     else:
                         print("Error al sincronizar")
                         return

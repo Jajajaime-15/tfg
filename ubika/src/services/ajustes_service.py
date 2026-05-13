@@ -21,9 +21,10 @@ class AjustesService:
         except Exception as e:
             nuevo_token = await self.fb.comprobar_error(e) # comprobamos si es error de token
             if nuevo_token:
+                self.token = nuevo_token
                 try:
                     # volvemos a intentarlo con el nuevo token
-                    self.auth.change_password(nuevo_token,nueva_psw)
+                    self.auth.change_password(self.token,nueva_psw)
                     print("Contraseña actualizada despues de actualizar")
                     return True, "Contraseña actualizada"
                 except Exception as e2:
@@ -60,10 +61,11 @@ class AjustesService:
                     # si da error miramos si es de token
                     nuevo_token = await self.fb.comprobar_error(e)
                     if nuevo_token:
-                        self.db.child("usuarios").child(self.id_usuario).remove(nuevo_token)
+                        self.token = nuevo_token
+                        self.db.child("usuarios").child(self.id_usuario).remove(self.token)
                         if grupos:
                             for id_grupo in grupos.keys():
-                                self.db.child("ubicaciones").child(id_grupo).child(self.id_usuario).remove(nuevo_token)
+                                self.db.child("ubicaciones").child(id_grupo).child(self.id_usuario).remove(self.token)
                         self.auth.delete_user_account(nuevo_token)
                     else:
                         raise e # devolvemos el error
