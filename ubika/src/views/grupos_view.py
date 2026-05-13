@@ -33,7 +33,7 @@ class VistaGrupos:
         await self.page.push_route("/crear_grupo")
 
     async def obtener_info_grupos(self):
-        self.datos_grupo, self.integrantes, self.emails, self.ids_admins = await self.grupos_controller.mostrar_grupos(self.mensaje_error)
+        self.datos_grupo, self.integrantes, self.emails, self.ids_admins = await self.grupos_controller.mostrar_grupos()
         self.btn_crear_grupos.disabled = False # activamos de nuevo el botón
         self.page.update()    
 
@@ -46,7 +46,7 @@ class VistaGrupos:
 
         # creamos un proceso asíncrono para la eliminacion
         async def eliminacion():
-            exito = await self.grupos_controller.eliminar_participante(nombre_grupo, email_integrante,self.mensaje_error) # llamamos al controlador para realizar el borrado del miembro
+            exito = await self.grupos_controller.eliminar_participante(nombre_grupo, email_integrante) # llamamos al controlador para realizar el borrado del miembro
             if not exito: # si no se realiza nada
                 await asyncio.sleep(2)
 
@@ -58,13 +58,11 @@ class VistaGrupos:
 
     def eliminar_grupo_desde_tarjeta(self, nombre_grupo):
         self.btn_crear_grupos.disabled = True # botón desactivado para no hacer más de un click y no bloquear la conexión con firebase
-        self.mensaje_error.value = "" # el mensaje de error lo dejamos vacío
         self.page.update()
 
         self.page.run_task( # llamamos a la función para eliminar un grupo
             self.grupos_controller.eliminar_grupo,
             nombre_grupo,
-            self.mensaje_error
         )
 
         self.btn_crear_grupos.disabled = False # activamos de nuevo el botón
@@ -74,14 +72,12 @@ class VistaGrupos:
             return
 
         self.btn_crear_grupos.disabled = True
-        self.mensaje_error.value = ""
         self.page.update()
 
         async def realizar_edicion():
             exito = await self.grupos_controller.editar_grupo(
                 nombre_actual, 
                 nuevo_nombre, 
-                self.mensaje_error
             )
 
             if callback_ui:
@@ -112,8 +108,7 @@ class VistaGrupos:
         self.page.run_task(
             self.grupos_controller.agregar_participante,
             nombre_grupo,
-            nombre_integrante,
-            self.mensaje_error
+            nombre_integrante
         )
 
     async def actualizar_tarjetas_grupos(self):
@@ -151,7 +146,7 @@ class VistaGrupos:
         self.page.update()
 
         async def salir():
-            await self.grupos_controller.abandonar_grupo (grupo, self.mensaje_error)
+            await self.grupos_controller.abandonar_grupo (grupo)
             await self.actualizar_tarjetas_grupos()
             self.page.update()
 
@@ -169,18 +164,22 @@ class VistaGrupos:
                         TituloSeccion(texto="MIS GRUPOS", color="", tamanio=25),
                     ], alignment=ft.MainAxisAlignment.CENTER),
 
-                    ft.Divider(height=5, color="transparent"),
+                    ft.Divider(height=3, color="transparent"),
 
                     ft.Row([
                         self.btn_crear_grupos
                     ], alignment=ft.MainAxisAlignment.CENTER),
 
-                    ft.Divider(height=20, color="transparent"), 
-                    self.mensaje_error,
+                    ft.Row([
+                        self.mensaje_error
+                    ], alignment=ft.MainAxisAlignment.CENTER),
+
+                    ft.Divider(height=10, color="transparent"), 
 
                     ft.Container(
                         content=self.centro,
                         padding=ft.Padding.symmetric(vertical=10),
+                        expand=True
                     ),
                 ],
                 scroll=ft.ScrollMode.AUTO,

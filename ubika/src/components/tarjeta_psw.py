@@ -9,6 +9,12 @@ class TarjetaPsw(ft.Card):
         self.controlador = controlador
         self.visible = False # esta tarjeta/componente no aparece hasta que no se ejecuta la funcion de cambiar contraseña
 
+        self.psw_actual = InputTexto(
+            label = "Contraseña actual",
+            password = True,
+            reveal = True
+        )
+
         self.psw_nueva = InputTexto(
             label = "Nueva contraseña",
             password = True,
@@ -30,6 +36,7 @@ class TarjetaPsw(ft.Card):
             border_radius=15,
             content=ft.Column([
                 ft.Text("Cambiar Contraseña", size=18, weight="bold"),
+                self.psw_actual,
                 self.psw_nueva,
                 self.psw_confirmar,
                 self.mensaje_error,

@@ -31,13 +31,20 @@ class AjustesController:
         mostrar_aviso(self.page, componente,"")
         componente.update()
 
+        # obtenemos los valores que hay en cada campo
+        actual = componente.psw_actual.value
+        nueva = componente.psw_nueva.value
+        confirmar = componente.psw_confirmar.value
+
         # validaciones para el cambio de contraseña
-        if not componente.psw_nueva.value or not componente.psw_confirmar.value:
+        if not actual or not nueva or not confirmar:
             mostrar_aviso(self.page, componente,"Todos los campos son obligatorios")
-        elif componente.psw_nueva.value != componente.psw_confirmar.value:
+        elif nueva != confirmar:
             mostrar_aviso(self.page, componente,"Las contraseñas no coinciden")
-        elif len(componente.psw_nueva.value) < 8:
+        elif len(nueva) < 8:
             mostrar_aviso(self.page, componente,"La contraseña debe tener mínimo 8 caracteres")
+        elif nueva == actual:
+            mostrar_aviso(self.page, componente, "La nueva contraseña debe ser distinta a la actual")
         else:
             exito, aviso = await self.service.cambiar_psw(componente.psw_nueva.value)
             if exito:

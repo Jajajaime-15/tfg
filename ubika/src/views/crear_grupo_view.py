@@ -7,6 +7,7 @@ class VistaCrearGrupo:
     def __init__(self, page, controlador):
         self.page = page
         self.controlador = controlador
+        self.controlador.vista = self
 
         self.btn_volver = ft.IconButton(
             visible=True, 
@@ -46,8 +47,7 @@ class VistaCrearGrupo:
 
         await self.controlador.crear_grupo( # llamamos a la función para crear un grupo
             self.nombre_grupo_input,
-            self.nombre_integrante_input,
-            self.mensaje_error
+            self.nombre_integrante_input
         )
 
         self.btn_crear_grupo.disabled = False # activamos de nuevo el botón

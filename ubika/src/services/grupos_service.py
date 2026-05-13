@@ -15,7 +15,7 @@ class GruposService:
     #Funcion para buscar todos los grupos y reutilizarla en el resto de funciones
     async def buscar_grupos(self):
         try:
-            todos_los_grupos = self.db.child("grupos").get(self.token).val() # Obtener todos los grupos
+            todos_los_grupos = self.db.child("grupos").get(self.token).val() or {} # Obtener todos los grupos
             if todos_los_grupos:
                 return todos_los_grupos
             else:
@@ -81,7 +81,7 @@ class GruposService:
                     break
 
             if not id_nuevo_integrante:
-                return False, f"No se encontró el usuario con email {integrante}"    
+                return False, "USER_NOT_FOUND"    
 
             miembros = {
                 self.id_usuario: True,
@@ -155,6 +155,7 @@ class GruposService:
                     self.db.child(ruta_grupo_usuario).remove(self.token) # Eliminar la referencia del grupo de este usuario
 
             self.db.child(f"grupos/{id_grupo_encontrar}").remove(self.token) # Eliminar el grupo del nodo de grupos
+            self.db.child(f"ubicaciones/{id_grupo_encontrar}").remove(self.token) # eliminamos de ubicaciones
 
             return True, "Grupo eliminado correctamente"
         except Exception as e:
@@ -259,8 +260,8 @@ class GruposService:
                     break    
 
             if not id_integrante:
-                return False, f"No se encontró el usuario con email {nuevo_integrante}"
-
+                return False, "EMAIL_NOT_FOUND"
+            
             # Verificar si ya existe
             if id_integrante in miembros:
                 return False, "El integrante ya está en el grupo"
@@ -314,7 +315,7 @@ class GruposService:
             self.db.child(f"grupos/{id_grupo_encontrar}").update({"miembros": miembros}, self.token) # Actualizar en Firebase
             ruta_usuario = f"usuarios/{id_integrante_eliminar}/grupos/{id_grupo_encontrar}" 
             self.db.child(ruta_usuario).remove(self.token) # Eliminar referencia del grupo en el usuario eliminado
-
+            self.db.child(f"ubicaciones/{id_grupo_encontrar}/{id_integrante_eliminar}").remove(self.token) # quitamos del mapa de ese grupo
             return True, "Integrante eliminado correctamente"
         except Exception as e:
             print(f"Error al eliminar participante: {e}")
@@ -350,7 +351,7 @@ class GruposService:
             # quitamos el grupo de la lista de grupos del usuario
             mi_grupo = f"usuarios/{self.id_usuario}/grupos/{encontrar_id_grupo}"
             self.db.child(mi_grupo).remove(self.token)
-
+            self.db.child(f"ubicaciones/{encontrar_id_grupo}/{self.id_usuario}").remove(self.token) # quitamos del mapa de ese grupo
             return True, f"Has salido del grupo {grupo}"
         except Exception as e:
             print(f"Error al salir del grupo: {e}")
