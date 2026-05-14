@@ -46,6 +46,9 @@ class Router:
         self.controlador_mapa.geo = None
         
     async def cambiar_ruta(self, e):
+        if self.page.route == "/home":
+            self.reset_vistas()
+
         pila = { # definimos la pila segun la ruta para asegurar "el volver atrás"
             "/ajustes": ["/home", "/ajustes"],
             "/home": ["/home"],
@@ -83,3 +86,4 @@ class Router:
         elif vista_clase == VistaAjustes:
             await self.controlador_usuario.service.sincronizar()
             await self.controlador_ajustes.cargar_ajustes()
+        self.page.update()
