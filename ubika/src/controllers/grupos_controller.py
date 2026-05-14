@@ -11,12 +11,13 @@ class GruposController:
         mostrar_aviso(self.page, self.vista, "")
         self.page.update()
 
-        datos = [nombre.value, integrante.value]
+        email_integrante_limpio = integrante.value.lower().strip()
+        datos = [nombre.value, email_integrante_limpio]
 
         if not all (datos):
             mostrar_aviso(self.page, self.vista, "Todos los campos son obligatorios")
         else:
-            creado, aviso = await self.grupos_service.crear_grupo(nombre.value, integrante.value)
+            creado, aviso = await self.grupos_service.crear_grupo(nombre.value, email_integrante_limpio)
             if creado:
                 mostrar_aviso(self.page, self.vista, "Grupo creado correctamente", color = "#1A6AFE")
                 await self.grupos_service.cargar_datos_usuario()
@@ -92,14 +93,15 @@ class GruposController:
         mostrar_aviso(self.page, self.vista, "")
         self.page.update()
 
-        datos = [nombre_grupo, nuevo_integrante]
+        email_nuevo_limpio = nuevo_integrante.lower().strip()
+        datos = [nombre_grupo, email_nuevo_limpio]
 
         if not all (datos):
             mostrar_aviso(self.page, self.vista, "Todos los campos son obligatorios")
-        elif "@" not in nuevo_integrante or "." not in nuevo_integrante:
+        elif "@" not in email_nuevo_limpio or "." not in email_nuevo_limpio:
             mostrar_aviso(self.page, self.vista, "Introduce un email válido")
         else:
-            anyadido, aviso = await self.grupos_service.agregar_participante(nombre_grupo, nuevo_integrante)
+            anyadido, aviso = await self.grupos_service.agregar_participante(nombre_grupo, email_nuevo_limpio)
             if anyadido:
                 mostrar_aviso(self.page, self.vista, "Integrante añadido", color="#1A6AFE")
                 if self.vista and hasattr(self.vista, "actualizar_tarjetas_grupos"):
@@ -108,8 +110,8 @@ class GruposController:
                 error_agregar = str(aviso).upper()
                 if "NOT_FOUND" in error_agregar:
                     mostrar_aviso(self.page, self.vista, "Email no registrado")
-                elif "ALREADY" in error_agregar or "EXISTE" in error_agregar:
-                    mostrar_aviso(self.page, self.vista, "Ya pertenece al grupo")
+                elif "YA ESTÁ" in error_agregar or "YA PERTENECE" in error_agregar or "ALREADY" in error_agregar:
+                    mostrar_aviso(self.page, self.vista, "Este usuario ya pertenece al grupo")
                 else:
                     mostrar_aviso(self.page, self.vista, "Error al añadir")
 
@@ -118,18 +120,19 @@ class GruposController:
     async def eliminar_participante(self, nombre_grupo, email_integrante):
         mostrar_aviso(self.page, self.vista, "")
         self.page.update() # FALTA
-        
+        email_limpio = email_integrante.lower().strip()
+
         await self.grupos_service.cargar_datos_usuario()
 
         # comprobamos primero si somos el propio usuario
-        if email_integrante.lower().strip() ==self.grupos_service.id_usuario.lower().strip():
+        if email_limpio == self.grupos_service.id_usuario.lower().strip():
             mostrar_aviso(self.page, self.vista, "No puedes eliminarte. Eres el administrador.")
             self.page.update()
             await asyncio.sleep(1.5)
             return False
 
         # si no es el propio usuario realizamos la eliminacion
-        eliminado, aviso = await self.grupos_service.eliminar_participante(nombre_grupo, email_integrante)
+        eliminado, aviso = await self.grupos_service.eliminar_participante(nombre_grupo, email_limpio)
 
         if eliminado:
             mostrar_aviso(self.page, self.vista, "Participante eliminado correctamente", color="#1A6AFE")
