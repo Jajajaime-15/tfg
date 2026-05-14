@@ -55,7 +55,7 @@ class AjustesService:
                             self.db.child("ubicaciones").child(id_grupo).child(self.id_usuario).remove(self.token)
                     # borramos el usuario de Authentication
                     self.auth.delete_user_account(self.token)
-                    # una vez eliminado cerramos sesión HACE FALTA? NO SE SALE DIRECTAMENTE?
+                    # una vez eliminado cerramos sesión
                     await self.auth_s.cerrar_sesion()
                 except Exception as e:
                     # si da error miramos si es de token

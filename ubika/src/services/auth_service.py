@@ -12,7 +12,8 @@ class AuthService:
     # función para registrar usuarios nuevos
     async def registrarse(self, nombre, telefono, email, psw):
         try:
-            usuario = self.auth.create_user_with_email_and_password(email,psw)
+            email_limpio = email.lower().strip()
+            usuario = self.auth.create_user_with_email_and_password(email_limpio,psw)
             self.id_usuario = usuario["localId"]
             self.token = usuario["idToken"]
             refresh_token = usuario["refreshToken"]
@@ -20,7 +21,7 @@ class AuthService:
             info_usuario = {
                 "nombre": nombre,
                 "telefono": telefono,
-                "email": email,
+                "email": email_limpio,
                 "pais": "", # se podrá rellenar desde el perfil de usuario
                 "localidad": "", # ''
                 "color_avatar": "#1A6AFE",
@@ -36,7 +37,7 @@ class AuthService:
             await self.page.shared_preferences.set("refresh_token", refresh_token)
             await self.page.shared_preferences.set("nombre", nombre)
             await self.page.shared_preferences.set("telefono", telefono)
-            await self.page.shared_preferences.set("email", email)
+            await self.page.shared_preferences.set("email", email_limpio)
             await self.page.shared_preferences.set("color_avatar", "#1A6AFE")
             await self.page.shared_preferences.set("compartir_ubicacion", "false")
 
@@ -49,7 +50,8 @@ class AuthService:
     # función para iniciar sesión con un usuario ya registrado
     async def iniciar_sesion(self, email, psw):
         try:
-            usuario = self.auth.sign_in_with_email_and_password(email, psw)
+            email_limpio = email.lower().strip()
+            usuario = self.auth.sign_in_with_email_and_password(email_limpio, psw)
             self.id_usuario = usuario["localId"]
             self.token = usuario["idToken"]
             refresh_token = usuario["refreshToken"]
@@ -100,7 +102,8 @@ class AuthService:
     # función para recuperar la contraseña mediante el correo
     async def recu_psw(self, email):
         try:
-            self.auth.send_password_reset_email(email) # firebase envía automáticamente un correo al email que se indique (tiene que ser un email registrado)
+            email_limpio = email.lower().strip()
+            self.auth.send_password_reset_email(email_limpio) # firebase envía automáticamente un correo al email que se indique (tiene que ser un email registrado)
             print("Correo enviado para recuperar contraseña")
             return True, "Correo enviado para recuperar tu contraseña"
         except Exception as e:

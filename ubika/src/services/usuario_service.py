@@ -14,6 +14,9 @@ class UsuarioService:
             self.id_usuario = await self.page.shared_preferences.get("id_usuario")
             self.token = await self.page.shared_preferences.get("token")
 
+            if "email" in datos_actualizados:
+                datos_actualizados["email"] = datos_actualizados["email"].lower().strip()
+
             try:
                 self.db.child("usuarios").child(self.id_usuario).update(datos_actualizados, self.token)
             except Exception as e:
@@ -57,10 +60,11 @@ class UsuarioService:
                         return
 
                 if infor:
+                    email_db = infor.get("email", "").lower().strip()
                     datos_a_guardar = { # diccionario de las cosas que queremos guardar en el dispositivo
                         "nombre": infor.get("nombre", ""),
                         "apellidos": infor.get("apellidos", ""),
-                        "email": infor.get("email", ""),
+                        "email": email_db,
                         "telefono": infor.get("telefono", ""),
                         "pais": infor.get("pais", ""),
                         "localidad": infor.get("localidad", ""),

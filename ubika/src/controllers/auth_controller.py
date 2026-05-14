@@ -10,10 +10,11 @@ class AuthController:
     async def registrar_usuario(self, e):
         mostrar_aviso(self.page, self.vista,"")
         self.page.update()
+        email_limpio = self.vista.email_input.value.lower().strip()
 
         # almacenamos todos los datos en una lista para despues poder comprobar
         datos = [self.vista.nombre_input.value,
-                self.vista.email_input.value,
+                email_limpio,
                 self.vista.psw_input.value,
                 self.vista.psw_confirmar.value,
                 self.vista.telefono_input.value]
@@ -25,13 +26,13 @@ class AuthController:
             mostrar_aviso (self.page, self.vista,"Las contraseñas no coinciden")
             self.vista.psw_confirmar.value = ""
             await self.vista.psw_confirmar.focus()
-        elif "@" not in self.vista.email_input.value or "." not in self.vista.email_input.value:
+        elif "@" not in email_limpio or "." not in email_limpio:
             mostrar_aviso(self.page, self.vista,"Introduce un email válido")
         elif len(self.vista.psw_input.value) < 8:
             mostrar_aviso(self.page, self.vista,"La contraseña debe de tener mínimo 8 caracteres")
         else:
             registrado, aviso = await self.service.registrarse(self.vista.nombre_input.value,self.vista.telefono_input.value,
-                                                            self.vista.email_input.value,self.vista.psw_input.value)
+                                                            email_limpio,self.vista.psw_input.value)
             if registrado:
                 mostrar_aviso(self.page, self.vista,"Usuario registrado", color="#1A6AFE")
                 self.page.update()
@@ -55,11 +56,12 @@ class AuthController:
     async def conectarse(self, e):
         mostrar_aviso(self.page, self.vista,"")
         self.page.update()
+        email_limpio = self.vista.email_input.value.lower().strip()
 
-        if not self.vista.email_input.value or not self.vista.psw_input.value:
+        if not email_limpio or not self.vista.psw_input.value:
             mostrar_aviso(self.page, self.vista,"Introduce email y contraseña")
         else:
-            conectado, aviso = await self.service.iniciar_sesion(self.vista.email_input.value,self.vista.psw_input.value)
+            conectado, aviso = await self.service.iniciar_sesion(email_limpio,self.vista.psw_input.value)
             if conectado:
                 self.page.update()               
                 self.page.go("/home") # ruta a la pantalla principal/perfil/grupos
@@ -83,11 +85,12 @@ class AuthController:
     async def recuperar_psw(self, e):
         mostrar_aviso(self.page, self.vista,"")
         self.page.update()
+        email_limpio = self.vista.email_input.value.lower().strip()
 
-        if not self.vista.email_input.value:
+        if not email_limpio:
             mostrar_aviso(self.page, self.vista,"Introduce un email")
         else:
-            enviado, aviso = await self.service.recu_psw(self.vista.email_input.value)
+            enviado, aviso = await self.service.recu_psw(email_limpio)
             if enviado:
                 mostrar_aviso(self.page, self.vista,"Email de recuperación enviado. Revisa tu bandeja de entrada", color="#1A6AFE")
                 self.page.update()

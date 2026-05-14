@@ -85,8 +85,9 @@ class GruposService:
             await self.cargar_datos_usuario()  # Cargar datos del usuario
 
             id_nuevo_integrante = None
-            for id_usuario, datos_usuario in self.todos_los_usuarios.items():
-                if datos_usuario.get("email") == integrante:
+            for id_usuario, datos_usuario in (self.todos_los_usuarios or {}).items():
+                email_db = datos_usuario.get("email", "").lower().strip()
+                if email_db == integrante:
                     id_nuevo_integrante = id_usuario
                     break
 
@@ -266,8 +267,8 @@ class GruposService:
 
             id_integrante = None
             datos_usuario_encontrar = None
-            for id_usuario, datos_usuario in usuarios.items():
-                if datos_usuario.get("email") == nuevo_integrante:
+            for id_usuario, datos_usuario in (usuarios or {}).items():
+                if datos_usuario.get("email","").lower().strip() == nuevo_integrante:
                     id_integrante = id_usuario
                     datos_usuario_encontrar = datos_usuario
                     break    
@@ -320,7 +321,7 @@ class GruposService:
             usuarios = self.db.child("usuarios").get(self.token).val()
 
             # buscamos el id del miembro que queremos eliminar
-            lista_ids = [id for id, datos in usuarios.items() if datos.get("email") == email_integrante]
+            lista_ids = [id for id, datos in (usuarios or {}).items() if datos.get("email","").lower().strip() == email_integrante]
             id_integrante_eliminar = lista_ids[0] if lista_ids else None
 
             if not id_integrante_eliminar: # comprobamos que existe el id
