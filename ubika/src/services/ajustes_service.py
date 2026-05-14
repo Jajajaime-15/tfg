@@ -56,7 +56,6 @@ class AjustesService:
                     # borramos el usuario de Authentication
                     self.auth.delete_user_account(self.token)
                     # una vez eliminado cerramos sesión
-                    await self.auth_s.cerrar_sesion()
                 except Exception as e:
                     # si da error miramos si es de token
                     nuevo_token = await self.fb.comprobar_error(e)
