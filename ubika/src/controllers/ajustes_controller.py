@@ -4,10 +4,11 @@ import json
 from utils.mostrar_avisos import mostrar_aviso
 
 class AjustesController:
-    def __init__(self, page, ajustes_service, usuario_service, vista = None):
+    def __init__(self, page, ajustes_service, usuario_service, auth_service,vista = None):
         self.page = page
         self.service = ajustes_service
         self.usuario_s = usuario_service
+        self.auth_s = auth_service
         self.vista = vista
 
     # funcion para cambiar el tema de la aplicacion (claro/oscuro)
@@ -76,6 +77,8 @@ class AjustesController:
             self.usuario_s.token = None
             self.service.id_usuario = None
             self.service.token = None
+            # cerramos la sesión
+            await self.auth_s.cerrar_sesion()
             self.page.router.reset_vistas() # llamamos a la funcion que resetea la vista
             # recorremos el overlay para cerrar cualquier diálogo abierto
             for control in self.page.overlay:
@@ -89,9 +92,9 @@ class AjustesController:
             error_exito = str(aviso).upper()
             for control in self.page.overlay:
                 if isinstance(control, ft.AlertDialog):
-                    if "CREDENTIAL_TOO_OLD" in error_exito or "SENSITIVE" in error_exito:
-                        control.title = ft.Text("ACCIÓN DENEGADA", color="red")
-                        control.content = ft.Text("Por seguridad, debes cerrar sesión y volver a entrar antes de eliminar tu cuenta.")
+                    if "SESION CADUCADA" in error_exito or "SENSITIVE" in error_exito:
+                        control.title = ft.Text("ACCION DENEGADA", color="red")
+                        control.content = ft.Text("Cierra sesión y vuelve a entrar antes de eliminar tu cuenta.")
                     else:
                         control.content = ft.Text("No se pudo eliminar la cuenta. Inténtalo más tarde.")
                     # Cambiamos el botón a ACEPTAR
@@ -102,8 +105,8 @@ class AjustesController:
             self.page.update()
 
     async def cerrar_sesion(self, e):
-        await self.service.auth_s.cerrar_sesion() # cerramos la sesion con firebase
-
+        await self.auth_s.cerrar_sesion() # cerramos la sesion con firebase
+        
         self.usuario_s.id_usuario = None
         self.usuario_s.token = None
         self.service.id_usuario = None
@@ -113,7 +116,7 @@ class AjustesController:
 
         self.page.index_navegacion = 0 # reseteamos para que al volver a iniciar sesion aparezca grupos
         self.page.go("/") # abre el login una vez cerrada la sesión
-
+        
     # funcion para activar o desactivar la ubicacion del usuario
     async def compartir_ubicacion(self, e):
         # si no es un dispositivo móvil no hacemos nada

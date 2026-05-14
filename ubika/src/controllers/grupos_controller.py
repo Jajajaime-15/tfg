@@ -25,7 +25,7 @@ class GruposController:
                 await self.page.push_route("/home")
                 # actualizamos la vista con el nuevo grupo
                 if self.vista and hasattr(self.vista, "actualizar_tarjetas_grupos"):
-                    await self.vista.actualizar_tarjetas_grupos()            
+                    await self.vista.actualizar_tarjetas_grupos()
             else:
                 error_crear = str(aviso).upper()
                 if "NOT_FOUND" in error_crear:
