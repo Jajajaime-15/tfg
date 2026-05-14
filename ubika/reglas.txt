@@ -1,33 +1,6 @@
 {
   "rules": {
     "usuarios": {
-      "$uid": {
-        ".read": "auth != null",
-        ".write": "auth != null && auth.uid === $uid"
-      }
-    },
-    "grupos": {
-      "$grupo_id": {
-        ".read": "auth != null && root.child('grupos').child($grupo_id).child('miembros').child(auth.uid).exists()",
-        ".write": "auth != null && root.child('grupos').child($grupo_id).child('admin').val() === auth.uid"
-      }
-    },
-    "ubicaciones": {
-      "$grupo_id": {
-        ".read": "auth != null && root.child('grupos').child($grupo_id).child('miembros').child(auth.uid).exists()",
-        "$uid": {
-          ".write": "auth != null && auth.uid === $uid"
-        }
-      }
-    }
-  }
-}
-
-REGLAS ALBA
-{
-  "rules": {
-    "usuarios": {
-      // Permite que cualquier usuario logueado busque a otros (para invitarlos)
       ".read": "auth != null",
       "$uid": {
         ".write": "auth != null"
@@ -42,8 +15,6 @@ REGLAS ALBA
       }
     },
     "ubicaciones": {
-      // Permite que cualquier usuario logueado lea y escriba ubicaciones. 
-      // Es lo más seguro para que el rastreo en tiempo real no falle nunca.
       ".read": "auth != null",
       ".write": "auth != null"
     }
