@@ -22,10 +22,10 @@ class GruposController:
                 await self.grupos_service.cargar_datos_usuario()
                 self.page.update()
                 await asyncio.sleep(1.5) # esperamos para que el usuario tenga tiempo de leer el mensaje
+                await self.page.push_route("/home")
                 # actualizamos la vista con el nuevo grupo
                 if self.vista and hasattr(self.vista, "actualizar_tarjetas_grupos"):
                     await self.vista.actualizar_tarjetas_grupos()
-                await self.page.push_route("/home")
             else:
                 error_crear = str(aviso).upper()
                 if "NOT_FOUND" in error_crear:
