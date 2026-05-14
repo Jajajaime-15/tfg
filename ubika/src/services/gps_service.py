@@ -1,8 +1,8 @@
 import flet as ft # para flet # type: ignore
 import flet_geolocator as ftg # para la geolocalizacion # type: ignore
 from threading import Thread # para los hilos
-import asyncio
-import json
+import asyncio # para poder manejar la asincronia mediante una cola
+import json # para poder cargar datos obtenidos en local en vez de desde Firebase
 
 class GPSService:
     def __init__(self, page, firebase_service):
@@ -145,6 +145,55 @@ class GPSService:
                     self.callback_miembro(miembro), 
                     token=self.token # al stream, igual que a los get, hay que pasarle el token de la sesion
                 ) 
+    
+    # funcion callback para detectar cuando se agregue un nuevo miembro a un grupo que ya existe
+    def callback_miembros_grupo(self, grupo):
+        def cambio_miembros(miembros_grupo):
+            miembros_actuales = miembros_grupo["data"]
+            for miembro in miembros_actuales.keys():
+                if miembro != self.yo and miembro not in self.miembros_grupos: 
+                    self.miembros_grupos.append(miembro) # agregamos los nuevos miembros a la lista e iniciamos sus hilos para escuchar sus cambios de ubicacion
+                    hilo_ubicacion_miembros = Thread(target=self.listener_ubicacion_miembros, args=(miembro,)) 
+                    hilo_ubicacion_miembros.daemon = True 
+                    hilo_ubicacion_miembros.start()
+        return cambio_miembros
+
+    # listener para escuchar los cambios que haya en los miembros de un grupo ya existente
+    def listener_miembros_grupo(self, grupo):
+        self.db.child("grupos").child(grupo).child("miembros").stream(
+            self.callback_miembros_grupo(grupo), 
+            token=self.token
+        )
+
+    # funcion callback para detectar cuando se añade al propio usuario en un nuevo grupo
+    def callback_grupos_usuario(self, grupos):
+        if not grupos or not grupos.get("data"):
+            return
+        grupos_actuales = grupos["data"]
+        for grupo in grupos_actuales.keys():
+            if grupo not in self.grupos:
+                self.grupos[grupo] = True # agregamos el nuevo grupo a la lista
+                hilo_miembros_grupos = Thread(target=self.listener_miembros_grupo, args=(grupo,)) # pasamos a escuchar el nodo que detecta los cambios en los miembros del grupo
+                hilo_miembros_grupos.daemon = True
+                hilo_miembros_grupos.start()
+                try:
+                    miembros = self.db.child("grupos").child(grupo).child("miembros").get(self.token).val()
+                    if miembros: # a la par cogemos los miembros de ese grupo y activamos su hilo para escuchar su ubicacion
+                        for miembro in miembros.keys():
+                            if miembro != self.yo and miembro not in self.miembros_grupos:
+                                self.miembros_grupos.append(miembro)
+                                hilo_ubicacion_miembros = Thread(target=self.listener_ubicacion_miembros, args=(miembro,)) 
+                                hilo_ubicacion_miembros.daemon = True 
+                                hilo_ubicacion_miembros.start()
+                except Exception as e: 
+                    print(f"Error al cargar miembros del nuevo grupo: {e}")
+    
+    # listener para escuchar los cambios en el listado de grupos del propio usuario
+    def listener_grupos_usuario(self):
+        self.db.child("usuarios").child(self.yo).child("grupos").stream(
+            self.callback_grupos_usuario, 
+            token=self.token
+        )
 
     # funcion para configurar el geolocator segun el dispositivo en el que se use la app
     def configurar_geolocator(self):
@@ -194,8 +243,20 @@ class GPSService:
             self.actualizar_marcador_usuario(self.datos_usuario, lat, lon, timestamp) # llamamos a la funcion del mapa para pintar el marcador propio personalizado con la posicion inicial
 
         for miembro in self.miembros_grupos:
-            hilo_listener = Thread(target=self.listener_ubicacion_miembros, args=(miembro,)) # el listener va en un hilo para que pueda estar escuchando y no bloquee el programa, un hilo por miembro
-            hilo_listener.daemon = True # para que muera el hilo siempre que se cierre la app
-            hilo_listener.start()
+            hilo_ubicacion_miembros = Thread(target=self.listener_ubicacion_miembros, args=(miembro,)) # el listener va en un hilo para que pueda estar escuchando y no bloquee el programa, un hilo por miembro
+            hilo_ubicacion_miembros.daemon = True # para que muera el hilo siempre que se cierre la app
+            hilo_ubicacion_miembros.start()
+        
+        # arrancamos los hilos de los listeners para los cambios de los miembros en los grupos a los que se pertenece
+        if self.grupos: # solo si se pertenece a algun grupo
+            for grupo in self.grupos.keys():
+                hilo_miembros_grupos = Thread(target=self.listener_miembros_grupo, args=(grupo,)) 
+                hilo_miembros_grupos.daemon = True
+                hilo_miembros_grupos.start()
+        
+        # arrancamos el hilo del listener que escucha los cambios en el nodo de los grupos del usuario
+        hilo_grupos_usuario =  Thread(target=self.listener_grupos_usuario) 
+        hilo_grupos_usuario.daemon = True
+        hilo_grupos_usuario.start()
 
         return lat, lon, geo # para poder dibujar la posicion inicial en el mapa y pasar el geo para anyadirlo a la pagina desde el mapa en un Stack
