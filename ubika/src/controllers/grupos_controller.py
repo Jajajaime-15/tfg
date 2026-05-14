@@ -119,7 +119,7 @@ class GruposController:
 
     async def eliminar_participante(self, nombre_grupo, email_integrante):
         mostrar_aviso(self.page, self.vista, "")
-        self.page.update() # FALTA
+        self.page.update()
         email_limpio = email_integrante.lower().strip()
 
         await self.grupos_service.cargar_datos_usuario()
