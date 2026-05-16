@@ -66,7 +66,7 @@ class VistaPerfil:
         self.email = ft.Text(size=14, color="grey")
 
         self.nombre_input = InputTexto(
-            label="Nombre Completo",
+            label="Nombre",
             expand=True
         )
 
